@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "file:/C://Temp/hibernate-mapping-3.0.dtd"> -->
+        
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+         
+<hibernate-mapping package="ore.chat.entity">
+    <class name="ChatMessage" table="chatMessages" lazy="true">
+        <id name="id" column="id" type="integer" length="10">
+            <generator class="native"/>
+        </id>
+        <property name="userName" column="userName" type="string" length="25" not-null="true"/>
+        <property name="message" column="message" type="text" not-null="true"/>
+        <many-to-one name="session" column="roomName" class="ChatSession" not-null="true"/>
+    </class>
+</hibernate-mapping>
