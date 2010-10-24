@@ -1,0 +1,147 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<!-- <!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "file:/C://Temp/hibernate-configuration-3.0.dtd"> -->
+
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection settings -->
+        <!-- <property name="connection.driver_class">com.facdatum.jdbc.listener.driver.DriverListener</property> -->
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>       
+        <property name="connection.url">jdbc:mysql://localhost/ore?relaxAutocommit=true</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">trip4mon</property>
+		
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- SQL dialect -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Enable Hibernate's automatic session context management -->
+
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Disable the second-level cache  -->
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        <!-- <property name="hibernate.cache.region.factory_class">
+        	net.sf.ehcache.hibernate.EhCacheRegionFactory
+   		</property>
+   		<property name="net.sf.ehcache.configurationResourceName">
+   			/WEB-INF/ehcache.xml
+        </property> -->
+        
+        <!-- Echo all executed SQL to stdout -->
+        <property name="show_sql">true</property>
+        
+        <!-- Drop and re-create the database schema on startup -->
+        <property name="hbm2ddl.auto">create</property>
+        
+        <mapping resource="ore/chat/entity/ChatMessage.hbm.xml"/>
+        <mapping resource="ore/chat/entity/ChatSession.hbm.xml"/>
+        <mapping resource="ore/chat/entity/User.hbm.xml"/>
+       
+		<event type="load">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultLoadEventListener"/>
+        </event>
+        
+        <event type="post-load">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultPostLoadEventListener"/>
+        </event>
+        
+        <event type="post-update">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="post-insert">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="post-delete">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        				
+        <event type="post-collection-update">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="post-collection-remove">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="post-collection-recreate">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="pre-collection-update">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="pre-collection-remove">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+        
+        <event type="pre-collection-recreate">
+            <listener class="ore.hibernate.HibernateListener"/>
+        </event>
+
+        <event type="save">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultSaveEventListener"/>
+        </event>
+        
+        <event type="merge">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultMergeEventListener"/>
+        </event>
+        
+        <event type="lock">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultLockEventListener"/>
+        </event>
+        
+        <event type="load-collection">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultInitializeCollectionEventListener"/>
+        </event>
+        
+        <event type="flush">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultFlushEventListener"/>
+        </event>
+        
+        <event type="flush-entity">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultFlushEntityEventListener"/>
+        </event>
+        
+        <event type="evict">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultEvictEventListener"/>
+        </event>
+        
+        <event type="dirty-check">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultDirtyCheckEventListener"/>
+        </event>
+        
+        <event type="delete">
+            <listener class="ore.hibernate.HibernateListener"/>
+            <listener class="org.hibernate.event.def.DefaultDeleteEventListener"/>
+        </event>
+		
+    </session-factory>
+
+
+</hibernate-configuration>
+
+
+
