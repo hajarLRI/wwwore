@@ -25,6 +25,7 @@ public class Join extends Action {
 			User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
 			if(user == null) {
 				user = new User(userName);
+				session.saveOrUpdate(user);
 			}
 			ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
 			Set<ChatSession> rooms = user.getRooms();
@@ -51,7 +52,6 @@ public class Join extends Action {
 			ORE.addCollectionChangeListener(room, "currentUsers", new UsersListener());
 			pw.print(room.toJSON());
 			session.saveOrUpdate(room);
-			session.saveOrUpdate(user);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

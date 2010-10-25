@@ -12,6 +12,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import ore.api.Event;
@@ -51,6 +52,7 @@ public class ClusterManager {
 				public void onMessage(Message msg) {
 					TextMessage textMessage = (TextMessage) msg;
 					try {
+						
 						subscription.print(textMessage.getText().toCharArray());
 					} catch (BrokenCometException e) {
 						try {

@@ -2,6 +2,7 @@ package ore.event;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ore.api.Event;
 import ore.exception.BrokenCometException;
@@ -15,11 +16,11 @@ class TableManager {
 	
 	//TYPEDEF
 	@SuppressWarnings("serial")
-	private static class InsertListenerList extends LinkedList<InsertListener> {}
+	private static class InsertListenerList extends ConcurrentLinkedQueue<InsertListener> {}
 	@SuppressWarnings("serial")
-	private static class DeleteListenerList extends LinkedList<DeleteListener> {}
+	private static class DeleteListenerList extends ConcurrentLinkedQueue<DeleteListener> {}
 	@SuppressWarnings("serial")
-	private static class UpdateListenerList extends LinkedList<UpdateListener> {}
+	private static class UpdateListenerList extends ConcurrentLinkedQueue<UpdateListener> {}
 	@SuppressWarnings("serial")
 	private static class InsertMap extends HashMap<String, InsertListenerList> {}
 	@SuppressWarnings("serial")

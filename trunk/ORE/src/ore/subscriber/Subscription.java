@@ -25,19 +25,22 @@ public abstract class Subscription implements Flushable {
 	}
 	
 	public void print(char[] data) throws BrokenCometException {
-		try {
-			if(subscriber.isConnected()) {
-				PrintWriter out = subscriber.getContinuation().getServletResponse().getWriter();
-				out.println(data);
-				subscriber.getContinuation().complete();
-			} else {
-				buffer(data);
-				subscriber.getQueue().add(this);
+		synchronized(subscriber) {
+			try {
+				if(subscriber.isSuspended()) {
+					PrintWriter out = subscriber.getContinuation().getServletResponse().getWriter();
+					out.println(data);
+					subscriber.getContinuation().complete();
+				} else {
+					buffer(data);
+					subscriber.getQueue().add(this);
+				}
+			} catch(Exception e) {
+				throw new BrokenCometException(subscriber, e);
 			}
-		} catch(Exception e) {
-			throw new BrokenCometException(subscriber, e);
 		}
 	}
+	
 	
 	@Override
 	public boolean flushEvents(PrintWriter pw) throws BrokenCometException {
