@@ -47,7 +47,7 @@ public abstract class Subscription implements Flushable {
 		boolean gotData = false;
 		try {
 			for(char[] data : buffer) {
-				subscriber.getContinuation().getServletResponse().getWriter().print(data);
+				pw.print(data);
 				gotData = true;
 			}
 			buffer.clear();
