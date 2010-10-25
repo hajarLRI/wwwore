@@ -54,6 +54,10 @@ public class Subscriber {
 		return (c != null);
 	}
 	
+	boolean isSuspended() {
+		return (c != null) && (c.isSuspended());
+	}
+	
 	private void connect(Continuation c) {
 		this.c = c;
 	}
@@ -63,18 +67,22 @@ public class Subscriber {
 	}
 	
 	private void pickup() throws Exception {
-		boolean gotData = false;
-		for(Flushable listener : q) {
-			listener.flushEvents(c.getServletResponse().getWriter());
-			gotData = true;
-		}
-		if(gotData) {
-			LogMan.info("Subscriber " + id + " pickup data");
-			c.complete();
-			c = null;
-		} else {
-			LogMan.info("Subscriber " + id + " empty pickup data");
-			c.suspend();
+		synchronized(this) {
+			
+			boolean gotData = false;
+
+			for(Flushable listener : q) {
+				gotData |= listener.flushEvents(c.getServletResponse().getWriter());
+			}
+
+			if(gotData) {
+				LogMan.info("Subscriber " + id + " pickup data");
+				//c.complete();
+				c = null;
+			} else {
+				LogMan.info("Subscriber " + id + " empty pickup data");
+				c.suspend();
+			}
 		}
 	}
 	

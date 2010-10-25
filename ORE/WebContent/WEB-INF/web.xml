@@ -47,10 +47,10 @@
  		 <res-auth>Container</res-auth>
 	</resource-ref>
 
-	<!-- Queue ref -->
+	<!-- Queue ref 
 	<resource-env-ref>
  		 <resource-env-ref-name>jms/myTopic</resource-env-ref-name>
  		 <resource-env-ref-type>javax.jms.Topic</resource-env-ref-type>
-	</resource-env-ref> 
+	</resource-env-ref>  -->
     
 </web-app>
