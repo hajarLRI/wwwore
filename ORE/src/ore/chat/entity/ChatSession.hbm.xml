@@ -10,11 +10,10 @@
 <hibernate-mapping package="ore.chat.entity">
     <class name="ChatSession" table="chatSession" lazy="true">
         <id name="roomName" column="roomName" type="string" length="25"/>
-        <list name="messages" cascade="all-delete-orphan" lazy="true">
+        <set name="messages" cascade="all-delete-orphan" lazy="true">
             <key column="roomName"/>
-            <list-index column="POSITION"/>
             <one-to-many class="ChatMessage"/>
-        </list>
+        </set>
         <set name="currentUsers" table="RoomUser" lazy="true">
     		<key column="roomName" not-null="true"/>
     		<many-to-many column="id" class="User"/>

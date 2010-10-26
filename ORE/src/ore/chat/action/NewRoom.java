@@ -1,6 +1,13 @@
 package ore.chat.action;
 
 import static ore.util.HTTPServletUtil.getRequiredParameter;
+
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.hibernate.Session;
+
 import ore.api.ORE;
 import ore.chat.entity.ChatSession;
 import ore.chat.entity.User;
@@ -9,7 +16,7 @@ import ore.chat.event.MessageListener;
 public class NewRoom extends Action {
 
 	@Override
-	protected void run() {
+	protected void run(Session session, HttpServletRequest request, PrintWriter pw) {
 		String roomName = getRequiredParameter(request, ROOM_NAME);
 		String userName = getRequiredParameter(request, USER_NAME);	
 		User user;

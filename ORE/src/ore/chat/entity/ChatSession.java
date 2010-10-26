@@ -4,13 +4,17 @@ import static ore.util.JSONUtil.quote;
 import static ore.util.JSONUtil.toJSONArray;
 import static ore.util.JSONUtil.toJSONObject;
 
+import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import ore.util.JSONable;
+import ore.chat.servlet.ChatServlet;
+import ore.event.EventManager;
 
-public class ChatSession implements JSONable {
+import org.hibernate.Session;
+
+public class ChatSession {
 	private String roomName;
 	
 	public Set<User> getCurrentUsers() {
@@ -25,11 +29,11 @@ public class ChatSession implements JSONable {
 		this.roomName = name;
 	}
 
-	public void setMessages(List<ChatMessage> messages) {
+	public void setMessages(Set<ChatMessage> messages) {
 		this.messages = messages;
 	}
 
-	private List<ChatMessage> messages;
+	private Set<ChatMessage> messages;
 	
 	private Set<User> currentUsers = new HashSet<User>();
 	
@@ -43,11 +47,27 @@ public class ChatSession implements JSONable {
 		return roomName;
 	}
 	
-	public void addMessage(ChatMessage msg) {
-		messages.add(msg);
+	public void addMessage(Session s, ChatMessage msg) {
+		synchronized(ChatSession.class) {
+			msg.setId(ChatServlet.msgCount++);
+		}
+		boolean finished = false;
+		while(!finished) {
+			try {
+				s.createSQLQuery("INSERT INTO chatmessages VALUES (" + msg.getId() + ",'" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
+				finished = true;
+			} catch(Exception e) {
+				System.out.println(msg);
+				System.out.println(msg.getId());
+				System.out.println(msg.getUserName());
+				System.out.println(msg.getMessage());
+				System.out.println(msg.getSession().getRoomName());
+			}
+		}
+		EventManager.getInstance().collectionElementAdded(this, "messages", msg);
 	}
-	
-	public List<ChatMessage> getMessages() {
+
+	public Set<ChatMessage> getMessages() {
 		return messages;
 	}
 	
@@ -55,11 +75,12 @@ public class ChatSession implements JSONable {
 		currentUsers.add(user);
 	}
 
-	@Override
-	public String toJSON() {
+	
+	public String toJSON(Session s) {
+		List newMessages = s.createFilter(this.getMessages(), "ORDER BY id DESC LIMIT 10").list();
 		return toJSONObject("type", quote("room"), 
 							"name",	quote(roomName),
-							"messages", toJSONArray(messages),
+							"messages", toJSONArray(newMessages),
 							"users", toJSONArray(currentUsers));
 	}
 }
