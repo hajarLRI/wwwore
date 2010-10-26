@@ -73,7 +73,6 @@ public class ClusterManager {
 	}
 
 	public void publish(char[] data, Event event) {
-		/*
 		Session session = null;
 		MessageProducer producer = null;
 		try {
@@ -85,7 +84,6 @@ public class ClusterManager {
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
-		*/
 	}
 	
 	private TextMessage createMessage(Session session, char[] data, Event event) throws JMSException {

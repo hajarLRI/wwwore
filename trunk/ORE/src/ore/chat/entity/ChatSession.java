@@ -77,7 +77,7 @@ public class ChatSession {
 
 	
 	public String toJSON(Session s) {
-		List newMessages = s.createFilter(this.getMessages(), "ORDER BY id DESC LIMIT 10").list();
+		List newMessages = s.createFilter(this.getMessages(), "").setMaxResults(10).list();
 		return toJSONObject("type", quote("room"), 
 							"name",	quote(roomName),
 							"messages", toJSONArray(newMessages),
