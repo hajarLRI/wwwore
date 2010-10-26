@@ -7,6 +7,10 @@ import static ore.util.JSONUtil.toJSONObject;
 import java.io.PrintWriter;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.hibernate.Session;
+
 import ore.api.Event;
 import ore.api.ORE;
 import ore.api.PropertyChangeListener;
@@ -18,7 +22,7 @@ import ore.chat.event.UsersListener;
 public class Join extends Action {
 
 	@Override
-	protected void run() {
+	protected void run(Session session, HttpServletRequest request, PrintWriter pw) {
 		try {
 			String roomName = getRequiredParameter(request, ROOM_NAME);
 			String userName = getRequiredParameter(request, USER_NAME);	
@@ -50,8 +54,18 @@ public class Join extends Action {
 			room.userJoined(user);
 			ORE.addCollectionChangeListener(room, "messages", new MessageListener());
 			ORE.addCollectionChangeListener(room, "currentUsers", new UsersListener());
-			pw.print(room.toJSON());
-			session.saveOrUpdate(room);
+			pw.print(room.toJSON(session));
+			try {
+				session.saveOrUpdate(room);
+			} catch(Exception e) {
+				System.out.println("JOIN_ERROR: " + session + ", " + room);
+				if(session == null) {
+					System.out.println("SESSION NULL");
+				}
+				if(room == null) {
+					System.out.println("ROOM NULL");
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

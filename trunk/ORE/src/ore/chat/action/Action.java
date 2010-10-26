@@ -21,20 +21,10 @@ public abstract class Action {
 	public static final String CHECK_ROOMS = "checkRooms";
 	public static final String LEAVE = "leave";
 	
-	protected HttpServletRequest request;
-	protected PrintWriter pw;
-	protected Session session;
-	
 	public void service(Session session, HttpServletRequest request, PrintWriter pw) {
-		this.session = session;
-		this.request = request;
-		this.pw = pw;
-		run();
-		this.session = null;
-		this.request = null;
-		this.pw = null;
+		run(session, request, pw);
 	}
 	
-	protected abstract void run();
+	protected abstract void run(Session session, HttpServletRequest request, PrintWriter pw);
 	
 }

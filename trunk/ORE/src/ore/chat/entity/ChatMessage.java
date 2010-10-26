@@ -46,6 +46,7 @@ public class ChatMessage implements JSONable {
 		this.userName = userName;
 		this.message = message;
 		this.session = session;
+		this.id = 0;
 	}
 	
 	public ChatMessage() {}
