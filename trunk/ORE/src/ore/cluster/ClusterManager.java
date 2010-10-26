@@ -42,7 +42,7 @@ public class ClusterManager {
 	}
    
 	public void subscribe(final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
-		/*
+		
 		Session session = null;
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -69,7 +69,7 @@ public class ClusterManager {
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
-		*/
+		
 	}
 
 	public void publish(char[] data, Event event) {
