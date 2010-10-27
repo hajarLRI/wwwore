@@ -1,5 +1,6 @@
 package ore.event;
 
+import ore.api.Deleteable;
 import ore.api.Event;
 import ore.exception.BrokenCometException;
 
@@ -10,6 +11,6 @@ import ore.exception.BrokenCometException;
  * 
  * @see TableManager
  */
-interface UpdateListener {
+interface UpdateListener extends Deleteable {
 	public void update(Event event) throws BrokenCometException;
 }

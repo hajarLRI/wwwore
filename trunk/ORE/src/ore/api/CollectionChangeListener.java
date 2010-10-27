@@ -8,5 +8,6 @@ import java.io.PrintWriter;
  */
 public interface CollectionChangeListener {
 	public void elementAdded(PrintWriter pw, Event event) throws Exception;
-	public void elementRemoved(PrintWriter pw, Event event) throws Exception;	
+	public void elementRemoved(PrintWriter pw, Event event) throws Exception;
+	public void delete();
 }

@@ -8,7 +8,7 @@ import ore.subscriber.CollectionChangeSubscription;
 /**
  * @see ValueMatchingListener
  */
-class ValueMatchingUpdateListener  extends ValueMatchingListener implements UpdateListener {
+class ValueMatchingUpdateListener extends ValueMatchingListener implements UpdateListener {
 	
 	public ValueMatchingUpdateListener(CollectionChangeSubscription subscription, String propertyName, Object value) {
 		super(subscription, propertyName, value);

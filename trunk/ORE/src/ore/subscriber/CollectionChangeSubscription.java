@@ -17,6 +17,10 @@ public class CollectionChangeSubscription  extends Subscription implements Flush
 	private CollectionChangeListener listener;
 	private Object entity;
 	
+	public CollectionChangeListener getListener() {
+		return listener;
+	}
+	
 	public Object getEntity() {
 		return entity;
 	}

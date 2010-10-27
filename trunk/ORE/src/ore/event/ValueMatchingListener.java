@@ -1,10 +1,10 @@
 package ore.event;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
 import ore.api.CollectionChangeListener;
+import ore.api.Deleteable;
 import ore.subscriber.CollectionChangeSubscription;
 
 /**
@@ -20,11 +20,20 @@ import ore.subscriber.CollectionChangeSubscription;
  * @see ValueMatchingUpdateListener
  * @see ValueMatchingInsertListener
  */
-abstract class ValueMatchingListener {
+public abstract class ValueMatchingListener implements Deleteable {
 	protected String propertyName;
 	protected Object value;
 	protected CollectionChangeSubscription subscription;
 	protected Method getter;
+	private Collection owner;
+	
+	public void setOwner(Collection c) {
+		owner = c;
+	}
+	
+	public void delete() {
+		owner.remove(this);
+	}
 	
 	public ValueMatchingListener(CollectionChangeSubscription  subscription, String propertyName, Object value) {
 		String getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);

@@ -1,5 +1,6 @@
 package ore.event;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +18,16 @@ import ore.subscriber.PropertyChangeSubscription;
  */
 class PropertyUpdateDispatchListener implements UpdateListener {
 
+	private Collection owner;
+	
+	public void setOwner(Collection c) {
+		this.owner = c;
+	}
+	
+	public void delete() {
+		owner.remove(this);
+	}
+	
 	private Map<String, List<PropertyChangeSubscription>> listeners = new HashMap<String, List<PropertyChangeSubscription>>();
 	
 	void addUpdateListener(String columnName, PropertyChangeSubscription listener) {

@@ -3,6 +3,7 @@ package ore.event;
 import java.util.HashMap;
 import java.util.Map;
 
+import ore.api.DefaultCollectionChangeListener;
 import ore.api.Event;
 import ore.api.HibernateUtil;
 import ore.hibernate.Metadata;
@@ -58,15 +59,19 @@ public class EventManager {
 			Object idValue = Metadata.getPrimaryKeyValue(entity);
 			ValueMatchingDeleteListener deletes = new ValueMatchingDeleteListener(listener, columnName, idValue);
 			tableManager.addDeleteListener(tableName, deletes);
+			((DefaultCollectionChangeListener) listener.getListener()).addOwner(deletes);
 			ValueMatchingInsertListener inserts = new ValueMatchingInsertListener(listener, columnName, idValue);
 			tableManager.addInsertListener(tableName, inserts);
+			((DefaultCollectionChangeListener) listener.getListener()).addOwner(inserts);
 			ValueMatchingUpdateListener updates = new ValueMatchingUpdateListener(listener, columnName, idValue);
 			tableManager.addUpdateListener(tableName, updates);
+			((DefaultCollectionChangeListener) listener.getListener()).addOwner(updates);
 		} else {
 			String manyToManyTableName = Metadata.getManyToManyTableName(roleName);
 			ManyToManyTableListener ccrl = new ManyToManyTableListener(listener);
 			tableManager.addDeleteListener(manyToManyTableName, ccrl);
 			tableManager.addInsertListener(manyToManyTableName, ccrl);
+			((DefaultCollectionChangeListener) listener.getListener()).addOwner(ccrl);
 		}
 	}
 	

@@ -5,12 +5,13 @@ import static ore.util.JSONUtil.quote;
 import static ore.util.JSONUtil.toJSONObject;
 
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.hibernate.Session;
-
+import ore.api.CollectionChangeListener;
 import ore.api.Event;
 import ore.api.ORE;
 import ore.api.PropertyChangeListener;
@@ -18,6 +19,8 @@ import ore.chat.entity.ChatSession;
 import ore.chat.entity.User;
 import ore.chat.event.MessageListener;
 import ore.chat.event.UsersListener;
+
+import org.hibernate.Session;
 
 public class Join extends Action {
 
@@ -52,12 +55,20 @@ public class Join extends Action {
 				});
 			}
 			room.userJoined(user);
-			ORE.addCollectionChangeListener(room, "messages", new MessageListener());
-			ORE.addCollectionChangeListener(room, "currentUsers", new UsersListener());
+			MessageListener m = new MessageListener();
+			UsersListener u = new UsersListener();
+			List<CollectionChangeListener> e = (List<CollectionChangeListener>) request.getSession(true).getAttribute("events");
+			if(e == null) {
+				e = new LinkedList<CollectionChangeListener>();
+			}
+			e.add(m);
+			e.add(u);
+			ORE.addCollectionChangeListener(room, "messages", m);
+			ORE.addCollectionChangeListener(room, "currentUsers", u);
 			pw.print(room.toJSON(session));
 			try {
 				session.saveOrUpdate(room);
-			} catch(Exception e) {
+			} catch(Exception ex) {
 				System.out.println("JOIN_ERROR: " + session + ", " + room);
 				if(session == null) {
 					System.out.println("SESSION NULL");
