@@ -3,6 +3,8 @@ package ore.subscriber;
 import java.io.PrintWriter;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.jms.JMSException;
+
 import ore.api.Event;
 import ore.cluster.ClusterManager;
 import ore.exception.BrokenCometException;
@@ -20,7 +22,7 @@ public abstract class Subscription implements Flushable {
 		buffer.add(data);
 	}
 	
-	protected void dispatch(char[] data, Event event) throws BrokenCometException {
+	protected void dispatch(char[] data, Event event) throws BrokenCometException, JMSException {
 		ClusterManager.getInstance().publish(data, event);
 		print(data);
 	}
