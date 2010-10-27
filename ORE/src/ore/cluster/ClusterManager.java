@@ -24,7 +24,7 @@ import ore.subscriber.Subscription;
 public class ClusterManager {
 	private static ClusterManager instance = new ClusterManager();
 	private ConnectionFactory connectionFactory;
-	private Topic oreTopic;
+	//private Topic oreTopic;
 	Connection connection;
 	
 	private ClusterManager() {
@@ -33,9 +33,10 @@ public class ClusterManager {
 				connectionFactory = (ConnectionFactory) ic.lookup("java:comp/env/jms/connectionFactory");
 				connection = connectionFactory.createConnection();
 				connection.start();
-				Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-				oreTopic = session.createTopic("ORE");
-				session.close();
+				//Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+				//oreTopic = session.createTopic("ORE");
+				
+				//session.close();
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 		}
@@ -47,7 +48,8 @@ public class ClusterManager {
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			String messageSelector = createMessageSelector(className, identifier, propertyName, type);
-			final MessageConsumer consumer = session.createConsumer(oreTopic, messageSelector, true);
+			Topic topic = session.createTopic(identifier.toString());
+			final MessageConsumer consumer = session.createConsumer(topic, messageSelector, true);
 			consumer.setMessageListener(new MessageListener() {
 				public void onMessage(Message msg) {
 					TextMessage textMessage = (TextMessage) msg;
@@ -77,8 +79,9 @@ public class ClusterManager {
 		MessageProducer producer = null;
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			Topic topic = session.createTopic(Metadata.getPrimaryKeyValue(event.getEntity()).toString());
 			TextMessage message = createMessage(session, data, event);
-			producer = session.createProducer(oreTopic);
+			producer = session.createProducer(topic);
 			producer.send(message);
 			session.close();
 		} catch(Exception e) {
