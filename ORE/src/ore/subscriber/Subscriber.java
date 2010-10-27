@@ -1,4 +1,6 @@
 package ore.subscriber;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ore.api.CollectionChangeListener;
@@ -19,7 +21,15 @@ public class Subscriber {
 	private Continuation c;
 	private ConcurrentLinkedQueue<Flushable> q = new ConcurrentLinkedQueue<Flushable>();
 	private String id;
-
+	
+	private List<CollectionChangeListener> list = new LinkedList<CollectionChangeListener>();
+	
+	public void clear() {
+		for(CollectionChangeListener ccl : list) {
+			ccl.delete();
+		}
+	}
+	
 	/**
 	 * Get the Jetty Continuation associated with this client's Comet connection.
 	 * (package-protected)
@@ -80,7 +90,7 @@ public class Subscriber {
 				//c.complete();
 				c = null;
 			} else {
-				LogMan.info("Subscriber " + id + " empty pickup data");
+				//LogMan.info("Subscriber " + id + " empty pickup data");
 				c.suspend();
 			}
 		}
@@ -98,6 +108,7 @@ public class Subscriber {
 	}
 	
 	public void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) {
+		list.add(listener);
 		CollectionChangeSubscription sx = new CollectionChangeSubscription(entity, listener, this);
 		EventManager.getInstance().addCollectionChangeSubscription(entity, property, sx);
 		ClusterManager.getInstance().subscribe(sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.CollectionChanged);

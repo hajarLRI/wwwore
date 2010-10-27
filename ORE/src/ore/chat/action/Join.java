@@ -19,6 +19,7 @@ import ore.chat.entity.ChatSession;
 import ore.chat.entity.User;
 import ore.chat.event.MessageListener;
 import ore.chat.event.UsersListener;
+import ore.servlet.CookieFilter;
 
 import org.hibernate.Session;
 
@@ -28,6 +29,7 @@ public class Join extends Action {
 	protected void run(Session session, HttpServletRequest request, PrintWriter pw) {
 		try {
 			String roomName = getRequiredParameter(request, ROOM_NAME);
+			System.out.println("User " + CookieFilter.getSessionID() + " joined room " + roomName);
 			String userName = getRequiredParameter(request, USER_NAME);	
 			User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
 			if(user == null) {
@@ -57,12 +59,6 @@ public class Join extends Action {
 			room.userJoined(user);
 			MessageListener m = new MessageListener();
 			UsersListener u = new UsersListener();
-			List<CollectionChangeListener> e = (List<CollectionChangeListener>) request.getSession(true).getAttribute("events");
-			if(e == null) {
-				e = new LinkedList<CollectionChangeListener>();
-			}
-			e.add(m);
-			e.add(u);
 			ORE.addCollectionChangeListener(room, "messages", m);
 			ORE.addCollectionChangeListener(room, "currentUsers", u);
 			pw.print(room.toJSON(session));

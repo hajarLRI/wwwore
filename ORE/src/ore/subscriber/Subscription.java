@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import ore.api.Event;
 import ore.cluster.ClusterManager;
 import ore.exception.BrokenCometException;
+import ore.util.LogMan;
 
 public abstract class Subscription implements Flushable {
 	private ConcurrentLinkedQueue<char[]> buffer = new ConcurrentLinkedQueue<char[]>();
@@ -30,6 +31,7 @@ public abstract class Subscription implements Flushable {
 				if(subscriber.isSuspended()) {
 					PrintWriter out = subscriber.getContinuation().getServletResponse().getWriter();
 					out.println(data);
+					LogMan.info("Subscriber " + subscriber.getID() + " got pushed.");
 					subscriber.getContinuation().complete();
 				} else {
 					buffer(data);
