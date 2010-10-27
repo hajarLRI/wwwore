@@ -3,6 +3,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import javax.jms.JMSException;
+
 import ore.api.CollectionChangeListener;
 import ore.api.Event;
 import ore.api.PropertyChangeListener;
@@ -101,13 +103,13 @@ public class Subscriber {
 		this.pickup();
 	}
 
-	public void addPropertyChangeListener(Object entity, String property, PropertyChangeListener listener) {
+	public void addPropertyChangeListener(Object entity, String property, PropertyChangeListener listener) throws JMSException {
 		PropertyChangeSubscription sx = new PropertyChangeSubscription(listener, this);
 		EventManager.getInstance().addPropertyChangeSubscription(entity, property, sx);
 		ClusterManager.getInstance().subscribe(sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.PropertyChanged);
 	}
 	
-	public void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) {
+	public void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		list.add(listener);
 		CollectionChangeSubscription sx = new CollectionChangeSubscription(entity, listener, this);
 		EventManager.getInstance().addCollectionChangeSubscription(entity, property, sx);

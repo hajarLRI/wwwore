@@ -4,6 +4,7 @@ import static ore.util.HTTPServletUtil.getRequiredParameter;
 
 import java.io.PrintWriter;
 
+import javax.jms.JMSException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Session;
@@ -28,7 +29,12 @@ public class NewRoom extends Action {
 		}
 		ChatSession room = new ChatSession(roomName);
 		room.userJoined(user);
-		ORE.addCollectionChangeListener(room, "messages", new MessageListener());
+		try {
+			ORE.addCollectionChangeListener(room, "messages", new MessageListener());
+		} catch (JMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		session.save(room);
 		session.saveOrUpdate(user);
 	}
