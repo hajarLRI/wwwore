@@ -42,6 +42,7 @@ class TableManager {
 			insertMap.put(tableName, list);
 		}
 		list.add(listener);
+		listener.setOwner(list);
 	}
 	
 	public void addDeleteListener(String tableName, DeleteListener listener) {
@@ -51,6 +52,7 @@ class TableManager {
 			deleteMap.put(tableName, list);
 		}
 		list.add(listener);
+		listener.setOwner(list);
 	}
 	
 	public void addUpdateListener(String tableName, UpdateListener listener) {
@@ -60,6 +62,7 @@ class TableManager {
 			updateMap.put(tableName, list);
 		}
 		list.add(listener);
+		listener.setOwner(list);
 	}
 
 	void insert(String tableName, Event event) {

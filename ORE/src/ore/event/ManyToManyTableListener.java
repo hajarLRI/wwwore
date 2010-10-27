@@ -1,5 +1,7 @@
 package ore.event;
 
+import java.util.Collection;
+
 import ore.api.Event;
 import ore.exception.BrokenCometException;
 import ore.subscriber.CollectionChangeSubscription;
@@ -12,6 +14,16 @@ import ore.subscriber.CollectionChangeSubscription;
 class ManyToManyTableListener implements InsertListener, DeleteListener {
 
 	CollectionChangeSubscription listener;
+	
+	private Collection owner;
+	
+	public void setOwner(Collection c) {
+		owner = c;
+	}
+	
+	public void delete() {
+		owner.remove(this);
+	}
 	
 	public ManyToManyTableListener(CollectionChangeSubscription listener) {
 		this.listener = listener;
