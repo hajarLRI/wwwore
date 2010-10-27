@@ -19,13 +19,13 @@ public class CopyOfPushing {
 
 //	public static String IP = "198.162.54.73";
 //	public static String PORT = "9080";
-	public static String IP = "10.202.191.63";
+	public static String IP = "10.194.142.224";
 //	public static String IP = "127.0.0.1";
 	public static String PORT = "8080";
 	public static String PROJECT = "ORE";//"ORE";
 //	public static String PROJECT = "ORE-addPush";
 //	 public static String PROJECT = "ORE-trigger";
-	public static int modCount = 30;
+	public static int modCount = 40;
 	public static int sleepTime = 500;
 	public static int responses = 0;
 	private static long backoff = 2000;
