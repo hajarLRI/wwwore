@@ -56,14 +56,10 @@ public class ChatServlet extends HttpServlet {
 		actions.put(LEAVE, new Leave());
 		actions.put(CHANGE_NAME, new ChangeName());
 		Session session = factory.openSession();
-		try {
-			Integer ids = (Integer) session.createSQLQuery("SELECT max(id) from chatmessages").uniqueResult();
-			msgCount = ids.intValue();
-		} catch(Exception e) {
-			
-		}
 		Transaction tx = session.beginTransaction();
 		SQLQuery query = session.createSQLQuery("delete from roomuser");
+		query.executeUpdate();
+		query = session.createSQLQuery("delete from chatmessages");
 		query.executeUpdate();
 		session.flush();
 		tx.commit();
