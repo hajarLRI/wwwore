@@ -51,19 +51,7 @@ public class ChatSession {
 		synchronized(ChatSession.class) {
 			msg.setId(ChatServlet.msgCount++);
 		}
-		boolean finished = false;
-		while(!finished) {
-			try {
-				s.createSQLQuery("INSERT INTO chatmessages VALUES (" + msg.getId() + ",'" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
-				finished = true;
-			} catch(Exception e) {
-				System.out.println(msg);
-				System.out.println(msg.getId());
-				System.out.println(msg.getUserName());
-				System.out.println(msg.getMessage());
-				System.out.println(msg.getSession().getRoomName());
-			}
-		}
+		s.save(msg);
 		EventManager.getInstance().collectionElementAdded(this, "messages", msg);
 	}
 
