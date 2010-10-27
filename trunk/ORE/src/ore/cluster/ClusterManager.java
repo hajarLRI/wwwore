@@ -24,8 +24,8 @@ public class ClusterManager {
 	Map<String, Set<Peer>> subscribers = new HashMap<String, Set<Peer>>();
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	
-	private String selfIP = "10.194.142.224:61616";
-	private String[] peerIP = {"10.122.102.26:61616"};
+	private String selfIP = "10.122.102.26:61616";
+	private String[] peerIP = {"10.194.142.224:61616"};
 	
 	private ClusterManager()  {
 		try {

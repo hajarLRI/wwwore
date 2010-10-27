@@ -81,7 +81,13 @@ public class Peer {
 				connection = connectionFactory.createConnection();
 				done = true;
 			} catch (Exception e ) {
-				
+				System.out.print("Connection is null");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 		connection.start();
