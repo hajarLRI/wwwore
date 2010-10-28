@@ -129,16 +129,16 @@ public class ClusterManager {
 //		}
 		
 		System.out.println("subscribe(...)");
-		Set<Subscription> s = local.get(identifier.toString());
-		if(s == null) {
-			s = new HashSet<Subscription>();
+		//Set<Subscription> s = local.get(identifier.toString());
+		//if(s == null) {
+		//	s = new HashSet<Subscription>();
 		}
-		if(s.size() == 0) {
+		//if(s.size() == 0) {
 			for(Peer p : peers) {
 				p.subscriptionNotice(identifier.toString(), true);
 			}
-		}
-		s.add(subscription);
+		//}
+		//s.add(subscription);
 	}
 
 	public void publish(char[] data, Event event) {
@@ -156,12 +156,12 @@ public class ClusterManager {
 //		}
 		System.out.println("publish(...)");
 		String room = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
-		Set<Peer> ps = subscribers.get(room);
-		if(ps != null) {
+		//Set<Peer> ps = subscribers.get(room);
+		//if(ps != null) {
 			for(Peer p : ps) {
 				p.send(room + "!!!!" + new String(data));
 			}
-		}
+		//}
 	}
 	
 	public static ClusterManager getInstance() {
