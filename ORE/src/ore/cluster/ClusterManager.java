@@ -39,10 +39,6 @@ public class ClusterManager {
 	private String selfIP = "10.220.194.144:61616";
 	private String[] peerIP = {"10.194.142.224:61616"};
 	
-	private ActiveMQConnectionFactory connectionFactory;
-	private Topic oreTopic;
-	Connection connection;
-	
 	private ClusterManager()  {
 		
 		/*try {
