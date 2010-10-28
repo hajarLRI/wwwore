@@ -42,7 +42,7 @@ public class Join extends Action {
 				rooms.clear();
 			}
 			Set<User> users = room.getCurrentUsers();
-			for(User current : users) {
+			/*for(User current : users) {
 				ORE.addPropertyChangeListener(current, "userName", new PropertyChangeListener() {
 					@Override
 					public void propertyChanged(PrintWriter pw, Event event)
@@ -55,7 +55,7 @@ public class Join extends Action {
 						));
 					}
 				});
-			}
+			}*/
 			room.userJoined(user);
 			MessageListener m = new MessageListener();
 			UsersListener u = new UsersListener();

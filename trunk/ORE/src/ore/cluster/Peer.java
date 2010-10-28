@@ -26,10 +26,12 @@ public class Peer {
 	private Connection connection;
 	
 	public Peer(String ip) {
+		System.out.println("Peer("+ip+")");
 		this.ip = ip;
 	}
 	
 	public void send(String msg) {
+		System.out.println("sent("+ip+")");
 		Session session = null;
 		MessageProducer producer = null;
 		try {
@@ -44,6 +46,7 @@ public class Peer {
 	}
 	
 	public void subscriptionNotice(String room, boolean join) {
+		System.out.println("subscriptionNotice("+room+";"+"join"+")");
 		Session session = null;
 		MessageProducer producer = null;
 		String prefix = null;
@@ -64,16 +67,18 @@ public class Peer {
 	}
 	
 	public void start() throws JMSException {
+		System.out.println("start("+")");
 		connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+ip+")");
 		connection = connectionFactory.createConnection();
 		connection.start();
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		subscriptionChannel = session.createTopic("sub" + ip);
-		messageChannel = session.createTopic("sub" + ip);
+		messageChannel = session.createTopic("msg" + ip);
 		session.close();
 	}
 	
 	public void connect() throws JMSException {
+		System.out.println("connect("+")");
 		boolean done = false;
 		while(!done) {
 			try {
@@ -95,7 +100,7 @@ public class Peer {
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			subscriptionChannel = session.createTopic("sub" + ip);
-			messageChannel = session.createTopic("sub" + ip);
+			messageChannel = session.createTopic("msg" + ip);
 			final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
 			consumer.setMessageListener(new MessageListener() {
 				public void onMessage(Message msg) {
@@ -124,6 +129,7 @@ public class Peer {
 			final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
 			consumer2.setMessageListener(new MessageListener() {
 				public void onMessage(Message msg) {
+					System.out.println("onMessage("+msg+")");
 					TextMessage textMessage = (TextMessage) msg;
 					try {
 						String[] msgs = textMessage.getText().split("!!!!");
