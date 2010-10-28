@@ -22,13 +22,15 @@ import ore.api.Event.EventType;
 import ore.exception.BrokenCometException;
 import ore.hibernate.Metadata;
 
-public class Peer {
+public class CopyOfPeer {
 	private String ip;
 	private ActiveMQConnectionFactory connectionFactory;
+	private Topic subscriptionChannel;
+	private Topic messageChannel;
 	
 	private Connection connection;
 	
-	public Peer(String ip) {
+	public CopyOfPeer(String ip) {
 		System.out.println("Peer("+ip+")");
 		this.ip = ip;
 	}
@@ -40,7 +42,6 @@ public class Peer {
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			TextMessage message = session.createTextMessage(msg);
-			Topic subscriptionChannel = session.createTopic("hello");
 			producer = session.createProducer(subscriptionChannel);
 			producer.send(message);
 			session.close();
@@ -62,7 +63,6 @@ public class Peer {
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			TextMessage message = session.createTextMessage(prefix + room);
-			Topic subscriptionChannel = session.createTopic("hello");
 			producer = session.createProducer(subscriptionChannel);
 			producer.send(message);
 			session.close();
@@ -79,9 +79,9 @@ public class Peer {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		/*subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 		messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));*/
-		Topic subscriptionChannel = session.createTopic("hello");
-		Topic messageChannel = session.createTopic("hello");
-		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
+		subscriptionChannel = session.createTopic("hello");
+		messageChannel = session.createTopic("hi");
+		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, createMessageSelector(), true);
 		consumer.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -89,17 +89,17 @@ public class Peer {
 				try {
 					String[] info = textMessage.getText().split(",");
 					if(info[0].equals("join")) {
-						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
+						Set<CopyOfPeer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
 						if(ps == null) {
-							ps = new HashSet<Peer>();
+							ps = new HashSet<CopyOfPeer>();
 						}
-						ps.add(Peer.this);
+						ps.add(CopyOfPeer.this);
 					} else {
-						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
+						Set<CopyOfPeer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
 						if(ps == null) {
-							ps = new HashSet<Peer>();
+							ps = new HashSet<CopyOfPeer>();
 						}
-						ps.remove(Peer.this);
+						ps.remove(CopyOfPeer.this);
 					}
 				} catch (JMSException e) {
 					e.printStackTrace();
@@ -107,7 +107,7 @@ public class Peer {
 			}
 		});
 		
-		final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
+		final MessageConsumer consumer2 = session.createConsumer(messageChannel, createMessageSelector(), true);
 		consumer2.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -142,6 +142,16 @@ public class Peer {
 			}
 		}
 		connection.start();
+		Session session = null;
+		try {
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
+			messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+			System.out.println(ip+"!!!!!!");
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
+		session.close();
 	}
 	
 	private TextMessage createMessage(Session session, String s) throws JMSException {
