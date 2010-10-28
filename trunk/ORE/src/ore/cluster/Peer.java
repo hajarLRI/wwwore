@@ -38,8 +38,8 @@ public class Peer {
 		MessageProducer producer = null;
 		try {
 			TextMessage message = createMessage(session, msg);
-			Topic subscriptionChannel = session.createTopic("hello");
-			producer = session.createProducer(subscriptionChannel);
+			Topic msgChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+			producer = session.createProducer(msgChannel);
 			producer.send(message);
 		} catch(Exception e) {
 			throw new RuntimeException(e);
@@ -57,8 +57,8 @@ public class Peer {
 		}
 		try {
 			TextMessage message = createMessage(session, prefix + room);
-			Topic subscriptionChannel = session.createTopic("hello");
-			producer = session.createProducer(subscriptionChannel);
+			Topic msgChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+			producer = session.createProducer(msgChannel);
 			producer.send(message);
 		} catch(Exception e) {
 			throw new RuntimeException(e);
@@ -70,11 +70,11 @@ public class Peer {
 		connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+ip+")");
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		/*subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
-		messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));*/
-		Topic subscriptionChannel = session.createTopic("hello");
-		Topic messageChannel = session.createTopic("hello");
-		/*final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
+		Topic subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
+		Topic messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+		//Topic subscriptionChannel = session.createTopic("hello");
+		//Topic messageChannel = session.createTopic("hello");
+		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
 		consumer.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -98,7 +98,7 @@ public class Peer {
 					e.printStackTrace();
 				}
 			}
-		});*/
+		});
 		
 		final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
 		consumer2.setMessageListener(new MessageListener() {
