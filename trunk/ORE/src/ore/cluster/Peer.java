@@ -139,9 +139,11 @@ public class Peer {
 					}
 				}
 			});
+			
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
+		session.close();
 	}
 	
 }
