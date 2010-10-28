@@ -85,6 +85,7 @@ public class Peer {
 						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
 						if(ps == null) {
 							ps = new HashSet<Peer>();
+							ClusterManager.getInstance().subscribers.put(info[1], ps);
 						}
 						ps.add(Peer.this);
 					} else {
