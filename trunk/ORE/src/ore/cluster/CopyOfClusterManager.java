@@ -28,9 +28,9 @@ import ore.exception.BrokenCometException;
 import ore.hibernate.Metadata;
 import ore.subscriber.Subscription;
 
-public class ClusterManager {
+public class CopyOfClusterManager {
 	
-	private static ClusterManager instance = new ClusterManager();
+	private static CopyOfClusterManager instance = new CopyOfClusterManager();
 	private Peer self;
 	private List<Peer> peers = new LinkedList<Peer>();
 	Map<String, Set<Peer>> subscribers = new HashMap<String, Set<Peer>>();
@@ -43,7 +43,7 @@ public class ClusterManager {
 	private Topic oreTopic;
 	Connection connection;
 	
-	private ClusterManager()  {
+	private CopyOfClusterManager()  {
 		
 		/*try {
 			connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+selfIP+")");
@@ -164,7 +164,7 @@ public class ClusterManager {
 		}
 	}
 	
-	public static ClusterManager getInstance() {
+	public static CopyOfClusterManager getInstance() {
 		System.out.println("getInstance()");
 		return instance;
 	}
