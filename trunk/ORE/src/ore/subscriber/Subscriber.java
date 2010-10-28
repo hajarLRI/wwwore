@@ -25,10 +25,14 @@ public class Subscriber {
 	private String id;
 	
 	private List<CollectionChangeListener> list = new LinkedList<CollectionChangeListener>();
+	private List<Subscription> subs = new LinkedList<Subscription>();
 	
 	public void clear() {
 		for(CollectionChangeListener ccl : list) {
 			ccl.delete();
+		}
+		for(Subscription sub : subs) {
+			ClusterManager.getInstance().delete(sub);
 		}
 	}
 	
@@ -112,6 +116,7 @@ public class Subscriber {
 	public void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		list.add(listener);
 		CollectionChangeSubscription sx = new CollectionChangeSubscription(entity, listener, this);
+		subs.add(sx);
 		EventManager.getInstance().addCollectionChangeSubscription(entity, property, sx);
 		ClusterManager.getInstance().subscribe(sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.CollectionChanged);
 	}
