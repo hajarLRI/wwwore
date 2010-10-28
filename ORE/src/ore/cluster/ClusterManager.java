@@ -128,6 +128,7 @@ public class ClusterManager {
 		Set<Subscription> s = local.get(identifier.toString());
 		if(s == null) {
 			s = new HashSet<Subscription>();
+			local.put(identifier.toString(), s);
 		}
 		if(s.size() == 0) {
 			for(Peer p : peers) {
