@@ -72,8 +72,8 @@ public class Peer {
 		connection = connectionFactory.createConnection();
 		connection.start();
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		subscriptionChannel = session.createTopic("sub" + ip);
-		messageChannel = session.createTopic("msg" + ip);
+		subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
+		messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
 		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
 		consumer.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
@@ -137,47 +137,8 @@ public class Peer {
 		Session session = null;
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			subscriptionChannel = session.createTopic("sub" + ip);
-			messageChannel = session.createTopic("msg" + ip);
-			final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
-			consumer.setMessageListener(new MessageListener() {
-				public void onMessage(Message msg) {
-					TextMessage textMessage = (TextMessage) msg;
-					try {
-						String[] info = textMessage.getText().split(",");
-						if(info[0].equals("join")) {
-							Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
-							if(ps == null) {
-								ps = new HashSet<Peer>();
-							}
-							ps.add(Peer.this);
-						} else {
-							Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
-							if(ps == null) {
-								ps = new HashSet<Peer>();
-							}
-							ps.remove(Peer.this);
-						}
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			
-			final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
-			consumer2.setMessageListener(new MessageListener() {
-				public void onMessage(Message msg) {
-					System.out.println("onMessage("+msg+")");
-					TextMessage textMessage = (TextMessage) msg;
-					try {
-						String[] msgs = textMessage.getText().split("!!!!");
-						ClusterManager.getInstance().receive(msgs[0], msgs[1]);
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			
+			subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
+			messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
