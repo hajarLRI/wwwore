@@ -25,8 +25,8 @@ import ore.hibernate.Metadata;
 public class Peer {
 	private String ip;
 	private ActiveMQConnectionFactory connectionFactory;
-	
 	private Connection connection;
+	private Session session;
 	
 	public Peer(String ip) {
 		System.out.println("Peer("+ip+")");
@@ -35,15 +35,12 @@ public class Peer {
 	
 	public void send(String msg) {
 		System.out.println("sent("+ip+")");
-		Session session = null;
 		MessageProducer producer = null;
 		try {
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			TextMessage message = createMessage(session, msg);
 			Topic subscriptionChannel = session.createTopic("hello");
 			producer = session.createProducer(subscriptionChannel);
 			producer.send(message);
-			session.close();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -51,7 +48,6 @@ public class Peer {
 	
 	public void subscriptionNotice(String room, boolean join) {
 		System.out.println("subscriptionNotice("+room+";"+"join"+")");
-		Session session = null;
 		MessageProducer producer = null;
 		String prefix = null;
 		if(join) {
@@ -60,12 +56,10 @@ public class Peer {
 			prefix = "leave,";
 		}
 		try {
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			TextMessage message = createMessage(session, prefix + room);
 			Topic subscriptionChannel = session.createTopic("hello");
 			producer = session.createProducer(subscriptionChannel);
 			producer.send(message);
-			session.close();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -75,13 +69,12 @@ public class Peer {
 		System.out.println("start("+")");
 		connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+ip+")");
 		connection = connectionFactory.createConnection();
-		connection.start();
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		/*subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 		messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));*/
 		Topic subscriptionChannel = session.createTopic("hello");
 		Topic messageChannel = session.createTopic("hello");
-		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, createMessageSelector(), true);
+		/*final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
 		consumer.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -105,9 +98,9 @@ public class Peer {
 					e.printStackTrace();
 				}
 			}
-		});
+		});*/
 		
-		final MessageConsumer consumer2 = session.createConsumer(messageChannel, createMessageSelector(), true);
+		final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
 		consumer2.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -120,7 +113,8 @@ public class Peer {
 				}
 			}
 		}); 
-	
+		
+		connection.start();
 	}
 	
 	public void connect() throws JMSException {
@@ -141,12 +135,14 @@ public class Peer {
 				}
 			}
 		}
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		connection.start();
 	}
 	
 	private TextMessage createMessage(Session session, String s) throws JMSException {
 		TextMessage message = session.createTextMessage(s);
 		message.setStringProperty("type", "hello");
+		message.setStringProperty("identifier", "hello");
 		return message;
 	}
 	
