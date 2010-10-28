@@ -8,20 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import javax.naming.InitialContext;
-
-import org.apache.activemq.ActiveMQConnectionFactory;
-
 import ore.api.Event;
 import ore.api.Event.EventType;
 import ore.exception.BrokenCometException;
@@ -35,6 +21,7 @@ public class ClusterManager {
 	private List<Peer> peers = new LinkedList<Peer>();
 	Map<String, Set<Peer>> subscribers = new HashMap<String, Set<Peer>>();
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
+	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
 	private String selfIP = "10.194.142.224:61616";
 	private String[] peerIP = {"10.220.194.144:61616"};
@@ -79,6 +66,21 @@ public class ClusterManager {
 				}
 			}
 		}
+	}
+	
+	public void delete(Subscription sub) {
+		System.out.println("delete("+sub.toString()+")");
+		String room = inverted.get(sub);
+		Set<Subscription> s = local.get(room);
+		if(s == null) {
+			throw new IllegalStateException();
+		}
+		if(s.size() == 1) {
+			for(Peer p : peers) {
+				p.subscriptionNotice(room, false);
+			}
+		}
+		s.remove(sub);
 	}
 	
 	public void delete(String room, Subscription sub) {
@@ -136,6 +138,7 @@ public class ClusterManager {
 			}
 		}
 		s.add(subscription);
+		inverted.put(subscription, identifier.toString());
 	}
 
 	public void publish(char[] data, Event event) {

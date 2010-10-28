@@ -14,6 +14,10 @@ public abstract class Subscription implements Flushable {
 	private ConcurrentLinkedQueue<char[]> buffer = new ConcurrentLinkedQueue<char[]>();
 	protected Subscriber subscriber;
 	
+	public Subscriber getSubscriber() {
+		return subscriber;
+	}
+	
 	public Subscription(Subscriber subscriber) {
 		this.subscriber = subscriber;
 	}
