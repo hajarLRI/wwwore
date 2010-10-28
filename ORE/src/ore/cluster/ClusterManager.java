@@ -24,10 +24,11 @@ public class ClusterManager {
 	Map<String, Set<Peer>> subscribers = new HashMap<String, Set<Peer>>();
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	
-	private String selfIP = "10.122.102.26:61616";
-	private String[] peerIP = {"10.194.142.224:61616"};
+	private String selfIP = "10.194.142.224:61616";
+	private String[] peerIP = {"10.220.194.144:61616"};
 	
 	private ClusterManager()  {
+		System.out.println("ClusterManager()");
 		try {
 			self = new Peer(selfIP);
 			self.start();
@@ -42,6 +43,7 @@ public class ClusterManager {
 	}
 	
 	public void receive(String room, String msg) {
+		System.out.println("receive("+room+"; "+msg+")");
 		Set<Subscription> s = local.get(room);
 		if(s != null) {
 			for(Subscription sub : s) {
@@ -55,6 +57,7 @@ public class ClusterManager {
 	}
 	
 	public void delete(String room, Subscription sub) {
+		System.out.println("delete("+room+"; "+sub.toString()+")");
 		Set<Subscription> s = local.get(room);
 		if(s == null) {
 			throw new IllegalStateException();
@@ -68,6 +71,7 @@ public class ClusterManager {
 	}
    
 	public void subscribe(final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
+		System.out.println("subscribe(...)");
 		Set<Subscription> s = local.get(identifier.toString());
 		if(s == null) {
 			s = new HashSet<Subscription>();
@@ -81,6 +85,7 @@ public class ClusterManager {
 	}
 
 	public void publish(char[] data, Event event) {
+		System.out.println("publish(...)");
 		String room = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
 		Set<Peer> ps = subscribers.get(room);
 		if(ps != null) {
@@ -90,7 +95,8 @@ public class ClusterManager {
 		}
 	}
 	
-	public static ClusterManager getInstance() throws JMSException {
+	public static ClusterManager getInstance() {
+		System.out.println("getInstance()");
 		return instance;
 	}
 }
