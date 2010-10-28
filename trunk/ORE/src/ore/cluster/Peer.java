@@ -39,7 +39,7 @@ public class Peer {
 		MessageProducer producer = null;
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			TextMessage message = session.createTextMessage(msg);
+			TextMessage message = createMessage(session, msg);
 			Topic subscriptionChannel = session.createTopic("hello");
 			producer = session.createProducer(subscriptionChannel);
 			producer.send(message);
@@ -61,7 +61,7 @@ public class Peer {
 		}
 		try {
 			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			TextMessage message = session.createTextMessage(prefix + room);
+			TextMessage message = createMessage(session, prefix + room);
 			Topic subscriptionChannel = session.createTopic("hello");
 			producer = session.createProducer(subscriptionChannel);
 			producer.send(message);
@@ -81,7 +81,7 @@ public class Peer {
 		messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));*/
 		Topic subscriptionChannel = session.createTopic("hello");
 		Topic messageChannel = session.createTopic("hello");
-		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
+		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, createMessageSelector(), true);
 		consumer.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -107,7 +107,7 @@ public class Peer {
 			}
 		});
 		
-		final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
+		final MessageConsumer consumer2 = session.createConsumer(messageChannel, createMessageSelector(), true);
 		consumer2.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
 				System.out.println("onMessage("+msg+")");
@@ -120,7 +120,7 @@ public class Peer {
 				}
 			}
 		}); 
-		session.close();
+	
 	}
 	
 	public void connect() throws JMSException {
