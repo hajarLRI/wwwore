@@ -57,7 +57,7 @@ public class Peer {
 		}
 		try {
 			TextMessage message = createMessage(session, prefix + room);
-			Topic msgChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+			Topic msgChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
 			producer.send(message);
 		} catch(Exception e) {
