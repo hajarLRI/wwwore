@@ -134,7 +134,7 @@ public class ClusterManager {
 		}
 		if(s.size() == 0) {
 			for(Peer p : peers) {
-				p.subscriptionNotice(identifier.toString(), true);
+				//p.subscriptionNotice(identifier.toString(), true);
 			}
 		}
 		s.add(subscription);
@@ -156,12 +156,12 @@ public class ClusterManager {
 //		}
 		System.out.println("publish(...)");
 		String room = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
-		Set<Peer> ps = subscribers.get(room);
-		if(ps != null) {
+		//Set<Peer> ps = subscribers.get(room);
+		//if(ps != null) {
 			for(Peer p : peers) {
 				p.send(room + "!!!!" + new String(data));
 			}
-		}
+		//}
 	}
 	
 	public static ClusterManager getInstance() {
