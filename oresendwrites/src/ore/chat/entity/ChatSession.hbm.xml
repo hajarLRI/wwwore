@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- <!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "file:/C://Temp/hibernate-mapping-3.0.dtd"> -->
+        
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        
+<hibernate-mapping package="ore.chat.entity">
+    <class name="ChatSession" table="chatSession" lazy="true">
+        <id name="roomName" column="roomName" type="string" length="25"/>
+        <set name="messages" cascade="all-delete-orphan" lazy="true">
+            <key column="roomName"/>
+            <one-to-many class="ChatMessage"/>
+        </set>
+        <set name="currentUsers" table="RoomUser" lazy="true">
+    		<key column="roomName" not-null="true"/>
+    		<many-to-many column="id" class="User"/>
+		</set>
+    </class>
+</hibernate-mapping>

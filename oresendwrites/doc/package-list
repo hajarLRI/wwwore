@@ -1,0 +1,11 @@
+ore.api
+ore.chat.action
+ore.chat.entity
+ore.chat.event
+ore.chat.servlet
+ore.event
+ore.exception
+ore.hibernate
+ore.servlet
+ore.subscriber
+ore.util
