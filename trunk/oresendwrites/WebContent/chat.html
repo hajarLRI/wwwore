@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<script type="text/javascript" src="ore/json2.js"></script>
+<script type="text/javascript" src="ore/XMLHttpRequest.js"></script>
+<script type="text/javascript" src="ore/ore.js"></script>
+<title>ORE Test Page</title>
+<script type="text/javascript">
+var rooms = {};
+var savedName = null;
+var loggedIn = false;
+var allUsers = {};
+
+function addOption(select, option) {
+	try {
+		select.add(option);
+	} catch(e) {
+		select.add(option, null);
+	}
+}
+
+window.onbeforeunload = function() {
+	var rooms = document.getElementById('rooms');
+	try {
+		var userName = getUserName(); 
+		if(rooms !== null) {
+			var roomSelected = rooms.options[rooms.selectedIndex];
+		}
+	} catch(e) {
+		rooms.selectedIndex = -1;
+		throw e;
+	}
+	if(roomSelected !== undefined) {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', "http://localhost:8080/ORE/chat?operation=leave&userName="+userName+"&roomName="+roomSelected.value, false);
+		xhr.send();
+	}
+}
+
+function addUser(name) {
+	var userArea = document.getElementById('users');
+	var size = userArea.options.length;
+	var option = document.createElement('option');
+	option.value = name;
+	option.text = name;
+	addOption(userArea, option);
+	allUsers[name] = size;
+}
+
+function removeUser(name) {
+	var index = allUsers[name];
+	var userArea = document.getElementById('users');
+	userArea.remove(index);
+	delete allUsers[name];
+}
+
+function changeUser(oldName, newName) {
+	removeUser(oldName);
+	addUser(newName);
+}
+
+function getUserName() {
+	var userNameField = document.getElementById('userName');
+	var userName = userNameField.value;
+	if((userName === '') || (userName === null) || (userName === undefined)) {
+		alert("Please enter valid UserName");
+		throw new Error("Please enter valid UserName");
+	}
+	return userName;
+}
+
+function chatMessageToString(obj) {
+	var str = "<" + obj.userName + "> " + obj.message;
+	return str;
+}
+
+function clearSelector(selector) {
+	for(var i in selector.options) {
+		selector.remove(i);
+	}
+}
+
+function messageHandler(obj) {
+	if(obj.type === 'chatMessage') {
+		var chatArea = document.getElementById('chatArea');
+		var str = chatMessageToString(obj);
+		chatArea.value += str + "\n";
+		chatArea.scrollTop = chatArea.scrollHeight;
+	} else if(obj.type === 'rooms') {
+		var roomElements = document.getElementById('rooms');
+		for(var i in obj.rooms) {
+			var room = obj.rooms[i];
+			if(rooms[room] === undefined) {
+				rooms[room] = true;
+				var option = document.createElement("option");
+				option.value = room;
+				option.text = room;
+				addOption(roomElements, option);
+			}
+		}
+	} else if(obj.type === 'room') {
+		var users = obj.users;
+		var messages = obj.messages;
+		var userArea = document.getElementById('users');
+		clearSelector(userArea);
+		for(var i in users) {
+			var user = users[i];
+			addUser(user);
+		}
+		var messageArea = document.getElementById('chatArea');
+		messageArea.value = "";
+		for(var i in messages) {
+			var message = messages[i];
+			var str = chatMessageToString(message);
+			messageArea.value += str + "\n";
+			messageArea.scrollTop = messageArea.scrollHeight;
+		}
+	} else if(obj.type === 'usersJoined') {
+		var users = obj.users;
+		var room = obj.room;
+		for(var i in users) {
+			var user = users[i];
+			addUser(user);
+		}
+	} else if(obj.type === 'usersLeave') {
+		var users = obj.users;
+		var room = obj.room;
+		for(var i in users) {
+			var user = users[i];
+			removeUser(user);
+		}
+	} else if(obj.type === 'changeName') {
+		var oldName = obj.oldName;
+		var newName = obj.newName;
+		changeUser(oldName, newName);
+	}
+}
+
+ore.setMessageHandler(messageHandler);
+
+function getRooms() {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', "http://localhost:8080/ORE/chat?operation=checkRooms");
+	xhr.onreadystatechange = function() {
+		if(this.readyState === 4) {
+			var obj = JSON.parse(this.responseText);
+			messageHandler(obj);
+		}
+	};
+	xhr.send();
+}
+
+function changeName() {
+	var newName = getUserName(); 
+	var oldName = savedName;
+	savedName = newName;
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', "http://localhost:8080/ORE/chat?operation=changeName&oldName="+oldName+"&newName="+newName);
+	xhr.onreadystatechange = function() {
+		
+	};
+	xhr.send();
+}
+
+function joinRoom() {
+	var rooms = document.getElementById('rooms');
+	try {
+		var userName = getUserName(); 
+		savedName = userName;
+		if(rooms !== null) {
+			var roomSelected = rooms.options[rooms.selectedIndex];
+		}
+	} catch(e) {
+		rooms.selectedIndex = -1;
+		throw e;
+	}
+	if(roomSelected !== undefined) {
+		var xhr = new XMLHttpRequest();
+		if(loggedIn) {
+			xhr.open('GET', "http://localhost:8080/ORE/chat?operation=join&userName="+userName+"&roomName="+roomSelected.value);
+		} else {
+			loggedIn = true;
+			xhr.open('GET', "http://localhost:8080/ORE/chat?operation=join&userName="+userName+"&roomName="+roomSelected.value+"&login=true");
+		}
+		xhr.onreadystatechange = function() {
+			if(this.readyState === 4) {
+				messageHandler(JSON.parse(this.responseText));
+			}
+		};
+		xhr.send();
+	}
+}
+
+function keyPress(event) {
+	if(event.keyCode == 13) {
+		var userName = getUserName(); 
+		var rooms = document.getElementById('rooms');
+		if(rooms !== null) {
+			var roomSelectedOption = rooms.options[rooms.selectedIndex];
+			var roomSelected = roomSelectedOption.value;
+		}
+		var messageField = document.getElementById('chatMessage');
+		if(messageField !== null) {
+			var message = messageField.value;
+		}
+		if(roomSelected !== undefined) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', "http://localhost:8080/ORE/chat?operation=chat&userName="+userName+"&roomName="+roomSelected+"&message="+message);
+			xhr.send();
+		}
+		clearMessageField();
+	}
+}
+
+function addRoom() {
+	var userName = getUserName();
+	var rooms = document.getElementById('rooms');
+	var addRoomField = document.getElementById('addRoom');
+	if(addRoomField !== null) {
+		var roomSelected = addRoomField.value;
+		var roomOption = document.createElement('option');
+		roomOption.value = roomSelected;
+		roomOption.text = roomSelected;
+		addOption(rooms, roomOption);
+		rooms.selectedIndex = rooms.options.length - 1;
+		var userArea = document.getElementById('users');
+		clearSelector(userArea);
+		addUser(userName);
+	}
+	if(roomSelected !== undefined) {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', "http://localhost:8080/ORE/chat?operation=new&userName="+userName+"&roomName="+roomSelected);
+		xhr.send();
+	}
+	var chatArea = document.getElementById('chatArea');
+	chatArea.value = "";
+}
+
+function clearRooms() {
+	var rooms = document.getElementById('rooms');
+	clearSelector(rooms);
+}
+
+function clearUsers() {
+	var userArea = document.getElementById('users');
+	clearSelector(userArea);
+}
+
+function clearChatMessages() {
+	var chatArea = document.getElementById('chatArea');
+	chatArea.value = "";
+}
+
+function clearMessageField() {
+	var messageField = document.getElementById('chatMessage');
+	messageField.value = "";
+}
+
+function clearAddRoomField() {
+	var addRoomField = document.getElementById('addRoom');
+	addRoomField = "";
+}
+
+function clearForms() {
+	clearRooms();
+	clearUsers();
+	clearChatMessages();
+	clearMessageField();
+}
+
+function init() {
+	ore.init();
+	clearForms();
+	getRooms();
+}
+
+</script>
+</head>
+<body onload="init();">
+<h1>ORE Chat</h1>
+
+<table style="text-align: left; height: 433px; width: 862px;" border="1"
+	cellpadding="2" cellspacing="2">
+
+	<tbody>
+		<tr>
+			<td style="width: 510px;"><h3>Chat</h3><textarea cols="60" rows="15"
+				id="chatArea" name="chatArea"></textarea></td>
+			<td style="width: 163px;"><h3>Users</h3><select size="15" id="users"
+				name="users"></select></td>
+			<td style="width: 163px;"><h3>Rooms</h3><select size="15"
+				id="rooms" name="rooms" onclick='joinRoom();'></select>
+				<div style='font-size:small'></div></td>
+		</tr>
+	</tbody>
+</table>
+
+<br>
+
+Username:
+<br>
+
+<input size="25" id='userName' name="userName">
+<br>
+
+Message:
+<br>
+
+<input size="80" id='chatMessage' name="chatMessage" onkeyup='keyPress(event);'>
+<br>
+
+Add room:
+<br>
+
+<input size="25" name="room" id='addRoom'>
+<button value="Add" name="addRoom" onclick='addRoom()'>Add</button>
+</body>
+</html>
