@@ -1,6 +1,5 @@
 package ore.cluster;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,14 +12,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
-import javax.naming.InitialContext;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-
-import ore.api.Event;
-import ore.api.Event.EventType;
-import ore.exception.BrokenCometException;
-import ore.hibernate.Metadata;
 
 public class Peer {
 	private String ip;

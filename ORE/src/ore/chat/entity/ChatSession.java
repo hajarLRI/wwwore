@@ -51,7 +51,12 @@ public class ChatSession {
 		synchronized(ChatSession.class) {
 			msg.setId(ChatServlet.msgCount++);
 		}
-		s.save(msg);
+
+		try {
+			s.createSQLQuery("INSERT INTO chatmessages VALUES (" + msg.getId() + ",'" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		EventManager.getInstance().collectionElementAdded(this, "messages", msg);
 	}
 

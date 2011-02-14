@@ -56,6 +56,14 @@ public class ChatServlet extends HttpServlet {
 		actions.put(LEAVE, new Leave());
 		actions.put(CHANGE_NAME, new ChangeName());
 		Session session = factory.openSession();
+
+		try {
+			Integer ids = (Integer) session.createSQLQuery("SELECT max(id) from chatmessages").uniqueResult();
+			msgCount = ids.intValue();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
 		Transaction tx = session.beginTransaction();
 		SQLQuery query = session.createSQLQuery("delete from roomuser");
 		query.executeUpdate();
@@ -73,19 +81,21 @@ public class ChatServlet extends HttpServlet {
 		Session session = factory.openSession();
 		Transaction tx = session.beginTransaction();
 		response.setContentType("application/json");
-		String login = request.getParameter("login");
+		/*String login = request.getParameter("login");
 		if(login != null) {
 			String userName = getParameter("userName", request);
 			HttpSession httpSession = request.getSession();
 			httpSession.setMaxInactiveInterval(30);
 			httpSession.setAttribute("userName", userName);
-		}
+		}*/
 		Action action = actions.get(operation);
 		PrintWriter pw = response.getWriter();
 		if(action != null) {
 			action.service(session, request, pw);
 		}
 		tx.commit();
+		session.flush();
+		session.clear();
 		session.close();
 	}
 	
