@@ -59,7 +59,9 @@ public class ChatServlet extends HttpServlet {
 
 		try {
 			Integer ids = (Integer) session.createSQLQuery("SELECT max(id) from chatmessages").uniqueResult();
-			msgCount = ids.intValue();
+			if(ids != null) {
+				msgCount = ids.intValue();
+			} 
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
