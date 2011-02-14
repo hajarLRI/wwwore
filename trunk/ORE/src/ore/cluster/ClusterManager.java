@@ -23,24 +23,10 @@ public class ClusterManager {
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
-	private String selfIP = "10.194.142.224:61616";
-	private String[] peerIP = {"10.220.194.144:61616"};
+	private String selfIP = "10.125.1.110:61616";
+	private String[] peerIP = {};
 	
 	private ClusterManager()  {
-		
-		/*try {
-			connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+selfIP+")");
-			connection = connectionFactory.createConnection();
-			connection.start();
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			oreTopic = session.createTopic("ORE");
-			
-		    session.close();
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-	}*/
-		
-		System.out.println("ClusterManager()");
 		try {
 			self = new Peer(selfIP);
 			self.start();
@@ -98,34 +84,6 @@ public class ClusterManager {
 	}
    
 	public void subscribe(final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
-//		Session session = null;
-//		try {
-//			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//			String messageSelector = createMessageSelector(className, identifier, propertyName, type);
-//			Topic topic = session.createTopic(identifier.toString());
-//			final MessageConsumer consumer = session.createConsumer(topic, messageSelector, true);
-//			consumer.setMessageListener(new MessageListener() {
-//				public void onMessage(Message msg) {
-//					TextMessage textMessage = (TextMessage) msg;
-//					try {
-//						
-//						subscription.print(textMessage.getText().toCharArray());
-//					} catch (BrokenCometException e) {
-//						try {
-//							consumer.close();
-//						} catch (JMSException e1) {
-//							e1.printStackTrace();
-//						}
-//						e.printStackTrace();
-//					} catch (JMSException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			});
-//		} catch(Exception e) {
-//			throw new RuntimeException(e);
-//		}
-		
 		System.out.println("subscribe(...)");
 		Set<Subscription> s = local.get(identifier.toString());
 		if(s == null) {
@@ -142,18 +100,6 @@ public class ClusterManager {
 	}
 
 	public void publish(char[] data, Event event) {
-//		Session session = null;
-//		MessageProducer producer = null;
-//		try {
-//			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//			Topic topic = session.createTopic(Metadata.getPrimaryKeyValue(event.getEntity()).toString());
-//			TextMessage message = createMessage(session, data, event);
-//			producer = session.createProducer(topic);
-//			producer.send(message);
-//			session.close();
-//		} catch(Exception e) {
-//			throw new RuntimeException(e);
-//		}
 		System.out.println("publish(...)");
 		String room = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
 		Set<Peer> ps = subscribers.get(room);
@@ -165,107 +111,7 @@ public class ClusterManager {
 	}
 	
 	public static ClusterManager getInstance() {
-		System.out.println("getInstance()");
 		return instance;
 	}
 	
-	
-	/*
-	 public class ClusterManager {
-	private static ClusterManager instance = new ClusterManager();
-	private ConnectionFactory connectionFactory;
-	//private Topic oreTopic;
-	Connection connection;
-	
-	private ClusterManager() {
-		try {
-				InitialContext ic = new InitialContext();
-				connectionFactory = (ConnectionFactory) ic.lookup("java:comp/env/jms/connectionFactory");
-				connection = connectionFactory.createConnection();
-				connection.start();
-				//Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-				//oreTopic = session.createTopic("ORE");
-				
-				//session.close();
-			} catch(Exception e) {
-				throw new RuntimeException(e);
-		}
-	}
-   
-	public void subscribe(final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
-		
-		Session session = null;
-		try {
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			String messageSelector = createMessageSelector(className, identifier, propertyName, type);
-			Topic topic = session.createTopic(identifier.toString());
-			final MessageConsumer consumer = session.createConsumer(topic, messageSelector, true);
-			consumer.setMessageListener(new MessageListener() {
-				public void onMessage(Message msg) {
-					TextMessage textMessage = (TextMessage) msg;
-					try {
-						
-						subscription.print(textMessage.getText().toCharArray());
-					} catch (BrokenCometException e) {
-						try {
-							consumer.close();
-						} catch (JMSException e1) {
-							e1.printStackTrace();
-						}
-						e.printStackTrace();
-					} catch (JMSException e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-	}
-
-	public void publish(char[] data, Event event) {
-		Session session = null;
-		MessageProducer producer = null;
-		try {
-			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Topic topic = session.createTopic(Metadata.getPrimaryKeyValue(event.getEntity()).toString());
-			TextMessage message = createMessage(session, data, event);
-			producer = session.createProducer(topic);
-			producer.send(message);
-			session.close();
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
-	private TextMessage createMessage(Session session, char[] data, Event event) throws JMSException {
-		TextMessage message = session.createTextMessage(new String(data));
-		message.setStringProperty("className", event.getEntity().getClass().getName());
-		message.setStringProperty("propertyName", event.getPropertyName());
-		//TODO Handle identifier types with no toString method
-		message.setStringProperty("identifier", Metadata.getPrimaryKeyValue(event.getEntity()).toString());
-		message.setStringProperty("type", event.getType().name());
-		return message;
-	}
-	
-	private String createMessageSelector(String className, Serializable identifier, String propertyName, EventType type) {
-		StringBuffer sb = new StringBuffer();
-		sb.append("className='" + className + "'");
-		sb.append(" AND ");
-		//TODO Handle identifier types with no toString method
-		sb.append("identifier='" + identifier.toString() + "'");
-		sb.append(" AND ");
-		sb.append("propertyName='" + propertyName + "'");
-		sb.append(" AND ");
-		sb.append("type='" + type.name() + "'");
-		return sb.toString();
-	}
-	
-	public static ClusterManager getInstance() {
-		return instance;
-	}
-}
-
-	 */
 }

@@ -90,10 +90,11 @@ public class Subscriber {
 			for(Flushable listener : q) {
 				gotData |= listener.flushEvents(c.getServletResponse().getWriter());
 			}
-
+			q.clear();
 			if(gotData) {
 				LogMan.info("Subscriber " + id + " pickup data");
 				//c.complete();
+				c.getServletResponse().getWriter().close();
 				c = null;
 			} else {
 				//LogMan.info("Subscriber " + id + " empty pickup data");

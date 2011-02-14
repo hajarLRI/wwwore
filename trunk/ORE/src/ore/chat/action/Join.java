@@ -41,7 +41,7 @@ public class Join extends Action {
 			if(rooms != null) {
 				rooms.clear();
 			}
-			Set<User> users = room.getCurrentUsers();
+			/*Set<User> users = room.getCurrentUsers();
 			/*for(User current : users) {
 				ORE.addPropertyChangeListener(current, "userName", new PropertyChangeListener() {
 					@Override

@@ -36,6 +36,7 @@ public class ORE {
 	 */
 	public static void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
+		System.out.println("Session ID is "+sessionID);
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
 		subscriber.addCollectionChangeListener(entity, property, listener);
 	}
