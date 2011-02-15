@@ -29,7 +29,7 @@
     </servlet>
     
     <servlet-mapping>
-    	<servlet-name>ClusterServlet</servlet-name>
+    	<servlet-name>ClusterStart</servlet-name>
     	<url-pattern>/clusterStart</url-pattern>
     </servlet-mapping>
     
