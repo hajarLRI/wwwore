@@ -23,8 +23,10 @@ public class ClusterManager {
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
-	private String selfIP = "10.125.3.116:61616";
-	private String[] peerIP = {"10.125.1.110:61616"};
+
+	private String selfIP = "10.125.1.110:61616";
+	private String[] peerIP = {"10.125.3.116:61616"};
+
 	
 	private ClusterManager()  {
 		try {
