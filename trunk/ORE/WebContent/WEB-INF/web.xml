@@ -28,6 +28,19 @@
     	ore.servlet.ClusterStart</servlet-class>
     </servlet>
     
+    <servlet>
+    	<servlet-name>DBServlet</servlet-name>
+    	<display-name>DBServlet</display-name>
+    	<description></description>
+    	<servlet-class>
+    	ore.servlet.DBServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>DBServlet</servlet-name>
+    	<url-pattern>/dbServlet</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
     	<servlet-name>ClusterStart</servlet-name>
     	<url-pattern>/clusterStart</url-pattern>
