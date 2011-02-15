@@ -6,6 +6,8 @@ import java.util.Map;
 import ore.api.DefaultCollectionChangeListener;
 import ore.api.Event;
 import ore.api.HibernateUtil;
+import ore.chat.entity.ChatMessage;
+import ore.cluster.ClusterManager;
 import ore.hibernate.Metadata;
 import ore.subscriber.CollectionChangeSubscription;
 import ore.subscriber.PropertyChangeSubscription;
@@ -94,6 +96,10 @@ public class EventManager {
 			String manyToManyTableName = Metadata.getManyToManyTableName(roleName);
 			tableManager.insert(manyToManyTableName, event);
 		}
+		//TODO Chat room specific code
+		ChatMessage message = (ChatMessage) event.getNewValue();
+		String str = message.toJSON();
+		ClusterManager.getInstance().publish(str.toCharArray(), event);
 	}
 	
 	public void collectionElementRemoved(Object entity, String propertyName, Object element) {
