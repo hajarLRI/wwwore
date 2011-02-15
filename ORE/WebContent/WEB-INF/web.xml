@@ -12,13 +12,26 @@
     	ore.servlet.CometServlet</servlet-class>
     </servlet>
     
-     <servlet>
+    <servlet>
     	<servlet-name>ChatServlet</servlet-name>
     	<display-name>ChatServlet</display-name>
     	<description></description>
     	<servlet-class>
     	ore.chat.servlet.ChatServlet</servlet-class>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>ClusterStart</servlet-name>
+    	<display-name>ClusterStart</display-name>
+    	<description></description>
+    	<servlet-class>
+    	ore.servlet.ClusterStart</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>ClusterServlet</servlet-name>
+    	<url-pattern>/clusterStart</url-pattern>
+    </servlet-mapping>
     
     <servlet-mapping>
     	<servlet-name>CometServlet</servlet-name>
