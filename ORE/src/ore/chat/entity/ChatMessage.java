@@ -4,15 +4,15 @@ import static ore.util.JSONUtil.*;
 import ore.util.JSONable;
 
 public class ChatMessage implements JSONable {
-	private int id;
+	private String id;
 	private String userName;
 	private String message;
 	
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -46,7 +46,7 @@ public class ChatMessage implements JSONable {
 		this.userName = userName;
 		this.message = message;
 		this.session = session;
-		this.id = 0;
+		this.id = java.util.UUID.randomUUID().toString();
 	}
 	
 	public ChatMessage() {}

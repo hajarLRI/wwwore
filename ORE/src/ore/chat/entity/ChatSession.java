@@ -48,12 +48,8 @@ public class ChatSession {
 	}
 	
 	public void addMessage(Session s, ChatMessage msg) {
-		synchronized(ChatSession.class) {
-			msg.setId(ChatServlet.msgCount++);
-		}
-
 		try {
-			s.createSQLQuery("INSERT INTO chatmessages VALUES (" + msg.getId() + ",'" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
+			s.createSQLQuery("INSERT INTO chatmessages VALUES ('" + msg.getId() + "','" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
