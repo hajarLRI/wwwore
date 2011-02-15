@@ -10,7 +10,7 @@
 <hibernate-mapping package="ore.chat.entity">
     <class name="ChatMessage" table="chatMessages" lazy="true">
         <id name="id" column="id" type="integer" length="10">
-            <generator class="native"/>
+            <generator class="increment"/>
         </id>
         <property name="userName" column="userName" type="string" length="25" not-null="true"/>
         <property name="message" column="message" type="text" not-null="true"/>
