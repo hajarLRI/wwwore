@@ -98,7 +98,7 @@ public class Subscriber {
 				c = null;
 			} else {
 				//LogMan.info("Subscriber " + id + " empty pickup data");
-				c.suspend();
+				c.suspend(c.getServletResponse());
 			}
 		}
 	}
