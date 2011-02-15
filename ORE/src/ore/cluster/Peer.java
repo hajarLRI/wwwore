@@ -13,6 +13,8 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import ore.util.LogMan;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class Peer {
@@ -70,11 +72,12 @@ public class Peer {
 		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
 		consumer.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
-				System.out.println("onMessage("+msg+")");
+				//System.out.println("onMessage("+msg+")");
 				TextMessage textMessage = (TextMessage) msg;
 				try {
 					String[] info = textMessage.getText().split(",");
 					if(info[0].equals("join")) {
+						LogMan.info("Remote peer joins room: " + info[1]);
 						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
 						if(ps == null) {
 							ps = new HashSet<Peer>();
@@ -83,10 +86,10 @@ public class Peer {
 						ps.add(Peer.this);
 					} else {
 						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
-						if(ps == null) {
-							ps = new HashSet<Peer>();
+						if(ps != null) {
+							LogMan.info("Remote peer leaves room: " + info[1]);
+							ps.remove(Peer.this);
 						}
-						ps.remove(Peer.this);
 					}
 				} catch (JMSException e) {
 					e.printStackTrace();
@@ -97,10 +100,10 @@ public class Peer {
 		final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
 		consumer2.setMessageListener(new MessageListener() {
 			public void onMessage(Message msg) {
-				System.out.println("onMessage("+msg+")");
 				TextMessage textMessage = (TextMessage) msg;
 				try {
 					String[] msgs = textMessage.getText().split("!!!!");
+					LogMan.info("Received message: " + msgs[0] + "," + msgs[1]);
 					ClusterManager.getInstance().receive(msgs[0], msgs[1]);
 				} catch (JMSException e) {
 					e.printStackTrace();
