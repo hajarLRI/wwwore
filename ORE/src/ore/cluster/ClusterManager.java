@@ -16,24 +16,22 @@ import ore.subscriber.Subscription;
 
 public class ClusterManager {
 	
-	private static ClusterManager instance = new ClusterManager();
+	private static ClusterManager instance;
 	private Peer self;
 	private List<Peer> peers = new LinkedList<Peer>();
 	Map<String, Set<Peer>> subscribers = new HashMap<String, Set<Peer>>();
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
+	//private String selfIP = "10.125.1.110:61616";
+	//private String[] peerIP = {"10.125.3.116:61616"};
 
-	private String selfIP = "10.125.1.110:61616";
-	private String[] peerIP = {"10.125.3.116:61616"};
-
-	
-	private ClusterManager()  {
+	private ClusterManager(String selfIP, String[] peerIP)  {
 		try {
-			self = new Peer(selfIP);
+			self = new Peer(selfIP+":61616");
 			self.start();
 			for(String ip : peerIP) {
-				Peer p = new Peer(ip);
+				Peer p = new Peer(ip+":61616");
 				peers.add(p);
 				p.connect();
 			}
@@ -50,7 +48,7 @@ public class ClusterManager {
 				try {
 					sub.print(msg.toCharArray());
 				} catch (BrokenCometException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}
@@ -112,8 +110,55 @@ public class ClusterManager {
 		}
 	}
 	
+	public static void init(String ip, String[] peerIP) {
+		if(ip == null) {
+			instance = new NullClusterManager();
+		} else {
+			instance = new ClusterManager(ip, peerIP);
+		}
+	}
+	
 	public static ClusterManager getInstance() {
+		if(instance == null) {
+			throw new IllegalStateException();
+		}
 		return instance;
 	}
 	
+	private ClusterManager() {}
+	
+	
+	private static class NullClusterManager extends ClusterManager {
+
+		private NullClusterManager() {
+			super();
+		}
+		
+		@Override
+		public void receive(String room, String msg) {
+			
+		}
+
+		@Override
+		public void delete(Subscription sub) {
+			
+		}
+
+		@Override
+		public void delete(String room, Subscription sub) {
+			
+		}
+
+		@Override
+		public void subscribe(Subscription subscription, String className,
+				Serializable identifier, String propertyName, EventType type) {
+			
+		}
+
+		@Override
+		public void publish(char[] data, Event event) {
+		
+		}
+		
+	}
 }
