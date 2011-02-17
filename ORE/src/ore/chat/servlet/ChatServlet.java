@@ -1,24 +1,24 @@
 package ore.chat.servlet;
 
+import static ore.chat.action.Action.CHANGE_NAME;
 import static ore.chat.action.Action.CHAT;
 import static ore.chat.action.Action.CHECK_ROOMS;
 import static ore.chat.action.Action.JOIN;
 import static ore.chat.action.Action.LEAVE;
 import static ore.chat.action.Action.NEW_ROOM;
 import static ore.chat.action.Action.OPERATION;
-import static ore.chat.action.Action.CHANGE_NAME;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import ore.api.HibernateUtil;
 import ore.chat.action.Action;
@@ -38,6 +38,8 @@ public class ChatServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static SessionFactory factory;
 	private Map<String, Action> actions = new HashMap<String, Action>();
+	private ReentrantLock lock = new ReentrantLock();
+	private Condition finished = lock.newCondition();
 	private boolean init = false;
 	
 	public static SessionFactory getHibernateSessionFactory() {
@@ -46,6 +48,7 @@ public class ChatServlet extends HttpServlet {
 	
 	@Override
 	public synchronized void init() {
+		lock.lock();
 		factory = HibernateUtil.getSessionFactory(getServletContext());
 		actions.put(NEW_ROOM, new NewRoom());
 		actions.put(CHAT, new Chat());
@@ -65,10 +68,20 @@ public class ChatServlet extends HttpServlet {
 		tx.commit();
 		session.close();
 		init = true;
+		finished.signalAll();
+		lock.unlock();
 	}
 	   
 	protected  void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		while(!init);
+		while(!init) {
+			lock.lock();
+			try {
+				finished.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			lock.unlock();
+		}
 		String operation = getParameter(OPERATION, request);
 		Session session = factory.openSession();
 		Transaction tx = session.beginTransaction();
