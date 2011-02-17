@@ -67,20 +67,21 @@ public class ChatServlet extends HttpServlet {
 		session.flush();
 		tx.commit();
 		session.close();
+		init = true;
 		finished.signalAll();
 		lock.unlock();
 	}
 	   
 	protected  void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		lock.lock();
 		while(!init) {
-			lock.lock();
 			try {
 				finished.await();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			lock.unlock();
 		}
+		lock.unlock();
 		String operation = getParameter(OPERATION, request);
 		Session session = factory.openSession();
 		Transaction tx = session.beginTransaction();
