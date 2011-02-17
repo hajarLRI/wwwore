@@ -38,6 +38,7 @@ public class ChatServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static SessionFactory factory;
 	private Map<String, Action> actions = new HashMap<String, Action>();
+	private boolean init = false;
 	
 	public static SessionFactory getHibernateSessionFactory() {
 		return factory;
@@ -63,9 +64,11 @@ public class ChatServlet extends HttpServlet {
 		session.flush();
 		tx.commit();
 		session.close();
+		init = true;
 	}
 	   
 	protected  void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		while(!init);
 		String operation = getParameter(OPERATION, request);
 		Session session = factory.openSession();
 		Transaction tx = session.beginTransaction();
