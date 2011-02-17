@@ -97,9 +97,12 @@ public class EventManager {
 			tableManager.insert(manyToManyTableName, event);
 		}
 		//TODO Chat room specific code
-		ChatMessage message = (ChatMessage) event.getNewValue();
-		String str = message.toJSON();
-		ClusterManager.getInstance().publish(str.toCharArray(), event);
+		Object obj = event.getNewValue();
+		if(obj instanceof ChatMessage) {
+			ChatMessage message = (ChatMessage) obj;
+			String str = message.toJSON();
+			ClusterManager.getInstance().publish(str.toCharArray(), event);
+		}
 	}
 	
 	public void collectionElementRemoved(Object entity, String propertyName, Object element) {
