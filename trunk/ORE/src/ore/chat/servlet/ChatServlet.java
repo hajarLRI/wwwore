@@ -67,7 +67,6 @@ public class ChatServlet extends HttpServlet {
 		session.flush();
 		tx.commit();
 		session.close();
-		init = true;
 		finished.signalAll();
 		lock.unlock();
 	}
