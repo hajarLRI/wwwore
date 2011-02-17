@@ -34,7 +34,7 @@ public abstract class Subscription implements Flushable {
 	public void print(char[] data) throws BrokenCometException {
 		synchronized(subscriber) {
 			try {
-				if(subscriber.isSuspended()) {
+				if(subscriber.isConnected()) {
 					PrintWriter out = subscriber.getContinuation().getServletResponse().getWriter();
 					out.println(data);
 					LogMan.info("Subscriber " + subscriber.getID() + " got pushed.");
