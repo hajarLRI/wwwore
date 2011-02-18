@@ -1,12 +1,13 @@
 package roundRobin;
 
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import ore.hypergraph.HyperEdge;
 
 public class User<T> {
 	private static int idCounter = 0;
@@ -32,10 +33,9 @@ public class User<T> {
 		return interests;
 	}
 	
-	public static void printHyperGraph(List<User<Integer>> users, PrintWriter pw) {
-		int numOfVertices = users.size();
+	public static ore.hypergraph.Hypergraph<Integer, Integer> makeHyperGraph(List<User<Integer>> users) {
 		Map<Integer, Set<Integer>> edges = new HashMap<Integer, Set<Integer>>();
-		int i = 1;
+		int i = 0;
 		for(User<Integer> user : users) {
 			for(Integer edge : user.getInterests()) {
 				Set<Integer> nodes = edges.get(edge);
@@ -47,14 +47,15 @@ public class User<T> {
 			}
 			i++;
 		}
-		int numOfEdges = edges.size();
-		pw.println(numOfEdges + " " + numOfVertices);
+		ore.hypergraph.Hypergraph<Integer, Integer> graph = new ore.hypergraph.Hypergraph();
 		for(Map.Entry<Integer, Set<Integer>> edge : edges.entrySet()) {
+			int edgeData = edge.getKey();
+			HyperEdge hyperEdge = graph.getEdge(edgeData);
 			for(Integer node : edge.getValue()) {
-				pw.print(node + " ");
+				graph.putNodeOnEdge(node, hyperEdge);
 			}
-			pw.println();
 		}
+		return graph;
 	}
 	
 }
