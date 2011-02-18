@@ -36,6 +36,19 @@
     	ore.servlet.DBServlet</servlet-class>
     </servlet>
     
+     <servlet>
+    	<servlet-name>HyperServlet</servlet-name>
+    	<display-name>HyperServlet</display-name>
+    	<description></description>
+    	<servlet-class>
+    	ore.servlet.HyperServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>HyperServlet</servlet-name>
+    	<url-pattern>/hyper</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
     	<servlet-name>DBServlet</servlet-name>
     	<url-pattern>/dbServlet</url-pattern>
