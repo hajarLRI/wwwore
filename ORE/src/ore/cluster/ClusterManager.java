@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jms.JMSException;
+
 import ore.api.Event;
 import ore.api.Event.EventType;
 import ore.exception.BrokenCometException;
@@ -23,22 +25,13 @@ public class ClusterManager {
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
-
-	//private String selfIP = "10.125.1.110:61616";
-	//private String[] peerIP = {"10.125.3.116:61616"};
-
-
-	private ClusterManager(String selfIP, String[] peerIP)  {
-		try {
-			self = new Peer(selfIP+":61616");
-			self.start();
-			for(String ip : peerIP) {
-				Peer p = new Peer(ip+":61616");
-				peers.add(p);
-				p.connect();
-			}
-		} catch(Exception e)  {
-			e.printStackTrace();
+	private ClusterManager(String selfIP, String[] peerIP) throws Exception  {
+		self = new Peer(selfIP);
+		self.start();
+		for(String ip : peerIP) {
+			Peer p = new Peer(ip);
+			peers.add(p);
+			p.connect();
 		}
 	}
 	
@@ -112,7 +105,7 @@ public class ClusterManager {
 		}
 	}
 	
-	public static void init(String ip, String[] peerIP) {
+	public static void init(String ip, String[] peerIP) throws Exception {
 		if(ip == null) {
 			instance = new NullClusterManager();
 		} else {

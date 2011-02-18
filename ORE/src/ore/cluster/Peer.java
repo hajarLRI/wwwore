@@ -32,7 +32,7 @@ public class Peer {
 		System.out.println("sent("+ip+")");
 		MessageProducer producer = null;
 		try {
-			TextMessage message = createMessage(session, msg);
+			TextMessage message = createMessage(session, "msg", msg);
 			Topic msgChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
 			producer.send(message);
@@ -44,14 +44,14 @@ public class Peer {
 	public void subscriptionNotice(String room, boolean join) {
 		System.out.println("subscriptionNotice("+room+";"+"join"+")");
 		MessageProducer producer = null;
-		String prefix = null;
+		String operation = null;
 		if(join) {
-			prefix = "join,";
+			operation = "join";
 		} else {
-			prefix = "leave,";
+			operation = "leave";
 		}
 		try {
-			TextMessage message = createMessage(session, prefix + room);
+			TextMessage message = createMessage(session, operation, room);
 			Topic msgChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
 			producer.send(message);
@@ -67,50 +67,10 @@ public class Peer {
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		Topic subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 		Topic messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
-		//Topic subscriptionChannel = session.createTopic("hello");
-		//Topic messageChannel = session.createTopic("hello");
-		final MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
-		consumer.setMessageListener(new MessageListener() {
-			public void onMessage(Message msg) {
-				//System.out.println("onMessage("+msg+")");
-				TextMessage textMessage = (TextMessage) msg;
-				try {
-					String[] info = textMessage.getText().split(",");
-					if(info[0].equals("join")) {
-						LogMan.info("Remote peer joins room: " + info[1]);
-						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
-						if(ps == null) {
-							ps = new HashSet<Peer>();
-							ClusterManager.getInstance().subscribers.put(info[1], ps);
-						}
-						ps.add(Peer.this);
-					} else {
-						Set<Peer> ps = ClusterManager.getInstance().subscribers.get(info[1]);
-						if(ps != null) {
-							LogMan.info("Remote peer leaves room: " + info[1]);
-							ps.remove(Peer.this);
-						}
-					}
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		final MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
-		consumer2.setMessageListener(new MessageListener() {
-			public void onMessage(Message msg) {
-				TextMessage textMessage = (TextMessage) msg;
-				try {
-					String[] msgs = textMessage.getText().split("!!!!");
-					LogMan.info("Received message: " + msgs[0] + "," + msgs[1]);
-					ClusterManager.getInstance().receive(msgs[0], msgs[1]);
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		}); 
-		
+		MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
+		consumer.setMessageListener(new SubscriptionListener(this));
+		MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
+		consumer2.setMessageListener(new PublicationListener()); 
 		connection.start();
 	}
 	
@@ -127,7 +87,6 @@ public class Peer {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -136,17 +95,16 @@ public class Peer {
 		connection.start();
 	}
 	
-	private TextMessage createMessage(Session session, String s) throws JMSException {
+	private TextMessage createMessage(Session session, String operation, String s) throws JMSException {
 		TextMessage message = session.createTextMessage(s);
-		message.setStringProperty("type", "hello");
-		message.setStringProperty("identifier", "hello");
+		message.setStringProperty("operation", operation);
 		return message;
 	}
 	
-	private String createMessageSelector() {
+	/*private String createMessageSelector() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("type='hello'");
 		return sb.toString();
-	}
+	}*/
 	
 }
