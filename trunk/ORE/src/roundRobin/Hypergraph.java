@@ -1,15 +1,17 @@
 package roundRobin;
 
-import java.io.PrintWriter;
-import java.util.List;
+import java.io.IOException;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 public class Hypergraph {
-	public static void main(String[] args) {
-		WorkloadGenerator generator = new SimpleGenerator();
-		List<User<Integer>> users = generator.generate(Config.readers, Config.itemsPerUser, Config.overlap);
-		PrintWriter pw = new PrintWriter(System.out);
-		User.printHyperGraph(users, pw);
-		pw.flush();
-		pw.close();
+	public static void main(String[] args) throws HttpException, IOException {
+		HttpClient client = Machine.createClient();
+		GetMethod gm = Machine.makeMethod("http://localhost:8080/ORE/hyper", "none");
+		client.executeMethod(gm);
+		String response = gm.getResponseBodyAsString();
+		System.out.println(response);
 	}
 }
