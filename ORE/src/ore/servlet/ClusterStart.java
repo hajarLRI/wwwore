@@ -20,13 +20,21 @@ public class ClusterStart extends HttpServlet {
 	
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String selfIP = request.getParameter("selfIP");
-		String peerIP = request.getParameter("peerIP");
-		String[] peerIPs = null;
-		if(peerIP != null) {
-			peerIPs = peerIP.split("_");
+		try {
+			String selfIP = request.getParameter("selfIP");
+			String peerIP = request.getParameter("peerIP");
+			String[] peerIPs = null;
+			if(peerIP != null) {
+				peerIP = peerIP.replace('~', ':');
+				peerIPs = peerIP.split("_");
+			}
+			if(selfIP != null) {
+				selfIP.replace('~', ':');
+			}
+			ClusterManager.init(selfIP, peerIPs);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		ClusterManager.init(selfIP, peerIPs);
 	}
 	
 }
