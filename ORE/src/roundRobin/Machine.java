@@ -35,12 +35,12 @@ public class Machine implements Runnable {
 	public void start() {
 		String url = getUrlPrefix() + "/clusterStart";
 		if(Config.IPs.length > 1) {
-			url += "?selfIP=" + ip;
+			url += "?selfIP=" + ip + "~61616";
 			String peerIP = "&peerIP=";
 			int num = 1;
 			for(Machine m : machines) {
 				if(m != this) {
-					peerIP += m.ip;
+					peerIP += m.ip + "~61616";
 				}
 				if((num <= (Config.IPs.length-1))&&(m != this)) {
 					peerIP += '_';
