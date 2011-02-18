@@ -1,5 +1,7 @@
 package roundRobin;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class SimpleGenerator implements WorkloadGenerator<Integer> {
 			User<Integer> user = new User<Integer>();
 			for(int j=0; j < itemsPerUser; j++) {
 				Integer interest = (int) Math.ceil(((i*itemsPerUser) * (1 - overlap) + j));
-				System.out.println("(" + i + ", " + interest);
+				//System.out.println("(" + i + ", " + interest);
 				user.addInterest(interest);
 			}
 			users.add(user);
@@ -20,9 +22,16 @@ public class SimpleGenerator implements WorkloadGenerator<Integer> {
 		return users;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		SimpleGenerator s = new SimpleGenerator();
-		s.generate(10, 10, .75);
+		ore.hypergraph.Hypergraph graph = User.makeHyperGraph(s.generate(Config.readers, Config.itemsPerUser, Config.overlap));
+		long start = System.currentTimeMillis();
+		HMetis.shmetis(graph, 7, 5);
+		long stop = System.currentTimeMillis();
+		PrintWriter pw = new PrintWriter(System.out);
+		graph.toDot(pw);
+		pw.flush();
+		System.out.println("Time: " + (stop-start));
 	}
 
 }
