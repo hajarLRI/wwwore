@@ -1,7 +1,12 @@
 package ore.api;
 
+import java.io.PrintWriter;
+
 import javax.jms.JMSException;
 
+import ore.hibernate.Metadata;
+import ore.hypergraph.HyperEdge;
+import ore.hypergraph.Hypergraph;
 import ore.servlet.CookieFilter;
 import ore.subscriber.Subscriber;
 import ore.subscriber.SubscriberManager;
@@ -12,6 +17,7 @@ import ore.subscriber.SubscriberManager;
  */
 public class ORE {
 
+	private static Hypergraph<Integer, Integer> graph = new Hypergraph();
 	/**
 	 * Register for notification of a simple property change event
 	 * 
@@ -24,6 +30,11 @@ public class ORE {
 		String sessionID = CookieFilter.getSessionID();
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
 		subscriber.addPropertyChangeListener(entity, property, listener);
+		
+		int edge = Metadata.getPrimaryKeyValue(entity).hashCode();
+		int node = Integer.parseInt(subscriber.getID());
+		HyperEdge<Integer, Integer> hyperEdge = graph.getEdge(edge);
+		graph.putNodeOnEdge(node, hyperEdge);
 	}
 	
 	/**
@@ -39,6 +50,15 @@ public class ORE {
 		System.out.println("Session ID is "+sessionID);
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
 		subscriber.addCollectionChangeListener(entity, property, listener);
+		
+		int edge = Metadata.getPrimaryKeyValue(entity).hashCode();
+		int node = Integer.parseInt(subscriber.getID());
+		HyperEdge<Integer, Integer> hyperEdge = graph.getEdge(edge);
+		graph.putNodeOnEdge(node, hyperEdge);
+	}
+	
+	public static void printGraph(PrintWriter pw) {
+		graph.print(pw);
 	}
 	
 }
