@@ -8,6 +8,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
+import ore.api.ORE;
+import ore.hypergraph.HyperEdge;
 import ore.util.LogMan;
 
 public class SubscriptionListener implements MessageListener {
@@ -26,6 +28,8 @@ public class SubscriptionListener implements MessageListener {
 			String content = textMessage.getText();
 			if(operation.equals("join")) {
 				LogMan.info("Remote peer joins room: " + content);
+				HyperEdge<Integer, Integer> hyperEdge = ORE.getGraph().getEdge(Integer.parseInt(content));
+				ORE.getGraph().putNodeOnEdge(Integer.parseInt(user), hyperEdge);
 				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(content);
 				if(ps == null) {
 					ps = new HashSet<RemoteSubscriber>();
