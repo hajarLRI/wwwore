@@ -18,6 +18,9 @@ import ore.subscriber.SubscriberManager;
 public class ORE {
 
 	private static Hypergraph<Integer, Integer> graph = new Hypergraph();
+	public static Hypergraph<Integer, Integer> getGraph() {
+		return graph;
+	}
 	/**
 	 * Register for notification of a simple property change event
 	 * 
