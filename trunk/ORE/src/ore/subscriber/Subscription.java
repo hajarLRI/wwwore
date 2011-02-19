@@ -36,7 +36,9 @@ public abstract class Subscription implements Flushable {
 			try {
 				if(subscriber.isConnected()) {
 					PrintWriter out = subscriber.getContinuation().getServletResponse().getWriter();
+					out.print('[');
 					out.println(data);
+					out.print(']');
 					LogMan.info("Subscriber " + subscriber.getID() + " got pushed.");
 					subscriber.getContinuation().complete();
 				} else {
@@ -54,10 +56,17 @@ public abstract class Subscription implements Flushable {
 	public boolean flushEvents(PrintWriter pw) throws BrokenCometException {
 		boolean gotData = false;
 		try {
+			pw.print("[");
+			int i = 0;
 			for(char[] data : buffer) {
 				pw.print(data);
 				gotData = true;
+				if(i == (buffer.size()-1)) {
+					pw.print(',');
+				}
+				i++;
 			}
+			pw.print("]");
 			buffer.clear();
 		} catch(Exception e) {
 			throw new BrokenCometException(subscriber, e);
