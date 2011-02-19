@@ -21,7 +21,7 @@ public class ClusterManager {
 	private static ClusterManager instance;
 	private Peer self;
 	private List<Peer> peers = new LinkedList<Peer>();
-	Map<String, Set<Peer>> subscribers = new HashMap<String, Set<Peer>>();
+	Map<String, Set<RemoteSubscriber>> subscribers = new HashMap<String, Set<RemoteSubscriber>>();
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
@@ -36,13 +36,13 @@ public class ClusterManager {
 	}
 	
 	public void receive(String room, String msg) {
-		//System.out.println("receive("+room+"; "+msg+")");
 		Set<Subscription> s = local.get(room);
 		if(s != null) {
 			for(Subscription sub : s) {
 				try {
 					sub.print(msg.toCharArray());
 				} catch (BrokenCometException e) {
+					//TODO Jetty specific problem
 					//e.printStackTrace();
 				}
 			}
@@ -50,7 +50,6 @@ public class ClusterManager {
 	}
 	
 	public void delete(Subscription sub) {
-		//System.out.println("delete("+sub.toString()+")");
 		String room = inverted.get(sub);
 		Set<Subscription> s = local.get(room);
 		if(s == null) {
@@ -65,7 +64,6 @@ public class ClusterManager {
 	}
 	
 	public void delete(String room, Subscription sub) {
-		//System.out.println("delete("+room+"; "+sub.toString()+")");
 		Set<Subscription> s = local.get(room);
 		if(s == null) {
 			throw new IllegalStateException();
@@ -79,7 +77,6 @@ public class ClusterManager {
 	}
    
 	public void subscribe(final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
-		//System.out.println("subscribe(...)");
 		Set<Subscription> s = local.get(identifier.toString());
 		if(s == null) {
 			s = new HashSet<Subscription>();
@@ -95,12 +92,12 @@ public class ClusterManager {
 	}
 
 	public void publish(char[] data, Event event) {
-		//System.out.println("publish(...)");
-		String room = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
-		Set<Peer> ps = subscribers.get(room);
+		String key = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
+		key += "$" + event.getEntity().getClass().getName();
+		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {
-			for(Peer p : peers) {
-				p.send(room + "!!!!" + new String(data));
+			for(RemoteSubscriber p : ps) {
+				p.getHost().send(key, new String(data));
 			}
 		}
 	}
