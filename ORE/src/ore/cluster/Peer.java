@@ -28,11 +28,11 @@ public class Peer {
 		this.ip = ip;
 	}
 	
-	public void send(String msg) {
+	public void send(String key, String msg) {
 		System.out.println("sent("+ip+")");
 		MessageProducer producer = null;
 		try {
-			TextMessage message = createMessage(session, "msg", msg);
+			TextMessage message = createMessage(session, key, msg);
 			Topic msgChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
 			producer.send(message);

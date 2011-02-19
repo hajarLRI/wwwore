@@ -12,9 +12,10 @@ public class PublicationListener implements MessageListener {
 	public void onMessage(Message msg) {
 		TextMessage textMessage = (TextMessage) msg;
 		try {
-			String[] msgs = textMessage.getText().split("!!!!");
-			LogMan.info("Received message: " + msgs[0] + "," + msgs[1]);
-			ClusterManager.getInstance().receive(msgs[0], msgs[1]);
+			String content = textMessage.getText();
+			String key = textMessage.getStringProperty("operation");
+			LogMan.info("Received message: " + key + "," + content);
+			ClusterManager.getInstance().receive(key, content);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
