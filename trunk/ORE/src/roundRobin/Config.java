@@ -3,7 +3,9 @@ package roundRobin;
 public class Config {
 
 	public static String[] IPs = {"localhost"};
-	public static String PORT = "8080";
+	public static String[] httpPorts = {"8080"};
+	public static String[] jmsPorts = {"61616"};
+	
 	public static String PROJECT = "ORE";
 	public static int readerResponses = 0;
 	public static int realReaderResponses = 0;

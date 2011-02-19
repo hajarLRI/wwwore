@@ -21,16 +21,19 @@ public class Machine implements Runnable {
 	public static List<Machine> machines = new LinkedList<Machine>();
 	private static ThreadLocal<HttpClient> current = new ThreadLocal<HttpClient>();
 	
-	public static void createMachines(String[] ips) {
+	public static void createMachines(String[] ips, String[] ports) {
 		for(int i=0; i < ips.length; i++) {
-			Machine m = new Machine(ips[i]);
+			Machine m = new Machine(ips[i], ports[i]);
 			machines.add(m);
 		}
 	}
 	
 	private String ip;
-	public Machine(String ip) {
+	private String port;
+	
+	public Machine(String ip, String port) {
 		this.ip = ip;
+		this.port = port;
 	}
 	
 	public void start() {
@@ -145,7 +148,7 @@ public class Machine implements Runnable {
 	}
 	
 	public String getUrlPrefix() {
-		return "http://" + ip + ':' + Config.PORT + '/' + Config.PROJECT;
+		return "http://" + ip + ':' + port + '/' + Config.PROJECT;
 	}
 	
 	public static HttpClient getCurrent() {
