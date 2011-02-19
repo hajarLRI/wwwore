@@ -5,7 +5,7 @@ import java.util.List;
 
 public class WorkloadDriver {
 	public static void main(String[] args) throws Exception {
-		Machine.createMachines(Config.IPs, Config.httpPorts);
+		Machine.createMachines(Config.IPs, Config.httpPorts, Config.jmsPorts);
 		List<Thread> threads = new LinkedList<Thread>();
 		for(Machine m : Machine.machines) {
 			Thread t = new Thread(m);
