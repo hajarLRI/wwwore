@@ -11,6 +11,7 @@ import ore.cluster.ClusterManager;
 import ore.hibernate.Metadata;
 import ore.subscriber.CollectionChangeSubscription;
 import ore.subscriber.PropertyChangeSubscription;
+import ore.util.JSONable;
 
 import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.KeyValue;
@@ -96,10 +97,10 @@ public class EventManager {
 			String manyToManyTableName = Metadata.getManyToManyTableName(roleName);
 			tableManager.insert(manyToManyTableName, event);
 		}
-		//TODO Chat room specific code
+		
 		Object obj = event.getNewValue();
-		if(obj instanceof ChatMessage) {
-			ChatMessage message = (ChatMessage) obj;
+		if(obj instanceof JSONable) {
+			JSONable message = (JSONable) obj;
 			String str = message.toJSON();
 			ClusterManager.getInstance().publish(str.toCharArray(), event);
 		}
