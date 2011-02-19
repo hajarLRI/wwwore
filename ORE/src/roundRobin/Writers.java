@@ -44,43 +44,33 @@ public class Writers {
 		}
  
 		public void run() {
+			GetMethod method_tmp = null;
+			
 			while(true) {   
-				long insertTime = System.currentTimeMillis();
-				
-				if (id==(num-1))
-					  System.err.println(num+" Writers created");
-				
-				GetMethod method_tmp = Machine.makeMethod(getAddress() + "/chat?operation=chat&roomName=" + id + "&userName=" + id + "&message=hello" + insertTime, "none");
 				try {
-					try {
-						client.executeMethod(method_tmp);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-						System.out.println(id);
+					long insertTime = System.currentTimeMillis();
+
+					if (id==(num-1))
+						System.err.println(num+" Writers created");
+
+					method_tmp = Machine.makeMethod(getAddress() + "/chat", "none", "operation", "chat", "roomName", id, "userName", id, "message", insertTime);
+
+					client.executeMethod(method_tmp);
+
+					//method_tmp.releaseConnection();
+					//client.getHttpConnectionManager().closeIdleConnections(0);
+					
+					synchronized(Writers.class) {
+						msgs++;
+						//System.out.println("Wrote msg: " + msgs);
 					}
-					// System.out.println("runging "+ id);
-					/*method_tmp.releaseConnection();
-				client.getHttpConnectionManager().closeIdleConnections(0);
-					 */
-					/*synchronized (Running.class) {
-					// System.out.println("response");
-					//Pushing.responses++;
-					//Date endTime = new Date();
-					//System.out.println(" Number of successful Writer is : " + Pushing.responses + "  ----- endTime: " + endTime.toLocaleString());
-				}*/
-					try {
-						synchronized(Writers.class) {
-							msgs++;
-							//System.out.println("Wrote msg: " + msgs);
-						}
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-			}finally {
-				method_tmp.releaseConnection();
-				client.getHttpConnectionManager().closeIdleConnections(0);
-			}
+					Thread.sleep(1000);
+				} catch(Exception e) {
+					e.printStackTrace();
+				} finally {
+					method_tmp.releaseConnection();
+					client.getHttpConnectionManager().closeIdleConnections(0);
+				}
 			}
 		}
 	}

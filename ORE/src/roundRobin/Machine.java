@@ -1,6 +1,5 @@
 package roundRobin;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -9,11 +8,13 @@ import java.util.List;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Machine implements Runnable {
 
@@ -109,26 +110,13 @@ public class Machine implements Runnable {
 		InputStream stream = method_tmp.getResponseBodyAsStream();
 		Reader r2 = new InputStreamReader(stream);
 		long roundTime = 0;
-		char[] x = new char[1024];
-		String[] msgs=null;
-		while(r2.read(x) != -1) {
-			String msg = new String(x);
-			try {
-				//System.out.println("------");
-				//System.out.println(msg);
-				//System.out.println("------");
-				msgs=msg.split("\\}\\{");
-				String insertTime = msg.substring(msg.indexOf("hello")+5, msg.indexOf("hello")+5+13);
-				long receiveTime = System.currentTimeMillis();
-				roundTime = receiveTime - Long.parseLong(insertTime);
-			} catch (Exception e) {
-				//System.out.println("Error");
-				//TODO do not handle the exception of number parsing  
-				
-			}
-			//System.out.print(roundTime+"ms");
+		JSONArray arr = new JSONArray(new JSONTokener(r2));
+		for(int i=0; i < arr.length(); i++) {
+			JSONObject obj = arr.getJSONObject(i);
+			String insertTime = obj.getString("message");
+			long receiveTime = System.currentTimeMillis();
+			roundTime = receiveTime - Long.parseLong(insertTime);
 		}
-
 		method_tmp.releaseConnection();
 		client.getHttpConnectionManager().closeIdleConnections(0);
 		synchronized (Machine.class) {
@@ -148,14 +136,6 @@ public class Machine implements Runnable {
 					Config.readerResponses = 0;
 				}
 			}
-			/*if (msgs.length==0)
-				Config.realReaderResponses++;
-			else 
-			    Config.realReaderResponses = Config.realReaderResponses+msgs.length;
-			
-			System.out.println("Got response: " + Config.realReaderResponses);*/
-			
-			
 		}
 		try {
 			Thread.sleep(Config.cometBackoff);
