@@ -45,9 +45,9 @@ public class Join extends Action {
 				}
 				room.userJoined(user);
 				MessageListener m = new MessageListener();
-				UsersListener u = new UsersListener();
+				//UsersListener u = new UsersListener();
 				ORE.addCollectionChangeListener(room, "messages", m);
-				ORE.addCollectionChangeListener(room, "currentUsers", u);
+				//ORE.addCollectionChangeListener(room, "currentUsers", u);
 				pw.print(room.toJSON(session));
 				session.saveOrUpdate(room);
 			}
