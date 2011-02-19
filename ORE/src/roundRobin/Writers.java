@@ -40,7 +40,7 @@ public class Writers {
 			double chunkSize = num / numOfMachines;
 			double position = id / chunkSize;
 			int index = (int) position;
-			return "http://" + Config.IPs[index] + ':' + Config.PORT + '/' + Config.PROJECT;
+			return "http://" + Config.IPs[index] + ':' + Config.httpPorts[index] + '/' + Config.PROJECT;
 		}
  
 		public void run() {

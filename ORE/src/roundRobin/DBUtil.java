@@ -11,14 +11,12 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 
 public class DBUtil {
 	
-	public static String[] IPs = {"localhost"};
-	
-	private static String getAddress(String ip) {
-		return "http://" + ip + ':' + Config.PORT + '/' + Config.PROJECT + "/dbServlet";
+	private static String getAddress(String ip, String port) {
+		return "http://" + ip + ':' + port + '/' + Config.PROJECT + "/dbServlet";
 	}
 	
 	public static void main(String[] args) throws HttpException, IOException {
-		String addr = getAddress(IPs[0]);
+		String addr = getAddress(Config.IPs[0], Config.httpPorts[0]);
 		GetMethod method = makeMethod(addr, "none");
 		HttpClient client = createClient();
 		client.executeMethod(method);
