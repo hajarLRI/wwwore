@@ -8,6 +8,19 @@ public class HyperNode<T, E> {
 	private T data;
 	private Hypergraph<T, E> graph;
 	private Set<HyperEdge<E, T>> edges;
+	private int assignedPartition;
+	
+	public int getPart() {
+		return assignedPartition;
+	}
+	
+	public void setPart(int part) {
+		assignedPartition = part;
+	}
+	
+	public T getData() {
+		return data;
+	}
 	
 	public HyperNode(T data, Hypergraph<T, E> graph) {
 		this.graph = graph;
@@ -22,6 +35,10 @@ public class HyperNode<T, E> {
 	}
 	
 	public void print(PrintWriter pw) {
-		pw.print(data.toString());
+		pw.print(Integer.parseInt(data.toString()) + 1);
+	}
+	
+	public void toDot(PrintWriter pw) {
+		pw.println("u" + getData().toString() + " [shape=ellipse];");	
 	}
 }

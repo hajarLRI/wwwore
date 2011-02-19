@@ -9,6 +9,10 @@ public class HyperEdge<T, N> {
 	private Hypergraph<N, T> graph;
 	private Set<HyperNode<N, T>> nodes;
 	
+	public T getData() {
+		return data;
+	}
+	
 	public HyperEdge(T data, Hypergraph graph) {
 		this.graph = graph;
 		this.data = data;
@@ -28,6 +32,13 @@ public class HyperEdge<T, N> {
 		for(HyperNode<N, T> node : nodes) {
 			node.print(pw);
 			pw.print(' ');
+		}
+	}
+	
+	public void toDot(PrintWriter pw) {
+		String edgeName = 'o' + getData().toString();
+		for(HyperNode<N, T> node : nodes) {
+			pw.println(edgeName + " -- u" + node.getData().toString() + ';');
 		}
 	}
 }
