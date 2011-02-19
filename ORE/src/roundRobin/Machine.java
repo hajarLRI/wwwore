@@ -33,10 +33,9 @@ public class Machine implements Runnable {
 	}
 	
 	public void start() {
-		String url = getUrlPrefix() + "/clusterStart";
+		GetMethod method = null;
 		if(Config.IPs.length > 1) {
-			url += "?selfIP=" + ip + "~61616";
-			String peerIP = "&peerIP=";
+			String peerIP = "";
 			int num = 1;
 			for(Machine m : machines) {
 				if(m != this) {
@@ -47,10 +46,11 @@ public class Machine implements Runnable {
 				}
 				num++;
 			}
-			url+= peerIP;
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + "~61616", "peerIP", peerIP);
+		} else {
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none");
 		}
-		System.out.println(url);
-		GetMethod method = makeMethod(url, "none");
+		
 		try {
 			HttpClient client = createClient();
 			System.out.println("Starting: " + this.getUrlPrefix());
@@ -63,19 +63,17 @@ public class Machine implements Runnable {
 	
 	public void join(User user, String sessionID) throws Exception {
 		HttpClient client = getCurrent();
-		String str = getUrlPrefix() + "/chat?operation=join&userName=" + user.getID() + "&roomName=";
 		int size = user.getInterests().size();
 		int i = 0;
+		String roomName = "";
 		for(Object interest : user.getInterests()) {
-			str += interest.toString();
+			roomName += interest.toString();
 			if(i != (size-1)) {
-				str += '_';
+				roomName += '_';
 			}
 			i++;
 		}
-		str += "&login=true";
-		System.out.println(str);
-		GetMethod method_tmp = makeMethod(str, sessionID);
+		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/chat", sessionID, "operation", "join", "userName", user.getID(), "roomName", roomName, "login", true);
 		client.executeMethod(method_tmp);
 		InputStream stream = method_tmp.getResponseBodyAsStream();
 		char[] x = new char[1024];
@@ -191,7 +189,18 @@ public class Machine implements Runnable {
 		return new HttpClient(connectionManager);
 	}
 	
-	static GetMethod makeMethod(String url, String sessionID) {
+	static GetMethod makeMethod(String url, String sessionID, Object ... parms) {
+		if((parms != null) && (parms.length > 0)) {
+			url += '?';
+		}
+		for(int i=0; i < parms.length; i += 2) {
+			url += parms[i];
+			url += '=';
+			url += parms[i+1].toString();
+			if(i != (parms.length-2)) {
+				url += '&';
+			}
+		}
 		GetMethod method_tmp = new GetMethod(url);
 		method_tmp.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		method_tmp.setRequestHeader("Cookie", "sessionID=" + sessionID);
