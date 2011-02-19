@@ -21,19 +21,21 @@ public class Machine implements Runnable {
 	public static List<Machine> machines = new LinkedList<Machine>();
 	private static ThreadLocal<HttpClient> current = new ThreadLocal<HttpClient>();
 	
-	public static void createMachines(String[] ips, String[] ports) {
+	public static void createMachines(String[] ips, String[] ports, String[] jmsPorts) {
 		for(int i=0; i < ips.length; i++) {
-			Machine m = new Machine(ips[i], ports[i]);
+			Machine m = new Machine(ips[i], ports[i], jmsPorts[i]);
 			machines.add(m);
 		}
 	}
 	
 	private String ip;
 	private String port;
+	private String jmsPort;
 	
-	public Machine(String ip, String port) {
+	public Machine(String ip, String port, String jmsPort) {
 		this.ip = ip;
 		this.port = port;
+		this.jmsPort = jmsPort;
 	}
 	
 	public void start() {
@@ -43,14 +45,14 @@ public class Machine implements Runnable {
 			int num = 1;
 			for(Machine m : machines) {
 				if(m != this) {
-					peerIP += m.ip + "~61616";
+					peerIP += m.ip + '~' + m.jmsPort;
 				}
 				if((num <= (Config.IPs.length-1))&&(m != this)) {
 					peerIP += '_';
 				}
 				num++;
 			}
-			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + "~61616", "peerIP", peerIP);
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP);
 		} else {
 			method = makeMethod(getUrlPrefix() + "/clusterStart", "none");
 		}
