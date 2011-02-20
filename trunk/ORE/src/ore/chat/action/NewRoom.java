@@ -18,25 +18,25 @@ public class NewRoom extends Action {
 
 	@Override
 	protected void run(Session session, HttpServletRequest request, PrintWriter pw) {
-		String roomName = getRequiredParameter(request, ROOM_NAME);
-		String userName = getRequiredParameter(request, USER_NAME);	
-		User user;
-		user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
-		if(user == null) {
-			user = new User(userName);
-		} else {
-			user.getRooms().clear();
-		}
-		ChatSession room = new ChatSession(roomName);
-		room.userJoined(user);
 		try {
-			ORE.addCollectionChangeListener(room, "messages", new MessageListener());
+			String roomName = getRequiredParameter(request, ROOM_NAME);
+			String userName = getRequiredParameter(request, USER_NAME);	
+			User user;
+			user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
+			if(user == null) {
+				user = new User(userName);
+			} else {
+				user.getRooms().clear();
+			}
+			ChatSession room = new ChatSession(roomName);
+			room.userJoined(user);
+
+			ORE.addCollectionChangeListener(String.valueOf(user.getId()), room, "messages", new MessageListener());
+			session.save(room);
+			session.saveOrUpdate(user);
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		session.save(room);
-		session.saveOrUpdate(user);
 	}
 
 }
