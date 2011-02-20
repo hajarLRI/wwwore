@@ -31,6 +31,7 @@ public class Hypergraph<N, E> {
 	}
 	
 	public void putNodeOnEdge(N nodeData, HyperEdge<E, N> edge) {
+		
 		HyperNode<N, E> node = nodes.get(nodeData);
 		if(node == null) {
 			node = new HyperNode(nodeData, this);
