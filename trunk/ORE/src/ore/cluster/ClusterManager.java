@@ -57,7 +57,8 @@ public class ClusterManager {
 		}
 		if(s.size() == 1) {
 			for(Peer p : peers) {
-				p.subscriptionNotice(room, false);
+				//TODO Handle deletes
+				p.subscriptionNotice(room, "", false);
 			}
 		}
 		s.remove(sub);
@@ -70,13 +71,14 @@ public class ClusterManager {
 		}
 		if(s.size() == 1) {
 			for(Peer p : peers) {
-				p.subscriptionNotice(room, false);
+				//Handle deletes
+				p.subscriptionNotice(room, "", false);
 			}
 		}
 		s.remove(sub);
 	}
    
-	public void subscribe(final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
+	public void subscribe(String userID, final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
 		Set<Subscription> s = local.get(identifier.toString());
 		if(s == null) {
 			s = new HashSet<Subscription>();
@@ -84,7 +86,7 @@ public class ClusterManager {
 		}
 		if(s.size() == 0) {
 			for(Peer p : peers) {
-				p.subscriptionNotice(identifier.toString(), true);
+				p.subscriptionNotice(identifier.toString(), userID, true);
 			}
 		}
 		s.add(subscription);
@@ -97,7 +99,7 @@ public class ClusterManager {
 		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {
 			for(RemoteSubscriber p : ps) {
-				p.getHost().send(key, new String(data));
+				p.getHost().send(key, p.getUserID(), new String(data));
 			}
 		}
 	}
@@ -142,7 +144,7 @@ public class ClusterManager {
 		}
 
 		@Override
-		public void subscribe(Subscription subscription, String className,
+		public void subscribe(String userID, Subscription subscription, String className,
 				Serializable identifier, String propertyName, EventType type) {
 			
 		}
