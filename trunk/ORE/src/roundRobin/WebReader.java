@@ -34,7 +34,7 @@ public class WebReader implements Runnable {
 		// Step 3
 		while(true) {
 			try {
-				machine.receiveChats(sessionID);
+				machine.receiveMessages(sessionID);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
