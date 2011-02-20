@@ -13,6 +13,7 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -108,45 +109,57 @@ public class Machine implements Runnable {
 		return sessionID;
 	}
 	
-	public void receiveChats(String sessionID) throws Exception {
+	private void receiveChat(JSONObject chat) throws JSONException {
+		String insertTime = chat.getString("message");
+		long receiveTime = System.currentTimeMillis();
+		long roundTime = receiveTime - Long.parseLong(insertTime);
+		
+		synchronized(Machine.class) {
+			Config.readerResponses++;
+			if (Config.timerFlag) {
+				Config.avg = Config.avg + roundTime;
+				System.out.println("Avg: " + Config.avg /Config.readerResponses );
+			} else {
+				if (Config.readerResponses>1500) {
+					Config.timerFlag = true;
+					Config.readerResponses = 0;
+				}
+			}
+		}
+	}
+	
+	private void redirect(JSONObject obj) throws JSONException {
+		String ip = obj.getString("ip");
+		String port = obj.getString("port");
+		this.ip = ip;
+		this.port = port;
+	}
+	
+	private void receive(JSONObject obj) throws JSONException {
+		String type = obj.getString("type");
+		if(type.equals("chatMessage")) {
+			receiveChat(obj);
+		} else if(type.equals("redirect")) {
+			redirect(obj);
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+	
+	public void receiveMessages(String sessionID) throws Exception {
 		HttpClient client = getCurrent();
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID);
 		client.executeMethod(method_tmp);
 		InputStream stream = method_tmp.getResponseBodyAsStream();
 		Reader r2 = new InputStreamReader(stream);
-		long roundTime = 0;
 		JSONArray arr = new JSONArray(new JSONTokener(r2));
 		for(int i=0; i < arr.length(); i++) {
 			JSONObject obj = arr.getJSONObject(i);
-			String insertTime = obj.getString("message");
-			long receiveTime = System.currentTimeMillis();
-			roundTime = receiveTime - Long.parseLong(insertTime);
+			receive(obj);
 		}
 		method_tmp.releaseConnection();
 		client.getHttpConnectionManager().closeIdleConnections(0);
-		synchronized (Machine.class) {
-			// System.out.println("response");
-			Config.readerResponses++;
-			
-			if (Config.timerFlag)
-			{
-				Config.avg = Config.avg + roundTime;
-				System.out.println("Avg: " + Config.avg /Config.readerResponses );
-			}
-			else 
-			{
-				if (Config.readerResponses>1500)
-				{
-					Config.timerFlag=true;
-					Config.readerResponses = 0;
-				}
-			}
-		}
-		try {
-			Thread.sleep(Config.cometBackoff);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Thread.sleep(Config.cometBackoff);
 	}
 	
 	public String getUrlPrefix() {
