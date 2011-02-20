@@ -10,6 +10,7 @@ import ore.api.Event;
 import ore.api.PropertyChangeListener;
 import ore.cluster.ClusterManager;
 import ore.event.EventManager;
+import ore.exception.BrokenCometException;
 import ore.hibernate.Metadata;
 import ore.util.LogMan;
 
@@ -23,6 +24,11 @@ public class Subscriber {
 	private Continuation c;
 	private ConcurrentLinkedQueue<Flushable> q = new ConcurrentLinkedQueue<Flushable>();
 	private String id;
+	private RepartitionSubscription rs = new RepartitionSubscription(this);
+	
+	public void repartition(String ipAddress, String port) throws BrokenCometException {
+		rs.repartition(ipAddress, port);
+	}
 	
 	private List<CollectionChangeListener> list = new LinkedList<CollectionChangeListener>();
 	private List<Subscription> subs = new LinkedList<Subscription>();
@@ -108,18 +114,18 @@ public class Subscriber {
 		this.pickup();
 	}
 
-	public void addPropertyChangeListener(Object entity, String property, PropertyChangeListener listener) throws JMSException {
+	public void addPropertyChangeListener(String userID, Object entity, String property, PropertyChangeListener listener) throws JMSException {
 		PropertyChangeSubscription sx = new PropertyChangeSubscription(listener, this);
 		EventManager.getInstance().addPropertyChangeSubscription(entity, property, sx);
-		ClusterManager.getInstance().subscribe(sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.PropertyChanged);
+		ClusterManager.getInstance().subscribe(userID, sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.PropertyChanged);
 	}
 	
-	public void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) throws JMSException {
+	public void addCollectionChangeListener(String userID, Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		list.add(listener);
 		CollectionChangeSubscription sx = new CollectionChangeSubscription(entity, listener, this);
 		subs.add(sx);
 		EventManager.getInstance().addCollectionChangeSubscription(entity, property, sx);
-		ClusterManager.getInstance().subscribe(sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.CollectionChanged);
+		ClusterManager.getInstance().subscribe(userID, sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.CollectionChanged);
 	}
 	
 }
