@@ -29,10 +29,10 @@ public class ORE {
 	 * @param	listener	Callback for a property change event
 	 * @throws JMSException 
 	 */
-	public static void addPropertyChangeListener(Object entity, String property, PropertyChangeListener listener) throws JMSException {
+	public static void addPropertyChangeListener(String userID, Object entity, String property, PropertyChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
-		subscriber.addPropertyChangeListener(entity, property, listener);
+		subscriber.addPropertyChangeListener(userID, entity, property, listener);
 		
 		int edge = Metadata.getPrimaryKeyValue(entity).hashCode();
 		int node = Integer.parseInt(subscriber.getID());
@@ -48,11 +48,11 @@ public class ORE {
 	 * @param	listener	Callback for the collection change events
 	 * @throws JMSException 
 	 */
-	public static void addCollectionChangeListener(Object entity, String property, CollectionChangeListener listener) throws JMSException {
+	public static void addCollectionChangeListener(String userID, Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
 		System.out.println("Session ID is "+sessionID);
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
-		subscriber.addCollectionChangeListener(entity, property, listener);
+		subscriber.addCollectionChangeListener(userID, entity, property, listener);
 		
 		int edge = Metadata.getPrimaryKeyValue(entity).hashCode();
 		int node = Integer.parseInt(subscriber.getID());
