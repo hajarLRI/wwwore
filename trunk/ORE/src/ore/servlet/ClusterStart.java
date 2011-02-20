@@ -29,7 +29,7 @@ public class ClusterStart extends HttpServlet {
 				peerIPs = peerIP.split("_");
 			}
 			if(selfIP != null) {
-				selfIP.replace('~', ':');
+				selfIP = selfIP.replace('~', ':');
 			}
 			ClusterManager.init(selfIP, peerIPs);
 		} catch (Exception e) {
