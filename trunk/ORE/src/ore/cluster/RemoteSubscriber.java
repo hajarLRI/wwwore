@@ -18,14 +18,11 @@ public class RemoteSubscriber {
 		return host;
 	}
 
-	public void setHost(Peer host) {
-		this.host = host;
-	}
-
 	private Peer host;
 	
 	public RemoteSubscriber(String userID, Peer host) {
 		this.userID = userID;
+		this.host = host;
 	}
 	
 	public boolean equals(Object obj) {

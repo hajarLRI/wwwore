@@ -44,6 +44,7 @@ public class Peer {
 	
 	public void subscriptionNotice(String key, String user, boolean join) {
 		System.out.println("subscriptionNotice("+key+";"+"join"+")");
+		int userId = Integer.parseInt(user);
 		MessageProducer producer = null;
 		String operation = null;
 		if(join) {
@@ -53,7 +54,7 @@ public class Peer {
 		}
 		try {
 			TextMessage message = createMessage(session, operation, key);
-			message.setStringProperty("user", user);
+			message.setIntProperty("user", userId);
 			Topic msgChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
 			producer.send(message);

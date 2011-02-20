@@ -24,24 +24,24 @@ public class SubscriptionListener implements MessageListener {
 		TextMessage textMessage = (TextMessage) msg;
 		try {
 			String operation = textMessage.getStringProperty("operation");
-			String user = textMessage.getStringProperty("user");
+			int user = textMessage.getIntProperty("user");
 			String content = textMessage.getText();
 			if(operation.equals("join")) {
 				LogMan.info("Remote peer joins room: " + content);
 				HyperEdge<Integer, Integer> hyperEdge = ORE.getGraph().getEdge(Integer.parseInt(content));
-				ORE.getGraph().putNodeOnEdge(Integer.parseInt(user), hyperEdge);
+				ORE.getGraph().putNodeOnEdge(user, hyperEdge);
 				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(content);
 				if(ps == null) {
 					ps = new HashSet<RemoteSubscriber>();
 					ClusterManager.getInstance().subscribers.put(content, ps);
 				}
-				RemoteSubscriber rs = new RemoteSubscriber(user, me);
+				RemoteSubscriber rs = new RemoteSubscriber(user+"", me);
 				ps.add(rs);
 			} else {
 				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(content);
 				if(ps != null) {
 					LogMan.info("Remote peer leaves room: " + content);
-					RemoteSubscriber rs = new RemoteSubscriber(user, me);
+					RemoteSubscriber rs = new RemoteSubscriber(user+"", me);
 					ps.remove(rs);
 				}
 			}
