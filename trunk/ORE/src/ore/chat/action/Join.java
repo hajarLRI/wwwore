@@ -27,15 +27,16 @@ public class Join extends Action {
 
 	@Override
 	protected void run(Session session, HttpServletRequest request, PrintWriter pw) {
-		String roomNamesString = getRequiredParameter(request, ROOM_NAME);
-		String[] roomNames = roomNamesString.split("_");
-		String userName = getRequiredParameter(request, USER_NAME);	
-		User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
-		if(user == null) {
-			user = new User(userName);
-			session.saveOrUpdate(user);
-		}
 		try {
+			String roomNamesString = getRequiredParameter(request, ROOM_NAME);
+			String[] roomNames = roomNamesString.split("_");
+			String userName = getRequiredParameter(request, USER_NAME);	
+			User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
+			if(user == null) {
+				user = new User(userName);
+				session.saveOrUpdate(user);
+			}
+
 			for(String roomName : roomNames) {
 				System.out.println("User " + CookieFilter.getSessionID() + " joined room " + roomName);
 				ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
@@ -46,7 +47,7 @@ public class Join extends Action {
 				room.userJoined(user);
 				MessageListener m = new MessageListener();
 				//UsersListener u = new UsersListener();
-				ORE.addCollectionChangeListener(room, "messages", m);
+				ORE.addCollectionChangeListener(String.valueOf(user.getId()), room, "messages", m);
 				//ORE.addCollectionChangeListener(room, "currentUsers", u);
 				pw.print(room.toJSON(session));
 				session.saveOrUpdate(room);
