@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import ore.api.CollectionChangeListener;
 import ore.chat.entity.ChatSession;
 import ore.chat.entity.User;
+import ore.exception.NoSuchSubscriber;
 import ore.servlet.CookieFilter;
 import ore.subscriber.SubscriberManager;
 
@@ -26,7 +27,11 @@ public class Leave extends Action {
 		User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
 		room.getCurrentUsers().remove(user);
 		session.saveOrUpdate(room);
-		SubscriberManager.getInstance().get(CookieFilter.getSessionID()).clear();
+		try {
+			SubscriberManager.getInstance().get(CookieFilter.getSessionID()).clear();
+		} catch (NoSuchSubscriber e) {
+			e.printStackTrace();
+		}
 	}
 
 }

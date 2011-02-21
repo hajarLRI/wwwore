@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ore.exception.NoSuchSubscriber;
 import ore.subscriber.Subscriber;
 import ore.subscriber.SubscriberManager;
 import ore.util.HTTPServletUtil;
@@ -32,9 +33,18 @@ public class CometServlet extends HttpServlet {
 			response.setStatus(200);
 			return;
 		}
+		Subscriber subscriber = null;
+		try {
+			SubscriberManager.getInstance().get(id);
+		} catch(NoSuchSubscriber nss) {
+			String sessionID = SubscriberManager.getInstance().newSubscriber();
+			response.setHeader("Set-Cookie", "sessionID=" + sessionID);
+			response.setStatus(200);
+			return;
+		}
 		Continuation c = ContinuationSupport.getContinuation(request);
 		c.setTimeout(10*60*1000);
-		Subscriber subscriber = SubscriberManager.getInstance().get(id);
+		
 		try {
 			subscriber.pickup(c);
 		} catch (Exception e) {

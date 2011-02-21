@@ -3,6 +3,7 @@ package ore.subscriber;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ore.exception.BrokenCometException;
+import ore.exception.NoSuchSubscriber;
 
 /**
  * Maintains a map between sessionID and {@link Subscriber}
@@ -49,10 +50,10 @@ public class SubscriberManager {
 	 * 
 	 * @param	id	The sessionID of the subscriber to retrieve
 	 */
-	public Subscriber get(String id) {
+	public Subscriber get(String id) throws NoSuchSubscriber{
 		Subscriber me = subscribers.get(id);
 		if(me == null) {
-			throw new RuntimeException("NO_SUCH_SUBSCRIBER: " + id);
+			throw new NoSuchSubscriber(id);
 		}
 		return me;
 	}

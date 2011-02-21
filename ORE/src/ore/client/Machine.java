@@ -131,6 +131,7 @@ public class Machine implements Runnable {
 		InputStream stream = method_tmp.getResponseBodyAsStream();
 		Reader r2 = new InputStreamReader(stream);
 		JSONArray arr = new JSONArray(new JSONTokener(r2));
+		//TODO Is the stream ready to release?
 		method_tmp.releaseConnection();
 		client.getHttpConnectionManager().closeIdleConnections(0);
 		return arr;

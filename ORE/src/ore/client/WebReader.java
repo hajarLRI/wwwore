@@ -39,7 +39,7 @@ public class WebReader implements Runnable {
 		if(type.equals("chatMessage")) {
 			receiveChat(obj);
 		} else if(type.equals("redirect")) {
-			//redirect(obj);
+			redirect(obj);
 		} else {
 			throw new IllegalArgumentException();
 		}
