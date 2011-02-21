@@ -26,16 +26,20 @@ public class EventManager {
 	private ObjectPropertyTable<PropertyChangeSubscription> propertySubscriptions = new ObjectPropertyTable();
 	private ObjectPropertyTable<CollectionChangeSubscription> collectionSubscriptions = new ObjectPropertyTable();
 	
-	public void addPropertyChangeSubscription(Object entity, String propertyName, PropertyChangeSubscription subscription) {
-		String className = entity.getClass().getName();
-		Serializable key = Metadata.getPrimaryKeyValue(entity);
-		propertySubscriptions.addSubscription(className, key.toString(), propertyName, subscription);
+	public void addPropertyChangeSubscription(PropertyChangeSubscription subscription) {
+		propertySubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
 	}
 	
-	public void addCollectionChangeSubscription(Object entity, String propertyName, CollectionChangeSubscription subscription) {
-		String className = entity.getClass().getName();
-		Serializable key = Metadata.getPrimaryKeyValue(entity);
-		collectionSubscriptions.addSubscription(className, key.toString(), propertyName, subscription);
+	public void addCollectionChangeSubscription(CollectionChangeSubscription subscription) {
+		collectionSubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
+	}
+	
+	public void removePropertyChangeSubscription(String className, String key, String propertyName, PropertyChangeSubscription subscription) {
+		propertySubscriptions.removeSubscription(className, key, propertyName, subscription);
+	}
+	
+	public void removeCollectionChangeSubscription(String className, String key, String propertyName, CollectionChangeSubscription subscription) {
+		collectionSubscriptions.removeSubscription(className, key, propertyName, subscription);
 	}
 	
 	public void entityPropertyChanged(String propertyName, Object entity, Object oldValue, Object newValue) throws Exception {
@@ -54,7 +58,11 @@ public class EventManager {
 		String className = entity.getClass().getName();
 		Set<CollectionChangeSubscription> subs = collectionSubscriptions.lookupSubscription(className, key.toString(), propertyName);
 		for(CollectionChangeSubscription sub : subs) {
-			sub.elementAdded(event);
+			try {
+				sub.elementAdded(event);
+			} catch(BrokenCometException e) {
+				
+			}
 		}
 		
 		Object obj = event.getNewValue();

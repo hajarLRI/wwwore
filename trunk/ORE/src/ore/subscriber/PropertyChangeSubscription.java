@@ -15,8 +15,8 @@ import ore.exception.BrokenCometException;
 public class PropertyChangeSubscription extends Subscription implements Flushable {
 	private PropertyChangeListener listener;
 	
-	public PropertyChangeSubscription(PropertyChangeListener listener, Subscriber subscriber) {
-		super(subscriber);
+	public PropertyChangeSubscription(PropertyChangeListener listener, Subscriber subscriber, String className, String key, String property) {
+		super(subscriber, className, key, property);
 		this.listener = listener;
 	}
 	
@@ -32,4 +32,7 @@ public class PropertyChangeSubscription extends Subscription implements Flushabl
 		}
 	}
 	
+	public void remove() {
+		
+	}
 }

@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 
 import ore.api.CollectionChangeListener;
 import ore.api.Event;
+import ore.event.EventManager;
 import ore.exception.BrokenCometException;
 
 /**
@@ -15,19 +16,14 @@ import ore.exception.BrokenCometException;
 public class CollectionChangeSubscription extends Subscription implements Flushable {
 	
 	private CollectionChangeListener listener;
-	private Object entity;
 	
 	public CollectionChangeListener getListener() {
 		return listener;
 	}
 	
-	public Object getEntity() {
-		return entity;
-	}
 	
-	public CollectionChangeSubscription(Object entity, CollectionChangeListener listener, Subscriber subscriber) {
-		super(subscriber);
-		this.entity = entity;
+	public CollectionChangeSubscription(CollectionChangeListener listener, Subscriber subscriber, String className, String key, String property) {
+		super(subscriber, className, key, property);
 		this.listener = listener;
 	}
 
@@ -53,6 +49,11 @@ public class CollectionChangeSubscription extends Subscription implements Flusha
 		} catch(Exception e) {
 			throw new BrokenCometException(subscriber, e);
 		}
+	}
+
+	@Override
+	public void remove() {
+		EventManager.getInstance().removeCollectionChangeSubscription(className, this.key, this.property, this);
 	}
 	
 }

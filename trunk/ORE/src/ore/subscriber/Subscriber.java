@@ -110,17 +110,18 @@ public class Subscriber {
 		this.pickup();
 	}
 
-	public void addPropertyChangeListener(String userID, Object entity, String property, PropertyChangeListener listener) throws JMSException {
-		PropertyChangeSubscription sx = new PropertyChangeSubscription(listener, this);
-		EventManager.getInstance().addPropertyChangeSubscription(entity, property, sx);
-		ClusterManager.getInstance().subscribe(userID, sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.PropertyChanged);
+	public void addPropertyChangeListener(String userID, String className, String key, String property, PropertyChangeListener listener) throws JMSException {
+		PropertyChangeSubscription sx = new PropertyChangeSubscription(listener, this, className, key, property);
+		subs.add(sx);
+		EventManager.getInstance().addPropertyChangeSubscription(sx);
+		ClusterManager.getInstance().subscribe(userID, sx, className, key, property, Event.EventType.PropertyChanged);
 	}
 	
-	public void addCollectionChangeListener(String userID, Object entity, String property, CollectionChangeListener listener) throws JMSException {
-		CollectionChangeSubscription sx = new CollectionChangeSubscription(entity, listener, this);
+	public void addCollectionChangeListener(String userID, String className, String key, String property, CollectionChangeListener listener) throws JMSException {
+		CollectionChangeSubscription sx = new CollectionChangeSubscription(listener, this, className, key, property);
 		subs.add(sx);
-		EventManager.getInstance().addCollectionChangeSubscription(entity, property, sx);
-		ClusterManager.getInstance().subscribe(userID, sx, entity.getClass().getName(), Metadata.getPrimaryKeyValue(entity), property, Event.EventType.CollectionChanged);
+		EventManager.getInstance().addCollectionChangeSubscription(sx);
+		ClusterManager.getInstance().subscribe(userID, sx, className, key, property, Event.EventType.CollectionChanged);
 	}
 	
 }
