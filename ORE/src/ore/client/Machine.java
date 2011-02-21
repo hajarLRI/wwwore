@@ -3,8 +3,8 @@ package ore.client;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
@@ -13,19 +13,22 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class Machine implements Runnable {
 
-	public static List<Machine> machines = new LinkedList<Machine>();
+	public static Map<String, Machine> machines = new HashMap<String, Machine>();
+	
+	public static Machine getMachine(String ipAndPort) {
+		return machines.get(ipAndPort);
+	}
+	
 	private static ThreadLocal<HttpClient> current = new ThreadLocal<HttpClient>();
 	
 	public static void createMachines(String[] ips, String[] ports, String[] jmsPorts) {
 		for(int i=0; i < ips.length; i++) {
 			Machine m = new Machine(ips[i], ports[i], jmsPorts[i]);
-			machines.add(m);
+			machines.put(ips[i] + ":" + ports[i], m);
 		}
 	}
 	
@@ -44,7 +47,7 @@ public class Machine implements Runnable {
 		if(Config.IPs.length > 1) {
 			String peerIP = "";
 			int num = 1;
-			for(Machine m : machines) {
+			for(Machine m : machines.values()) {
 				if(m != this) {
 					peerIP += m.ip + '~' + m.jmsPort;
 				}
@@ -109,57 +112,16 @@ public class Machine implements Runnable {
 		return sessionID;
 	}
 	
-	private void receiveChat(JSONObject chat) throws JSONException {
-		String insertTime = chat.getString("message");
-		long receiveTime = System.currentTimeMillis();
-		long roundTime = receiveTime - Long.parseLong(insertTime);
-		
-		synchronized(Machine.class) {
-			Config.readerResponses++;
-			if (Config.timerFlag) {
-				Config.avg = Config.avg + roundTime;
-				System.out.println("Avg: " + Config.avg /Config.readerResponses );
-			} else {
-				if (Config.readerResponses>1500) {
-					Config.timerFlag = true;
-					Config.readerResponses = 0;
-				}
-			}
-		}
-	}
-	
-	private void redirect(JSONObject obj) throws JSONException {
-		String ip = obj.getString("ip");
-		String port = obj.getString("port");
-		this.ip = ip;
-		this.port = port;
-	}
-	
-	private void receive(JSONObject obj) throws JSONException {
-		String type = obj.getString("type");
-		if(type.equals("chatMessage")) {
-			receiveChat(obj);
-		} else if(type.equals("redirect")) {
-			redirect(obj);
-		} else {
-			throw new IllegalArgumentException();
-		}
-	}
-	
-	public void receiveMessages(String sessionID) throws Exception {
+	public JSONArray receiveMessages(String sessionID) throws Exception {
 		HttpClient client = getCurrent();
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID);
 		client.executeMethod(method_tmp);
 		InputStream stream = method_tmp.getResponseBodyAsStream();
 		Reader r2 = new InputStreamReader(stream);
 		JSONArray arr = new JSONArray(new JSONTokener(r2));
-		for(int i=0; i < arr.length(); i++) {
-			JSONObject obj = arr.getJSONObject(i);
-			receive(obj);
-		}
 		method_tmp.releaseConnection();
 		client.getHttpConnectionManager().closeIdleConnections(0);
-		Thread.sleep(Config.cometBackoff);
+		return arr;
 	}
 	
 	public String getUrlPrefix() {
