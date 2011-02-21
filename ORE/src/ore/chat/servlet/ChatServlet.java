@@ -48,7 +48,6 @@ public class ChatServlet extends HttpServlet {
 	
 	@Override
 	public synchronized void init() {
-		lock.lock();
 		factory = HibernateUtil.getSessionFactory(getServletContext());
 		actions.put(NEW_ROOM, new NewRoom());
 		actions.put(CHAT, new Chat());
@@ -68,20 +67,10 @@ public class ChatServlet extends HttpServlet {
 		tx.commit();
 		session.close();
 		init = true;
-		finished.signalAll();
-		lock.unlock();
 	}
 	   
 	protected  void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		lock.lock();
-		while(!init) {
-			try {
-				finished.await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		lock.unlock();
+		while(!init);
 		String operation = getParameter(OPERATION, request);
 		Session session = factory.openSession();
 		Transaction tx = session.beginTransaction();
