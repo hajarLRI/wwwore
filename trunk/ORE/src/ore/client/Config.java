@@ -1,4 +1,4 @@
-package roundRobin;
+package ore.client;
 
 public class Config {
 
