@@ -1,29 +1,20 @@
 package ore.event;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.Set;
 
-import ore.api.DefaultCollectionChangeListener;
 import ore.api.Event;
-import ore.api.HibernateUtil;
-import ore.chat.entity.ChatMessage;
 import ore.cluster.ClusterManager;
+import ore.exception.BrokenCometException;
 import ore.hibernate.Metadata;
 import ore.subscriber.CollectionChangeSubscription;
 import ore.subscriber.PropertyChangeSubscription;
+import ore.subscriber.Subscription;
 import ore.util.JSONable;
 
 import org.hibernate.mapping.Collection;
 import org.hibernate.mapping.KeyValue;
-import org.hibernate.mapping.PersistentClass;
-import org.hibernate.mapping.Property;
 
-/**
- * This class is an adapter between Hibernate entity operations ({@link ore.hibernate.HibernateListener}) and database
- * table operations ({@link TableManger}). It provides the mapping between the two by using the {@link Metadata}
- * class.
- *
- */
 
 public class EventManager {
 	private static EventManager instance = new EventManager();
@@ -32,70 +23,40 @@ public class EventManager {
 		return instance;
 	}
 	
-	private TableManager tableManager = new TableManager();
+	private ObjectPropertyTable propertySubscriptions;
+	private ObjectPropertyTable collectionSubscriptions;
 	
-	Map<String, PropertyUpdateDispatchListener> propertyDispatchers = new HashMap<String, PropertyUpdateDispatchListener>();
-	
-	public void addPropertyChangeSubscription(Object entity, String propertyName, PropertyChangeSubscription listener) {
+	public void addPropertyChangeSubscription(Object entity, String propertyName, PropertyChangeSubscription subscription) {
 		String className = entity.getClass().getName();
-		PersistentClass pc = HibernateUtil.getConfiguration().getClassMapping(className);
-		String tableName = pc.getTable().getName();
-		String columnName = null;
-		Property prop = pc.getProperty(propertyName);
-		columnName = Metadata.getSingleColumnKey(prop);
-		PropertyUpdateDispatchListener dispatcher = propertyDispatchers.get(tableName);
-		if(dispatcher == null) {
-			dispatcher = new PropertyUpdateDispatchListener();
-			tableManager.addUpdateListener(tableName, dispatcher);
-		}
-		dispatcher.addUpdateListener(columnName, listener);
+		Serializable key = Metadata.getPrimaryKeyValue(entity);
+		propertySubscriptions.addSubscription(className, key.toString(), propertyName, subscription);
 	}
 	
-	public void addCollectionChangeSubscription(Object entity, String propertyName, CollectionChangeSubscription listener) {
+	public void addCollectionChangeSubscription(Object entity, String propertyName, CollectionChangeSubscription subscription) {
 		String className = entity.getClass().getName();
-		String roleName = className + '.' + propertyName;
-		if(Metadata.isOneToMany(roleName)) {
-			Collection collection = Metadata.getCollectionMetadata(roleName);
-			KeyValue key = collection.getKey();
-			String tableName = key.getTable().getName();
-			String columnName = Metadata.getSingleColumnKey(key);
-			Object idValue = Metadata.getPrimaryKeyValue(entity);
-			ValueMatchingDeleteListener deletes = new ValueMatchingDeleteListener(listener, columnName, idValue);
-			tableManager.addDeleteListener(tableName, deletes);
-			((DefaultCollectionChangeListener) listener.getListener()).addOwner(deletes);
-			ValueMatchingInsertListener inserts = new ValueMatchingInsertListener(listener, columnName, idValue);
-			tableManager.addInsertListener(tableName, inserts);
-			((DefaultCollectionChangeListener) listener.getListener()).addOwner(inserts);
-			ValueMatchingUpdateListener updates = new ValueMatchingUpdateListener(listener, columnName, idValue);
-			tableManager.addUpdateListener(tableName, updates);
-			((DefaultCollectionChangeListener) listener.getListener()).addOwner(updates);
-		} else {
-			String manyToManyTableName = Metadata.getManyToManyTableName(roleName);
-			ManyToManyTableListener ccrl = new ManyToManyTableListener(listener);
-			tableManager.addDeleteListener(manyToManyTableName, ccrl);
-			tableManager.addInsertListener(manyToManyTableName, ccrl);
-			((DefaultCollectionChangeListener) listener.getListener()).addOwner(ccrl);
-		}
+		Serializable key = Metadata.getPrimaryKeyValue(entity);
+		collectionSubscriptions.addSubscription(className, key.toString(), propertyName, subscription);
 	}
 	
-	public void entityPropertyChanged(String propertyName, Object entity, Object oldValue, Object newValue) {
+	public void entityPropertyChanged(String propertyName, Object entity, Object oldValue, Object newValue) throws Exception {
 		Event event = new Event(entity, propertyName, oldValue, newValue, Event.EventType.PropertyChanged);
-		String tableName = Metadata.getEntityTableName(entity.getClass());
-		tableManager.update(tableName, event);
+		Serializable key = Metadata.getPrimaryKeyValue(entity);
+		String className = entity.getClass().getName();
+		Set<Subscription> subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		for(Subscription sub : subs) {
+			PropertyChangeSubscription pcs = (PropertyChangeSubscription) sub;
+			pcs.propertyChanged(event);
+		}
 	}
 	
-	public void collectionElementAdded(Object entity, String propertyName, Object element) {
+	public void collectionElementAdded(Object entity, String propertyName, Object element) throws BrokenCometException {
 		Event event = new Event(entity, propertyName, null, element, Event.EventType.CollectionChanged);
+		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
-		String roleName = className + '.' + propertyName;
-		if(Metadata.isOneToMany(roleName)) {
-			Collection collection = Metadata.getCollectionMetadata(roleName);
-			KeyValue key = collection.getKey();
-			String tableName = key.getTable().getName();
-			tableManager.insert(tableName, event);
-		} else {
-			String manyToManyTableName = Metadata.getManyToManyTableName(roleName);
-			tableManager.insert(manyToManyTableName, event);
+		Set<Subscription> subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		for(Subscription sub : subs) {
+			CollectionChangeSubscription pcs = (CollectionChangeSubscription) sub;
+			pcs.elementAdded(event);
 		}
 		
 		Object obj = event.getNewValue();
@@ -107,18 +68,7 @@ public class EventManager {
 	}
 	
 	public void collectionElementRemoved(Object entity, String propertyName, Object element) {
-		Event event = new Event(entity, propertyName, null, element, Event.EventType.CollectionChanged);
-		String className = entity.getClass().getName();
-		String roleName = className + '.' + propertyName;
-		if(Metadata.isOneToMany(roleName)) {
-			Collection collection = Metadata.getCollectionMetadata(roleName);
-			KeyValue key = collection.getKey();
-			String tableName = key.getTable().getName();
-			tableManager.delete(tableName, event);
-		} else {
-			String manyToManyTableName = Metadata.getManyToManyTableName(roleName);
-			tableManager.delete(manyToManyTableName, event);
-		}
+		
 	}
 	
 }
