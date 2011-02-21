@@ -30,7 +30,7 @@ public class Subscriber {
 		return isRepartitioning;
 	}
 	
-	public synchronized void repartition(String ipAddress, String port) throws BrokenCometException {
+	public synchronized void redirect(String ipAddress, String port) throws BrokenCometException {
 		isRepartitioning = true;
 		rs.repartition(ipAddress, port);
 	}
