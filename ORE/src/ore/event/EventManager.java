@@ -23,8 +23,8 @@ public class EventManager {
 		return instance;
 	}
 	
-	private ObjectPropertyTable propertySubscriptions;
-	private ObjectPropertyTable collectionSubscriptions;
+	private ObjectPropertyTable<PropertyChangeSubscription> propertySubscriptions = new ObjectPropertyTable();
+	private ObjectPropertyTable<CollectionChangeSubscription> collectionSubscriptions = new ObjectPropertyTable();
 	
 	public void addPropertyChangeSubscription(Object entity, String propertyName, PropertyChangeSubscription subscription) {
 		String className = entity.getClass().getName();
@@ -42,10 +42,9 @@ public class EventManager {
 		Event event = new Event(entity, propertyName, oldValue, newValue, Event.EventType.PropertyChanged);
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
-		Set<Subscription> subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
-		for(Subscription sub : subs) {
-			PropertyChangeSubscription pcs = (PropertyChangeSubscription) sub;
-			pcs.propertyChanged(event);
+		Set<PropertyChangeSubscription> subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		for(PropertyChangeSubscription sub : subs) {
+			sub.propertyChanged(event);
 		}
 	}
 	
@@ -53,10 +52,9 @@ public class EventManager {
 		Event event = new Event(entity, propertyName, null, element, Event.EventType.CollectionChanged);
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
-		Set<Subscription> subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
-		for(Subscription sub : subs) {
-			CollectionChangeSubscription pcs = (CollectionChangeSubscription) sub;
-			pcs.elementAdded(event);
+		Set<CollectionChangeSubscription> subs = collectionSubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		for(CollectionChangeSubscription sub : subs) {
+			sub.elementAdded(event);
 		}
 		
 		Object obj = event.getNewValue();

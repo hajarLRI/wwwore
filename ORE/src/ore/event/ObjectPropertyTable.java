@@ -7,56 +7,56 @@ import java.util.Set;
 
 import ore.subscriber.Subscription;
 
-public class ObjectPropertyTable {
+public class ObjectPropertyTable<T extends Subscription> {
 	//Classname -> Key -> Property
-	private Map<String, Map<String, Map<String, Set<Subscription>>>> table = new HashMap<String, Map<String, Map<String, Set<Subscription>>>>();
+	private Map<String, Map<String, Map<String, Set<T>>>> table = new HashMap<String, Map<String, Map<String, Set<T>>>>();
 
-	public void addSubscription(String entityType, String key, String property, Subscription s) {
-		Map<String, Map<String, Set<Subscription>>> byKey = table.get(entityType);
+	public void addSubscription(String entityType, String key, String property, T s) {
+		Map<String, Map<String, Set<T>>> byKey = table.get(entityType);
 		if(byKey == null) {
-			byKey = new HashMap<String, Map<String, Set<Subscription>>>();
+			byKey = new HashMap<String, Map<String, Set<T>>>();
 			table.put(key, byKey);
 		}
-		Map<String, Set<Subscription>> byProperty = byKey.get(key);
+		Map<String, Set<T>> byProperty = byKey.get(key);
 		if(byProperty == null) {
-			byProperty = new HashMap<String, Set<Subscription>>();
+			byProperty = new HashMap<String, Set<T>>();
 			byKey.put(key, byProperty);
 		}
-		 Set<Subscription> subs = byProperty.get(property);
+		 Set<T> subs = byProperty.get(property);
 		 if(subs == null) {
-			 subs = new HashSet<Subscription>();
+			 subs = new HashSet<T>();
 			 byProperty.put(property, subs);
 		 }
 		 subs.add(s);
 	}
 	
-	public Set<Subscription> lookupSubscription(String entityType, String key, String property) {
-		Map<String, Map<String, Set<Subscription>>> byKey = table.get(entityType);
+	public Set<T> lookupSubscription(String entityType, String key, String property) {
+		Map<String, Map<String, Set<T>>> byKey = table.get(entityType);
 		if(byKey == null) {
-			return new HashSet<Subscription>();
+			return new HashSet<T>();
 		}
-		Map<String, Set<Subscription>> byProperty = byKey.get(key);
+		Map<String, Set<T>> byProperty = byKey.get(key);
 		if(byProperty == null) {
-			return new HashSet<Subscription>();
+			return new HashSet<T>();
 		}
-		 Set<Subscription> subs = byProperty.get(property);
+		 Set<T> subs = byProperty.get(property);
 		 if(subs == null) {
-			 return new HashSet<Subscription>();
+			 return new HashSet<T>();
 		 } else {
 			 return subs;
 		 }
 	}
 	
-	public void removeSubscription(String entityType, String key, String property, Subscription s) {
-		Map<String, Map<String, Set<Subscription>>> byKey = table.get(entityType);
+	public void removeSubscription(String entityType, String key, String property, T s) {
+		Map<String, Map<String, Set<T>>> byKey = table.get(entityType);
 		if(byKey == null) {
 			throw new IllegalArgumentException();
 		} 
-		Map<String, Set<Subscription>> byProperty = byKey.get(key);
+		Map<String, Set<T>> byProperty = byKey.get(key);
 		if(byProperty == null) {
 			throw new IllegalArgumentException();
 		}
-		Set<Subscription> subs = byProperty.get(property);
+		Set<T> subs = byProperty.get(property);
 		if(subs == null) {
 			throw new IllegalArgumentException();
 		}
