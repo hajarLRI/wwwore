@@ -5,6 +5,8 @@ import java.io.Serializable;
 
 import javax.jms.JMSException;
 
+import ore.cluster.ClusterManager;
+import ore.event.EventManager;
 import ore.hibernate.Metadata;
 import ore.hypergraph.HyperEdge;
 import ore.hypergraph.Hypergraph;
@@ -70,4 +72,9 @@ public class ORE {
 		graph.print(pw);
 	}
 	
+	public static void reset() {
+		EventManager.getInstance().clear();
+		SubscriberManager.getInstance().clear();
+		ClusterManager.getInstance().clear();
+	}
 }

@@ -71,4 +71,8 @@ public class ObjectPropertyTable<T extends Subscription> {
 			table.remove(entityType);
 		}
 	}
+	
+	public void clear() {
+		table.clear();
+	}
 }
