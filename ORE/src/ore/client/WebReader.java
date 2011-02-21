@@ -29,7 +29,7 @@ public class WebReader implements Runnable {
 	private void redirect(JSONObject obj) throws Exception {
 		String ip = obj.getString("ip");
 		String port = obj.getString("port");
-		Machine newMachine = Machine.getMachine(ip + ":" + port);
+		Machine newMachine = Machine.getMachine(ip, port);
 		this.machine = newMachine;
 		init();
 	}
@@ -39,7 +39,7 @@ public class WebReader implements Runnable {
 		if(type.equals("chatMessage")) {
 			receiveChat(obj);
 		} else if(type.equals("redirect")) {
-			redirect(obj);
+			//redirect(obj);
 		} else {
 			throw new IllegalArgumentException();
 		}
