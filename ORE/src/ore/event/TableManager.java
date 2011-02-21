@@ -29,13 +29,13 @@ class TableManager {
 	private static class UpdateMap extends HashMap<String, UpdateListenerList> {}
 	//END TYPEDEF
 	
-	TableManager() {}
+	private TableManager() {}
 	
 	private InsertMap insertMap = new InsertMap();
 	private DeleteMap deleteMap = new DeleteMap();
 	private UpdateMap updateMap = new UpdateMap();
 	
-	public void addInsertListener(String tableName, InsertListener listener) {
+	private void addInsertListener(String tableName, InsertListener listener) {
 		InsertListenerList list = insertMap.get(tableName);
 		if(list == null) {
 			list = new InsertListenerList();
@@ -45,7 +45,7 @@ class TableManager {
 		listener.setOwner(list);
 	}
 	
-	public void addDeleteListener(String tableName, DeleteListener listener) {
+	private void addDeleteListener(String tableName, DeleteListener listener) {
 		DeleteListenerList list = deleteMap.get(tableName);
 		if(list == null) {
 			list = new DeleteListenerList();
@@ -55,7 +55,7 @@ class TableManager {
 		listener.setOwner(list);
 	}
 	
-	public void addUpdateListener(String tableName, UpdateListener listener) {
+	private void addUpdateListener(String tableName, UpdateListener listener) {
 		UpdateListenerList list = updateMap.get(tableName);
 		if(list == null) {
 			list = new UpdateListenerList();
@@ -65,7 +65,7 @@ class TableManager {
 		listener.setOwner(list);
 	}
 
-	void insert(String tableName, Event event) {
+	private void insert(String tableName, Event event) {
 		InsertListenerList list = insertMap.get(tableName);
 		if(list != null) {
 			InsertListenerList broken = new InsertListenerList();
@@ -82,7 +82,7 @@ class TableManager {
 		}
 	}
 	
-	void delete(String tableName, Event event) {
+	private void delete(String tableName, Event event) {
 		DeleteListenerList list = deleteMap.get(tableName);
 		if(list != null) {
 			DeleteListenerList broken = new DeleteListenerList();
@@ -99,7 +99,7 @@ class TableManager {
 		}
 	}
 	
-	void update(String tableName, Event event) {
+	private void update(String tableName, Event event) {
 		UpdateListenerList list = updateMap.get(tableName);
 		if(list != null) {
 			UpdateListenerList broken = new UpdateListenerList();
