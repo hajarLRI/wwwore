@@ -16,6 +16,6 @@ public class Config {
 	public static int readers = 100;
 	public static int itemsPerUser = 10;
 	public static double overlap = .5;
-	public static double R = .5;
+	public static double R = .2;
 	
 }

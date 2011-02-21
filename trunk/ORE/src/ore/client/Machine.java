@@ -1,15 +1,13 @@
 package ore.client;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -19,10 +17,15 @@ import org.json.JSONTokener;
 
 public class Machine implements Runnable {
 
-	public static Map<String, Machine> machines = new HashMap<String, Machine>();
+	public static List<Machine> machines = new LinkedList<Machine>();
 	
-	public static Machine getMachine(String ipAndPort) {
-		return machines.get(ipAndPort);
+	public static Machine getMachine(String ip, String port) {
+		for(Machine m : machines) {
+			if(m.ip.equals(ip) && m.port.equals(port)) {
+				return m;
+			}
+		}
+		return null;
 	}
 	
 	private static ThreadLocal<HttpClient> current = new ThreadLocal<HttpClient>();
@@ -30,7 +33,7 @@ public class Machine implements Runnable {
 	public static void createMachines(String[] ips, String[] ports, String[] jmsPorts) {
 		for(int i=0; i < ips.length; i++) {
 			Machine m = new Machine(ips[i], ports[i], jmsPorts[i]);
-			machines.put(ips[i] + ":" + ports[i], m);
+			machines.add(m);
 		}
 	}
 	
@@ -49,7 +52,7 @@ public class Machine implements Runnable {
 		if(Config.IPs.length > 1) {
 			String peerIP = "";
 			int num = 1;
-			for(Machine m : machines.values()) {
+			for(Machine m : machines) {
 				if(m != this) {
 					peerIP += m.ip + '~' + m.jmsPort;
 				}
