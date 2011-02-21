@@ -24,8 +24,14 @@ public class Subscriber {
 	private Continuation c;
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
+	private boolean isRepartitioning = false;
 	
-	public void repartition(String ipAddress, String port) throws BrokenCometException {
+	public boolean isRepartitioning() {
+		return isRepartitioning;
+	}
+	
+	public synchronized void repartition(String ipAddress, String port) throws BrokenCometException {
+		isRepartitioning = true;
 		rs.repartition(ipAddress, port);
 	}
 	
@@ -96,6 +102,9 @@ public class Subscriber {
 			if(gotData) {
 				LogMan.info("Subscriber " + id + " pickup data");
 				//c.complete();
+				if(isRepartitioning) {
+					SubscriberManager.getInstance().remove(this);
+				}
 				c.getServletResponse().getWriter().close();
 				c = null;
 			} else {
