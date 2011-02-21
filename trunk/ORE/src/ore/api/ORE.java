@@ -74,7 +74,6 @@ public class ORE {
 	
 	public static void reset() {
 		EventManager.getInstance().clear();
-		SubscriberManager.getInstance().clear();
 		ClusterManager.getInstance().clear();
 	}
 }
