@@ -13,14 +13,46 @@ import ore.util.LogMan;
 public abstract class Subscription implements Flushable {
 	private ConcurrentLinkedQueue<char[]> buffer = new ConcurrentLinkedQueue<char[]>();
 	protected Subscriber subscriber;
+	protected String className;
+	public String getClassName() {
+		return className;
+	}
+
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
+	public void setProperty(String property) {
+		this.property = property;
+	}
+
+	protected String key;
+	protected String property;
 	
 	public Subscriber getSubscriber() {
 		return subscriber;
 	}
 	
-	public Subscription(Subscriber subscriber) {
+	public Subscription(Subscriber subscriber, String className, String key, String property) {
 		this.subscriber = subscriber;
+		this.className = className;
+		this.key = key;
+		this.property = property;
 	}
+	
+	public abstract void remove();
 	
 	private void buffer(char[] data) {
 		buffer.add(data);
@@ -34,7 +66,7 @@ public abstract class Subscription implements Flushable {
 	public void print(char[] data) throws BrokenCometException {
 		synchronized(subscriber) {
 			try {
-				if(subscriber.isConnected()) {
+				if(subscriber.isSuspended()) {
 					PrintWriter out = subscriber.getContinuation().getServletResponse().getWriter();
 					out.print('[');
 					out.println(data);
@@ -73,4 +105,6 @@ public abstract class Subscription implements Flushable {
 		}
 		return gotData;
 	}
+	
+	
 }

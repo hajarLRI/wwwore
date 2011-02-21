@@ -5,7 +5,7 @@ import ore.exception.BrokenCometException;
 public class RepartitionSubscription extends Subscription {
 
 	public RepartitionSubscription(Subscriber subscriber) {
-		super(subscriber);
+		super(subscriber, null, null, null);
 	}
 
 	public void repartition(String ipAddress, String port) throws BrokenCometException {
@@ -13,7 +13,7 @@ public class RepartitionSubscription extends Subscription {
 		this.print(message.toCharArray());
 	}
 	
-	public void delete() {
+	public void remove() {
 		
 	}
 }

@@ -1,6 +1,7 @@
 package ore.api;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 
 import javax.jms.JMSException;
 
@@ -32,9 +33,11 @@ public class ORE {
 	public static void addPropertyChangeListener(String userID, Object entity, String property, PropertyChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
-		subscriber.addPropertyChangeListener(userID, entity, property, listener);
+		Serializable key = Metadata.getPrimaryKeyValue(entity);
+		String className = entity.getClass().getName();
+		subscriber.addPropertyChangeListener(userID, className, key.toString(), property, listener);
 		
-		int edge = Metadata.getPrimaryKeyValue(entity).hashCode();
+		int edge = key.hashCode();
 		int node = Integer.parseInt(subscriber.getID());
 		HyperEdge<Integer, Integer> hyperEdge = graph.getEdge(edge);
 		graph.putNodeOnEdge(node, hyperEdge);
@@ -52,9 +55,12 @@ public class ORE {
 		String sessionID = CookieFilter.getSessionID();
 		System.out.println("Session ID is "+sessionID);
 		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
-		subscriber.addCollectionChangeListener(userID, entity, property, listener);
 		
-		int edge = Metadata.getPrimaryKeyValue(entity).hashCode();
+		Serializable key = Metadata.getPrimaryKeyValue(entity);
+		String className = entity.getClass().getName();
+		subscriber.addCollectionChangeListener(userID, className, key.toString(), property, listener);
+		
+		int edge = key.hashCode();
 		int node = Integer.parseInt(subscriber.getID());
 		HyperEdge<Integer, Integer> hyperEdge = graph.getEdge(edge);
 		graph.putNodeOnEdge(node, hyperEdge);

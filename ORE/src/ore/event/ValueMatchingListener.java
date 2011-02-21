@@ -36,7 +36,7 @@ public abstract class ValueMatchingListener implements Deleteable {
 	}
 	
 	public ValueMatchingListener(CollectionChangeSubscription  subscription, String propertyName, Object value) {
-		String getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
+	/* String getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) + propertyName.substring(1);
 		Class entityClass = subscription.getEntity().getClass();
 		try {
 			this.getter = entityClass.getMethod(getterName, null);
@@ -45,7 +45,7 @@ public abstract class ValueMatchingListener implements Deleteable {
 		}
 		this.subscription = subscription;
 		this.propertyName = propertyName;
-		this.value = value;
+		this.value = value;*/
 	}
 	
 	public Object getPropertyValue(Object entity, String property) {
