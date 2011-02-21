@@ -15,7 +15,7 @@ public class ObjectPropertyTable<T extends Subscription> {
 		Map<String, Map<String, Set<T>>> byKey = table.get(entityType);
 		if(byKey == null) {
 			byKey = new HashMap<String, Map<String, Set<T>>>();
-			table.put(key, byKey);
+			table.put(entityType, byKey);
 		}
 		Map<String, Set<T>> byProperty = byKey.get(key);
 		if(byProperty == null) {
