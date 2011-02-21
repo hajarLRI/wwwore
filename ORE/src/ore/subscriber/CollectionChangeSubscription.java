@@ -12,7 +12,7 @@ import ore.exception.BrokenCometException;
  * listener specific to a given Subscriber. The wrapper allows events for the
  * Subscriber to be buffered and then flushed to the client later. 
  */
-public class CollectionChangeSubscription  extends Subscription implements Flushable {
+public class CollectionChangeSubscription extends Subscription implements Flushable {
 	
 	private CollectionChangeListener listener;
 	private Object entity;

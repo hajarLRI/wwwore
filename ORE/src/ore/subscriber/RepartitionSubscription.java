@@ -12,4 +12,8 @@ public class RepartitionSubscription extends Subscription {
 		String message = "{\"type\":'redirect',\"ip\":'" + ipAddress +"',\"port\"='" + port + "'}";
 		this.print(message.toCharArray());
 	}
+	
+	public void delete() {
+		
+	}
 }
