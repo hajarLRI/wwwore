@@ -1,4 +1,4 @@
-package roundRobin;
+package ore.client;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import ore.api.ORE;
+import ore.client.HMetis;
 import ore.hypergraph.Hypergraph;
-import roundRobin.HMetis;
 
 public class HyperServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
