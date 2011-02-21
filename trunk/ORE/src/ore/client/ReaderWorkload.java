@@ -19,7 +19,7 @@ public class ReaderWorkload implements Runnable {
 		int chunkSize = 50;//(int) Math.round((m * Config.R)/n + 1);
 		System.out.println("Chunksize: " + chunkSize);
 		System.out.println("Writers: " + (int) Math.ceil(Config.readers * (Config.itemsPerUser * (1-Config.overlap))));
-		Iterator<Machine> it = Machine.machines.iterator();
+		Iterator<Machine> it = Machine.machines.values().iterator();
 		Machine machine = it.next();
 		for(User user : users) {
 			WebReader runner = new WebReader(machine, user);
@@ -35,7 +35,7 @@ public class ReaderWorkload implements Runnable {
 				if(it.hasNext()) {
 					machine = it.next();
 				} else {
-					it = Machine.machines.iterator();
+					it = Machine.machines.values().iterator();
 					machine = it.next();
 				}
 				i = 0;
