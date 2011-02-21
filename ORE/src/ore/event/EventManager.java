@@ -26,6 +26,11 @@ public class EventManager {
 	private ObjectPropertyTable<PropertyChangeSubscription> propertySubscriptions = new ObjectPropertyTable();
 	private ObjectPropertyTable<CollectionChangeSubscription> collectionSubscriptions = new ObjectPropertyTable();
 	
+	public void clear() {
+		propertySubscriptions.clear();
+		collectionSubscriptions.clear();
+	}
+	
 	public void addPropertyChangeSubscription(PropertyChangeSubscription subscription) {
 		propertySubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
 	}

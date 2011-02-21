@@ -66,10 +66,7 @@ public class SubscriberManager {
 		subscribers.remove(id);
 	}
 	
-	public void removeAll() {
-		for(Subscriber s : subscribers.values()) {
-			s.clear();
-			remove(s);
-		}
+	public void clear() {
+		subscribers.clear();
 	}
  }

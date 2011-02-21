@@ -25,6 +25,12 @@ public class ClusterManager {
 	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
 	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
 	
+	public void clear() {
+		subscribers.clear();
+		local.clear();
+		inverted.clear();
+	}
+	
 	private ClusterManager(String selfIP, String[] peerIP) throws Exception  {
 		self = new Peer(selfIP);
 		self.start();
