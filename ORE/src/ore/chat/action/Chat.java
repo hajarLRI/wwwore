@@ -8,6 +8,7 @@ import org.hibernate.Session;
 
 import ore.chat.entity.ChatMessage;
 import ore.chat.entity.ChatSession;
+import ore.exception.BrokenCometException;
 import static ore.util.HTTPServletUtil.*;
 
 public class Chat extends Action {
@@ -19,7 +20,11 @@ public class Chat extends Action {
 		String userName = getRequiredParameter(request, USER_NAME);	
 		ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
 		ChatMessage chatMessage = new ChatMessage(userName, message, room);
-		room.addMessage(session, chatMessage);
+		try {
+			room.addMessage(session, chatMessage);
+		} catch (BrokenCometException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

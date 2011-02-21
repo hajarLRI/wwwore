@@ -11,6 +11,7 @@ import java.util.Set;
 
 import ore.chat.servlet.ChatServlet;
 import ore.event.EventManager;
+import ore.exception.BrokenCometException;
 
 import org.hibernate.Session;
 
@@ -47,7 +48,7 @@ public class ChatSession {
 		return roomName;
 	}
 	
-	public void addMessage(Session s, ChatMessage msg) {
+	public void addMessage(Session s, ChatMessage msg) throws BrokenCometException {
 		try {
 			s.createSQLQuery("INSERT INTO chatmessages VALUES ('" + msg.getId() + "','" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
 		} catch(Exception e) {
