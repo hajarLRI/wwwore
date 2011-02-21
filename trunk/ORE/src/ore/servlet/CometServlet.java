@@ -35,7 +35,7 @@ public class CometServlet extends HttpServlet {
 		}
 		Subscriber subscriber = null;
 		try {
-			SubscriberManager.getInstance().get(id);
+			subscriber = SubscriberManager.getInstance().get(id);
 		} catch(NoSuchSubscriber nss) {
 			String sessionID = SubscriberManager.getInstance().newSubscriber();
 			response.setHeader("Set-Cookie", "sessionID=" + sessionID);
