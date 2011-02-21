@@ -1,5 +1,6 @@
 package ore.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -68,6 +70,13 @@ public class Machine implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		method.releaseConnection();
+	}
+	
+	public void redirect(Machine other) throws Exception {
+		GetMethod method = makeMethod(getUrlPrefix() + "/swap", "none", "ip", other.ip, "port", other.port);
+		HttpClient client = createClient();
+		client.executeMethod(method);
 		method.releaseConnection();
 	}
 	
