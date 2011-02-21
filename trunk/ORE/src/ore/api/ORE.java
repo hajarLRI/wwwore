@@ -7,6 +7,7 @@ import javax.jms.JMSException;
 
 import ore.cluster.ClusterManager;
 import ore.event.EventManager;
+import ore.exception.NoSuchSubscriber;
 import ore.hibernate.Metadata;
 import ore.hypergraph.HyperEdge;
 import ore.hypergraph.Hypergraph;
@@ -34,7 +35,12 @@ public class ORE {
 	 */
 	public static void addPropertyChangeListener(String userID, Object entity, String property, PropertyChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
-		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
+		Subscriber subscriber = null;
+		try {
+			subscriber = SubscriberManager.getInstance().get(sessionID);
+		} catch(NoSuchSubscriber nss) {
+			nss.printStackTrace();
+		}
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
 		subscriber.addPropertyChangeListener(userID, className, key.toString(), property, listener);
@@ -56,8 +62,12 @@ public class ORE {
 	public static void addCollectionChangeListener(String userID, Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
 		System.out.println("Session ID is "+sessionID);
-		Subscriber subscriber = SubscriberManager.getInstance().get(sessionID);
-		
+		Subscriber subscriber = null;
+		try {
+			subscriber = SubscriberManager.getInstance().get(sessionID);
+		} catch(NoSuchSubscriber nss) {
+			nss.printStackTrace();
+		}
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
 		subscriber.addCollectionChangeListener(userID, className, key.toString(), property, listener);
