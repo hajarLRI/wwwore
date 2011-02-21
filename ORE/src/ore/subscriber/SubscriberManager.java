@@ -2,6 +2,8 @@ package ore.subscriber;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import ore.exception.BrokenCometException;
+
 /**
  * Maintains a map between sessionID and {@link Subscriber}
  */
@@ -31,6 +33,16 @@ public class SubscriberManager {
 	private SubscriberManager() {}
 	
 	private ConcurrentHashMap<String, Subscriber> subscribers = new ConcurrentHashMap<String, Subscriber>();
+	
+	public void redirectAll(String ip, String port) {
+		for(Subscriber s : subscribers.values()) {
+			try {
+				s.redirect(ip, port);
+			} catch (BrokenCometException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	/**
 	 * Get the {@link Subscriber} object for a given sessionID
