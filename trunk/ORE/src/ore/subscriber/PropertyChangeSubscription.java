@@ -31,4 +31,5 @@ public class PropertyChangeSubscription extends Subscription implements Flushabl
 			throw new BrokenCometException(subscriber, e);
 		}
 	}
+	
 }

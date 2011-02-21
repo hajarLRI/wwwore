@@ -22,7 +22,6 @@ import org.eclipse.jetty.continuation.Continuation;
  */
 public class Subscriber {
 	private Continuation c;
-	private ConcurrentLinkedQueue<Flushable> q = new ConcurrentLinkedQueue<Flushable>();
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
 	
@@ -30,13 +29,10 @@ public class Subscriber {
 		rs.repartition(ipAddress, port);
 	}
 	
-	private List<CollectionChangeListener> list = new LinkedList<CollectionChangeListener>();
+	private ConcurrentLinkedQueue<Flushable> q = new ConcurrentLinkedQueue<Flushable>();
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
 	public void clear() {
-		for(CollectionChangeListener ccl : list) {
-			ccl.delete();
-		}
 		for(Subscription sub : subs) {
 			ClusterManager.getInstance().delete(sub);
 		}
@@ -121,7 +117,6 @@ public class Subscriber {
 	}
 	
 	public void addCollectionChangeListener(String userID, Object entity, String property, CollectionChangeListener listener) throws JMSException {
-		list.add(listener);
 		CollectionChangeSubscription sx = new CollectionChangeSubscription(entity, listener, this);
 		subs.add(sx);
 		EventManager.getInstance().addCollectionChangeSubscription(entity, property, sx);
