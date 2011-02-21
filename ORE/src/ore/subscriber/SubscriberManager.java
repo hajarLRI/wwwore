@@ -61,12 +61,9 @@ public class SubscriberManager {
 	 * Reclaim memory for a disconnected {@link Subscriber}
 	 * @param s	The subscriber to remove
 	 */
-	private void remove(Subscriber s) {
+	public void remove(Subscriber s) {
 		String id = s.getID();
 		subscribers.remove(id);
 	}
 	
-	public void clear() {
-		subscribers.clear();
-	}
  }

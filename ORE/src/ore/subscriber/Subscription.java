@@ -72,6 +72,9 @@ public abstract class Subscription implements Flushable {
 					out.println(data);
 					out.print(']');
 					LogMan.info("Subscriber " + subscriber.getID() + " got pushed.");
+					if(subscriber.isRepartitioning()) {
+						SubscriberManager.getInstance().remove(subscriber);
+					}
 					subscriber.getContinuation().complete();
 				} else {
 					buffer(data);
