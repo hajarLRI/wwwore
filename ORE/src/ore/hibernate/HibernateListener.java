@@ -208,18 +208,22 @@ public class HibernateListener implements 	DeleteEventListener,
 	 */
 	@Override
 	public void onPostUpdate(PostUpdateEvent arg0) {
-		LogMan.trace("POST_UPDATE");
-		int[] dirts = null; 
 		try {
-			dirts = arg0.getPersister().findDirty(arg0.getState(), arg0.getOldState(), arg0.getEntity(), arg0.getSession());
-		} catch(Exception e) {
-			System.out.println("Find dirty Exception");
-		}
-		if(dirts != null) {
-			for(int i=0;i < dirts.length;i++) {
-				String propertyName = arg0.getPersister().getPropertyNames()[dirts[i]];
-				EventManager.getInstance().entityPropertyChanged(propertyName, arg0.getEntity(), arg0.getOldState()[dirts[i]], arg0.getState()[dirts[i]]);
+			LogMan.trace("POST_UPDATE");
+			int[] dirts = null; 
+			try {
+				dirts = arg0.getPersister().findDirty(arg0.getState(), arg0.getOldState(), arg0.getEntity(), arg0.getSession());
+			} catch(Exception e) {
+				System.out.println("Find dirty Exception");
 			}
+			if(dirts != null) {
+				for(int i=0;i < dirts.length;i++) {
+					String propertyName = arg0.getPersister().getPropertyNames()[dirts[i]];
+					EventManager.getInstance().entityPropertyChanged(propertyName, arg0.getEntity(), arg0.getOldState()[dirts[i]], arg0.getState()[dirts[i]]);
+				}
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -244,51 +248,54 @@ public class HibernateListener implements 	DeleteEventListener,
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onPreUpdateCollection(PreCollectionUpdateEvent arg0) {
-		LogMan.trace("PRE_UPDATE_COLLECTION");
-		Object snapShot = arg0.getCollection().getStoredSnapshot();
-		Object value = arg0.getCollection().getValue();
-		if((snapShot instanceof Map) && (value instanceof Set)) {
-			Set shot = ((Map)snapShot).keySet();
-			Set copy = new HashSet();
-			copy.addAll((Set)value);
-			copy.removeAll(shot);
-			for(Object newValue : copy) {
-				String[] split = arg0.getCollection().getRole().split("\\.");
-				String propertyName = split[split.length-1];
-				EventManager.getInstance().collectionElementAdded(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+		try {
+			LogMan.trace("PRE_UPDATE_COLLECTION");
+			Object snapShot = arg0.getCollection().getStoredSnapshot();
+			Object value = arg0.getCollection().getValue();
+			if((snapShot instanceof Map) && (value instanceof Set)) {
+				Set shot = ((Map)snapShot).keySet();
+				Set copy = new HashSet();
+				copy.addAll((Set)value);
+				copy.removeAll(shot);
+				for(Object newValue : copy) {
+					String[] split = arg0.getCollection().getRole().split("\\.");
+					String propertyName = split[split.length-1];
+					EventManager.getInstance().collectionElementAdded(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+				}
+
+				shot = (Set) value;
+				copy = new HashSet();
+				copy.addAll(((Map)snapShot).keySet());
+				copy.removeAll(shot);
+				for(Object newValue : copy) {
+					String[] split = arg0.getCollection().getRole().split("\\.");
+					String propertyName = split[split.length-1];
+					EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+				}
+			} else if((snapShot instanceof List) && (value instanceof List)) {
+				List shot = (List) snapShot;
+				List copy = new LinkedList();
+				copy.addAll((List) value);
+				copy.removeAll(shot);
+				for(Object newValue : copy) {
+					String[] split = arg0.getCollection().getRole().split("\\.");
+					String propertyName = split[split.length-1];
+					EventManager.getInstance().collectionElementAdded(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+				}
+
+				shot = (List) value;
+				copy = new LinkedList();
+				copy.addAll((List) snapShot);
+				copy.removeAll(shot);
+				for(Object newValue : copy) {
+					String[] split = arg0.getCollection().getRole().split("\\.");
+					String propertyName = split[split.length-1];
+					EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+				}
 			}
-			
-			shot = (Set) value;
-			copy = new HashSet();
-			copy.addAll(((Map)snapShot).keySet());
-			copy.removeAll(shot);
-			for(Object newValue : copy) {
-				String[] split = arg0.getCollection().getRole().split("\\.");
-				String propertyName = split[split.length-1];
-				EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-			}
-		} else if((snapShot instanceof List) && (value instanceof List)) {
-			List shot = (List) snapShot;
-			List copy = new LinkedList();
-			copy.addAll((List) value);
-			copy.removeAll(shot);
-			for(Object newValue : copy) {
-				String[] split = arg0.getCollection().getRole().split("\\.");
-				String propertyName = split[split.length-1];
-				EventManager.getInstance().collectionElementAdded(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-			}
-			
-			shot = (List) value;
-			copy = new LinkedList();
-			copy.addAll((List) snapShot);
-			copy.removeAll(shot);
-			for(Object newValue : copy) {
-				String[] split = arg0.getCollection().getRole().split("\\.");
-				String propertyName = split[split.length-1];
-				EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-			}
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
-		
 	}
 
 	@Override
