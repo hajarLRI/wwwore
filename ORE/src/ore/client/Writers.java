@@ -40,19 +40,21 @@ public class Writers {
 			double chunkSize = num / numOfMachines;
 			double position = id / chunkSize;
 			int index = (int) position;
-			System.out.println(index);
 			return "http://" + Config.IPs[index] + ':' + Config.httpPorts[index] + '/' + Config.PROJECT;
 		}
  
 		public void run() {
 			GetMethod method_tmp = null;
-			
+			long st = System.currentTimeMillis();
+			boolean start = false;
 			while(true) {   
 				try {
 					long insertTime = System.currentTimeMillis();
 
-					if (id==(num-1))
+					if (id==(num-1)) { 
+						start = true;
 						System.err.println(num+" Writers created");
+					}
 					//System.out.println("Write: " + id + ", to ");
 					getAddress();
 					
@@ -64,8 +66,12 @@ public class Writers {
 					//client.getHttpConnectionManager().closeIdleConnections(0);
 					
 					synchronized(Writers.class) {
-						msgs++;
-						//System.out.println("Wrote msg: " + msgs);
+						if(start) {
+							msgs++;
+							long stop = System.currentTimeMillis();
+							double elapsed = (stop-st)/(double) 1000;
+							System.out.println("Write/Sec: " + ((double)msgs/(double)elapsed));
+						}
 					}
 					Thread.sleep(1000);
 				} catch(Exception e) {
