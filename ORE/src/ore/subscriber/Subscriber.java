@@ -84,47 +84,54 @@ public class Subscriber {
 		buffer.add(data);
 	}
 	
+	private void flushData(PrintWriter pw) {
+		pw.print("[");
+		int i = 0;
+		for(char[] data : buffer) {
+			pw.print(data);
+			if(i != (buffer.size()-1)) {
+				pw.print(',');
+			}
+			i++;
+		}
+		pw.print("]");
+		pw.flush();
+		buffer.clear();
+	}
+	
 	public synchronized void print(char[] data) throws BrokenCometException {
 		try {
+			buffer(data);
 			if(isSuspended()) {
-				PrintWriter out = getContinuation().getServletResponse().getWriter();
-				out.print('[');
-				out.println(data);
-				out.print(']');
-				LogMan.info("Subscriber " + getID() + " got pushed.");
+				PrintWriter pw = getContinuation().getServletResponse().getWriter();
+				flushData(pw);
+				pw.close();
 				if(isRepartitioning()) {
 					SubscriberManager.getInstance().remove(this);
 				}
 				getContinuation().complete();
-			} else {
-				buffer(data);
-			}
+			} 
 		} catch(Exception e) {
 			throw new BrokenCometException(this, e);
 		}
 
 	}
 	
-	private void pickup() throws Exception {
-		synchronized(this) {
-			
-			boolean gotData = false;
-
-			gotData = flushEvents(c.getServletResponse().getWriter());
-			
-			if(gotData) {
+	private synchronized void pickup() throws Exception {	
+			if(buffer.size() > 0) {
 				LogMan.info("Subscriber " + id + " pickup data");
+				PrintWriter pw = c.getServletResponse().getWriter();
+				flushData(pw);
 				//c.complete();
 				if(isRepartitioning) {
 					SubscriberManager.getInstance().remove(this);
 				}
-				c.getServletResponse().getWriter().close();
+				pw.close();
 				c = null;
 			} else {
 				//LogMan.info("Subscriber " + id + " empty pickup data");
 				c.suspend(c.getServletResponse());
 			}
-		}
 	}
 	
 	public void pickup(Continuation c) throws Exception {
@@ -145,26 +152,5 @@ public class Subscriber {
 		EventManager.getInstance().addCollectionChangeSubscription(sx);
 		ClusterManager.getInstance().subscribe(userID, sx, className, key, property, Event.EventType.CollectionChanged);
 	}
-	
-	
-	public boolean flushEvents(PrintWriter pw) throws BrokenCometException {
-		boolean gotData = false;
-		try {
-			pw.print("[");
-			int i = 0;
-			for(char[] data : buffer) {
-				pw.print(data);
-				gotData = true;
-				if(i == (buffer.size()-1)) {
-					pw.print(',');
-				}
-				i++;
-			}
-			pw.print("]");
-			buffer.clear();
-		} catch(Exception e) {
-			throw new BrokenCometException(this, e);
-		}
-		return gotData;
-	}
+
 }
