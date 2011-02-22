@@ -11,6 +11,7 @@ public class Key {
 		this.property = property;
 	}
 	
+	@Override
 	public int hashCode() {
 		int result = 13;
 		result = result*17 + className.hashCode();
@@ -19,6 +20,7 @@ public class Key {
 		return result;
 	}
 	
+	@Override
 	public boolean equals(Object o) {
 		if(o instanceof Key) {
 			Key other = (Key) o;

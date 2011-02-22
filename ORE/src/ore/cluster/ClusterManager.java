@@ -108,9 +108,7 @@ public class ClusterManager {
 			for(Peer p : peers) {
 				p.send(key, user, data);
 			}
-		} else {
-			System.out.println("Null: " + id);
-		}
+		} 
 	}
 	
 	public static void init(String ip, String[] peerIP) throws Exception {
