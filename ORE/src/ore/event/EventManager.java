@@ -74,7 +74,7 @@ public class EventManager {
 		if(obj instanceof JSONable) {
 			JSONable message = (JSONable) obj;
 			String str = message.toJSON();
-			ClusterManager.getInstance().publish(str.toCharArray(), event);
+			ClusterManager.getInstance().publish(str.toCharArray(), className, key.toString(), propertyName);
 		}
 	}
 	

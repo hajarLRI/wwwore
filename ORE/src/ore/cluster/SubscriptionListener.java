@@ -33,7 +33,7 @@ public class SubscriptionListener implements MessageListener {
 				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(content);
 				if(ps == null) {
 					ps = new HashSet<RemoteSubscriber>();
-					ClusterManager.getInstance().subscribers.put(content, ps);
+					ClusterManager.getInstance().subscribers.put(Key.parse(content), ps);
 				}
 				RemoteSubscriber rs = new RemoteSubscriber(user+"", me);
 				ps.add(rs);
