@@ -57,7 +57,7 @@ public class EventManager {
 		}
 	}
 	
-	public void collectionElementAdded(Object entity, String propertyName, Object element) throws BrokenCometException {
+	public void collectionElementAdded(String user, Object entity, String propertyName, Object element) throws BrokenCometException {
 		Event event = new Event(entity, propertyName, null, element, Event.EventType.CollectionChanged);
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
@@ -74,7 +74,7 @@ public class EventManager {
 		if(obj instanceof JSONable) {
 			JSONable message = (JSONable) obj;
 			String str = message.toJSON();
-			ClusterManager.getInstance().publish(str.toCharArray(), className, key.toString(), propertyName);
+			ClusterManager.getInstance().publish(user, str.toCharArray(), className, key.toString(), propertyName);
 		}
 	}
 	

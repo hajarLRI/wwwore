@@ -54,7 +54,8 @@ public class ChatSession {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		EventManager.getInstance().collectionElementAdded(this, "messages", msg);
+		String user = msg.getUserName();
+		EventManager.getInstance().collectionElementAdded(user, this, "messages", msg);
 	}
 
 	public Set<ChatMessage> getMessages() {

@@ -100,7 +100,7 @@ public class ClusterManager {
 		inverted.put(subscription, key);
 	}
 
-	public void publish(char[] data, String className, String id, String propertyName) {
+	public void publish(String user, char[] data, String className, String id, String propertyName) {
 		Key key = new Key(className, id, propertyName);
 		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {
@@ -109,8 +109,9 @@ public class ClusterManager {
 				peers.add(p.getHost());
 			}
 			for(Peer p : peers) {
-				p.send(key, "", new String(data));
+				p.send(key, user, new String(data));
 			}
+			System.out.println("PeersCount: " + peers.size());
 		} else {
 			System.out.println("Null: " + id);
 		}
@@ -162,7 +163,7 @@ public class ClusterManager {
 		}
 
 		@Override
-		public void publish(char[] data, String className, String id, String propertyName) {
+		public void publish(String user, char[] data, String className, String id, String propertyName) {
 		
 		}
 		

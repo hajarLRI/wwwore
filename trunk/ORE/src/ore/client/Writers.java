@@ -53,7 +53,7 @@ public class Writers {
 
 					if (id==(num-1))
 						System.err.println(num+" Writers created");
-					System.out.println("Write: " + id + ", to ");
+					//System.out.println("Write: " + id + ", to ");
 					getAddress();
 					
 					method_tmp = Machine.makeMethod(getAddress() + "/chat", "none", "operation", "chat", "roomName", id, "userName", id, "message", insertTime);
@@ -67,7 +67,7 @@ public class Writers {
 						msgs++;
 						//System.out.println("Wrote msg: " + msgs);
 					}
-					Thread.sleep(10000);
+					Thread.sleep(1000);
 				} catch(Exception e) {
 					e.printStackTrace();
 				} finally {

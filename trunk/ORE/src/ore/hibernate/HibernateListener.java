@@ -260,7 +260,7 @@ public class HibernateListener implements 	DeleteEventListener,
 				for(Object newValue : copy) {
 					String[] split = arg0.getCollection().getRole().split("\\.");
 					String propertyName = split[split.length-1];
-					EventManager.getInstance().collectionElementAdded(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+					EventManager.getInstance().collectionElementAdded("", arg0.getAffectedOwnerOrNull(), propertyName, newValue);
 				}
 
 				shot = (Set) value;
@@ -280,7 +280,7 @@ public class HibernateListener implements 	DeleteEventListener,
 				for(Object newValue : copy) {
 					String[] split = arg0.getCollection().getRole().split("\\.");
 					String propertyName = split[split.length-1];
-					EventManager.getInstance().collectionElementAdded(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+					EventManager.getInstance().collectionElementAdded("", arg0.getAffectedOwnerOrNull(), propertyName, newValue);
 				}
 
 				shot = (List) value;

@@ -59,7 +59,7 @@ public abstract class Subscription {
 		String property = event.getPropertyName();
 		String className = event.getEntity().getClass().getName();
 		String id = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
-		ClusterManager.getInstance().publish(data, className, id, property);
+		ClusterManager.getInstance().publish("", data, className, id, property);
 		print(data);
 	}
 	
