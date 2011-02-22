@@ -28,8 +28,8 @@ public class SubscriptionListener implements MessageListener {
 			String content = textMessage.getText();
 			if(operation.equals("join")) {
 				LogMan.info("Remote peer joins room: " + content);
-				HyperEdge<Integer, Integer> hyperEdge = ORE.getGraph().getEdge(Integer.parseInt(content));
-				ORE.getGraph().putNodeOnEdge(user, hyperEdge);
+				//HyperEdge<Integer, Integer> hyperEdge = ORE.getGraph().getEdge(Integer.parseInt(content));
+				//ORE.getGraph().putNodeOnEdge(user, hyperEdge);
 				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(content);
 				if(ps == null) {
 					ps = new HashSet<RemoteSubscriber>();
