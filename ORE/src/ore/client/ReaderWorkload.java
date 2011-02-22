@@ -16,7 +16,7 @@ public class ReaderWorkload implements Runnable {
 		int m = users.size();
 		int n = Machine.machines.size();
 		int i = 0;
-		int chunkSize = 50;//(int) Math.round((m * Config.R)/n + 1);
+		int chunkSize = 2;//(int) Math.round((m * Config.R)/n + 1);
 		System.out.println("Chunksize: " + chunkSize);
 		System.out.println("Writers: " + (int) Math.ceil(Config.readers * (Config.itemsPerUser * (1-Config.overlap))));
 		Iterator<Machine> it = Machine.machines.iterator();

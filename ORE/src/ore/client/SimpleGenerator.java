@@ -14,7 +14,7 @@ public class SimpleGenerator implements WorkloadGenerator<Integer> {
 			User<Integer> user = new User<Integer>();
 			for(int j=0; j < itemsPerUser; j++) {
 				Integer interest = (int) Math.ceil(((i*itemsPerUser) * (1 - overlap) + j));
-				//System.out.println("(" + i + ", " + interest);
+				System.out.println("Interest(" + i + ", " + interest + ")");
 				user.addInterest(interest);
 			}
 			users.add(user);

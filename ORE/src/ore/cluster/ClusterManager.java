@@ -111,6 +111,8 @@ public class ClusterManager {
 			for(Peer p : peers) {
 				p.send(key, "", new String(data));
 			}
+		} else {
+			System.out.println("Null: " + id);
 		}
 	}
 	

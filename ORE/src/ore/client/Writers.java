@@ -40,6 +40,7 @@ public class Writers {
 			double chunkSize = num / numOfMachines;
 			double position = id / chunkSize;
 			int index = (int) position;
+			System.out.println(index);
 			return "http://" + Config.IPs[index] + ':' + Config.httpPorts[index] + '/' + Config.PROJECT;
 		}
  
@@ -52,7 +53,9 @@ public class Writers {
 
 					if (id==(num-1))
 						System.err.println(num+" Writers created");
-
+					System.out.println("Write: " + id + ", to ");
+					getAddress();
+					
 					method_tmp = Machine.makeMethod(getAddress() + "/chat", "none", "operation", "chat", "roomName", id, "userName", id, "message", insertTime);
 
 					client.executeMethod(method_tmp);
@@ -64,7 +67,7 @@ public class Writers {
 						msgs++;
 						//System.out.println("Wrote msg: " + msgs);
 					}
-					Thread.sleep(1000);
+					Thread.sleep(10000);
 				} catch(Exception e) {
 					e.printStackTrace();
 				} finally {
