@@ -15,7 +15,7 @@ public class PublicationListener implements MessageListener {
 			String content = textMessage.getText();
 			String key = textMessage.getStringProperty("operation");
 			LogMan.info("Received message: " + key + "," + content);
-			ClusterManager.getInstance().receive(key, content);
+			ClusterManager.getInstance().receive(Key.parse(key), content);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}

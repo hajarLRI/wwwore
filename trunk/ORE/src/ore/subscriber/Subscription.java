@@ -8,6 +8,7 @@ import javax.jms.JMSException;
 import ore.api.Event;
 import ore.cluster.ClusterManager;
 import ore.exception.BrokenCometException;
+import ore.hibernate.Metadata;
 import ore.util.LogMan;
 
 public abstract class Subscription {
@@ -55,7 +56,10 @@ public abstract class Subscription {
 	public abstract void remove();
 	
 	protected void dispatch(char[] data, Event event) throws BrokenCometException, JMSException {
-		ClusterManager.getInstance().publish(data, event);
+		String property = event.getPropertyName();
+		String className = event.getEntity().getClass().getName();
+		String id = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
+		ClusterManager.getInstance().publish(data, className, id, property);
 		print(data);
 	}
 	

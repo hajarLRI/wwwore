@@ -21,9 +21,9 @@ public class ClusterManager {
 	private static ClusterManager instance;
 	private Peer self;
 	private List<Peer> peers = new LinkedList<Peer>();
-	Map<String, Set<RemoteSubscriber>> subscribers = new HashMap<String, Set<RemoteSubscriber>>();
-	Map<String, Set<Subscription>> local = new HashMap<String, Set<Subscription>>();
-	Map<Subscription, String> inverted = new HashMap<Subscription, String>();
+	Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
+	Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
+	Map<Subscription, Key> inverted = new HashMap<Subscription, Key>();
 	
 	public void clear() {
 		subscribers.clear();
@@ -41,8 +41,8 @@ public class ClusterManager {
 		}
 	}
 	
-	public void receive(String room, String msg) {
-		Set<Subscription> s = local.get(room);
+	public void receive(Key key, String msg) {
+		Set<Subscription> s = local.get(key);
 		if(s != null) {
 			for(Subscription sub : s) {
 				try {
@@ -55,7 +55,7 @@ public class ClusterManager {
 		}
 	}
 	
-	public void delete(Subscription sub) {
+	/*public void delete(Subscription sub) {
 		String room = inverted.get(sub);
 		Set<Subscription> s = local.get(room);
 		if(s == null) {
@@ -82,26 +82,26 @@ public class ClusterManager {
 			}
 		}
 		s.remove(sub);
-	}
+	}*/
    
-	public void subscribe(String userID, final Subscription subscription, String className, Serializable identifier, String propertyName, EventType type) {
-		Set<Subscription> s = local.get(identifier.toString());
+	public void subscribe(String userID, final Subscription subscription, String className, String id, String propertyName, EventType type) {
+		Key key = new Key(className, id, propertyName);
+		Set<Subscription> s = local.get(key);
 		if(s == null) {
 			s = new HashSet<Subscription>();
-			local.put(identifier.toString(), s);
+			local.put(key, s);
 		}
 		if(s.size() == 0) {
 			for(Peer p : peers) {
-				p.subscriptionNotice(identifier.toString(), userID, true);
+				p.subscriptionNotice(key, userID, true);
 			}
 		}
 		s.add(subscription);
-		inverted.put(subscription, identifier.toString());
+		inverted.put(subscription, key);
 	}
 
-	public void publish(char[] data, Event event) {
-		String key = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
-		key += "$" + event.getEntity().getClass().getName();
+	public void publish(char[] data, String className, String id, String propertyName) {
+		Key key = new Key(className, id, propertyName);
 		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {
 			Set<Peer> peers = new HashSet<Peer>();
@@ -139,11 +139,11 @@ public class ClusterManager {
 		}
 		
 		@Override
-		public void receive(String room, String msg) {
+		public void receive(Key key, String msg) {
 			
 		}
 
-		@Override
+	/*	@Override
 		public void delete(Subscription sub) {
 			
 		}
@@ -151,16 +151,16 @@ public class ClusterManager {
 		@Override
 		public void delete(String room, Subscription sub) {
 			
-		}
+		}*/
 
 		@Override
 		public void subscribe(String userID, Subscription subscription, String className,
-				Serializable identifier, String propertyName, EventType type) {
+				String identifier, String propertyName, EventType type) {
 			
 		}
 
 		@Override
-		public void publish(char[] data, Event event) {
+		public void publish(char[] data, String className, String id, String propertyName) {
 		
 		}
 		

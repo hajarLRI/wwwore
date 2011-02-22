@@ -28,11 +28,11 @@ public class Peer {
 		this.ip = ip;
 	}
 	
-	public void send(String key, String user, String msg) {
+	public void send(Key k, String user, String msg) {
 		System.out.println("sent("+ip+")");
 		MessageProducer producer = null;
 		try {
-			TextMessage message = createMessage(session, key, msg);
+			TextMessage message = createMessage(session, k.toString(), msg);
 			message.setStringProperty("user", user);
 			Topic msgChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
@@ -42,8 +42,8 @@ public class Peer {
 		}
 	}
 	
-	public void subscriptionNotice(String key, String user, boolean join) {
-		System.out.println("subscriptionNotice("+key+";"+"join"+")");
+	public void subscriptionNotice(Key k, String user, boolean join) {
+		System.out.println("subscriptionNotice("+user+";"+"join"+")");
 		int userId = Integer.parseInt(user);
 		MessageProducer producer = null;
 		String operation = null;
@@ -53,7 +53,7 @@ public class Peer {
 			operation = "leave";
 		}
 		try {
-			TextMessage message = createMessage(session, operation, key);
+			TextMessage message = createMessage(session, operation, k.toString());
 			message.setIntProperty("user", userId);
 			Topic msgChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
