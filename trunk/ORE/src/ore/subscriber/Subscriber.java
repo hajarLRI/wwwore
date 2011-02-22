@@ -95,7 +95,6 @@ public class Subscriber {
 			i++;
 		}
 		pw.print("]");
-		pw.flush();
 		buffer.clear();
 	}
 	
@@ -106,7 +105,7 @@ public class Subscriber {
 				LogMan.info("Subscriber " + id + " got pushed");
 				PrintWriter pw = getContinuation().getServletResponse().getWriter();
 				flushData(pw);
-				pw.close();
+				//pw.close();
 				if(isRepartitioning()) {
 					SubscriberManager.getInstance().remove(this);
 				}
@@ -123,11 +122,10 @@ public class Subscriber {
 				LogMan.info("Subscriber " + id + " pickup data");
 				PrintWriter pw = c.getServletResponse().getWriter();
 				flushData(pw);
-				//c.complete();
 				if(isRepartitioning) {
 					SubscriberManager.getInstance().remove(this);
 				}
-				pw.close();
+				//pw.close();
 				c = null;
 			} else {
 				LogMan.info("Subscriber " + id + " empty pickup data");
