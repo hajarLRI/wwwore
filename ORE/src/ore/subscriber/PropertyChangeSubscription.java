@@ -12,7 +12,7 @@ import ore.exception.BrokenCometException;
  * listener specific to a given {@link Subscriber}. The wrapper allows events for the
  * Subscriber to be buffered and then flushed to the client later. 
  */
-public class PropertyChangeSubscription extends Subscription implements Flushable {
+public class PropertyChangeSubscription extends Subscription {
 	private PropertyChangeListener listener;
 	
 	public PropertyChangeSubscription(PropertyChangeListener listener, Subscriber subscriber, String className, String key, String property) {
