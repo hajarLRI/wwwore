@@ -52,10 +52,8 @@ public abstract class Subscription {
 		this.key = key;
 		this.property = property;
 	}
-	
-	public abstract void remove();
-	
-	protected void dispatch(char[] data, Event event) throws BrokenCometException, JMSException {
+
+	protected void dispatch(String data, Event event) throws BrokenCometException, JMSException {
 		String property = event.getPropertyName();
 		String className = event.getEntity().getClass().getName();
 		String id = Metadata.getPrimaryKeyValue(event.getEntity()).toString();
@@ -63,7 +61,7 @@ public abstract class Subscription {
 		print(data);
 	}
 	
-	public void print(char[] data) throws BrokenCometException {
+	public void print(String data) throws BrokenCometException {
 		subscriber.print(data);
 	}
 	

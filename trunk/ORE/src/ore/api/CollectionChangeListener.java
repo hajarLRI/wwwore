@@ -7,7 +7,6 @@ import java.io.PrintWriter;
  * many-to-many collection has elements that are added or removed
  */
 public interface CollectionChangeListener {
-	public void elementAdded(PrintWriter pw, Event event) throws Exception;
-	public void elementRemoved(PrintWriter pw, Event event) throws Exception;
-	public void delete();
+	public String elementAdded(Event event) throws Exception;
+	public String elementRemoved(Event event) throws Exception;
 }

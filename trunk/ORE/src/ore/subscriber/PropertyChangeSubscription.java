@@ -22,17 +22,11 @@ public class PropertyChangeSubscription extends Subscription {
 	
 	public void propertyChanged(Event event) throws Exception {
 		try {
-			CharArrayWriter buffer = new CharArrayWriter();
-			PrintWriter pw = new PrintWriter(buffer);
-			listener.propertyChanged(pw, event);
-			char[] data = buffer.toCharArray();
-			dispatch(data, event);
+			String msg = listener.propertyChanged(event);
+			dispatch(msg, event);
 		} catch(Exception e) {
 			throw new BrokenCometException(subscriber, e);
 		}
 	}
 	
-	public void remove() {
-		
-	}
 }

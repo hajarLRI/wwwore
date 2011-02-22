@@ -8,5 +8,5 @@ import java.io.PrintWriter;
  * to collection properties which are mutated through Collection interface methods. 
  */
 public interface PropertyChangeListener  {
-	public void propertyChanged(PrintWriter pw, Event event) throws Exception;
+	public String propertyChanged(Event event) throws Exception;
 }
