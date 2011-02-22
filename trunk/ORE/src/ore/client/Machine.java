@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
@@ -62,6 +63,11 @@ public class Machine implements Runnable {
 				num++;
 			}
 			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP);
+			try {
+				System.out.println(method.getURI().toString());
+			} catch (URIException e) {
+				e.printStackTrace();
+			}
 		} else {
 			method = makeMethod(getUrlPrefix() + "/clusterStart", "none");
 		}
