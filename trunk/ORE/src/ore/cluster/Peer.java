@@ -104,10 +104,4 @@ public class Peer {
 		return message;
 	}
 	
-	/*private String createMessageSelector() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("type='hello'");
-		return sb.toString();
-	}*/
-	
 }
