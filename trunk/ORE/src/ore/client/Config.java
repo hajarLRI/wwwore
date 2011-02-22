@@ -13,8 +13,8 @@ public class Config {
 	static long cometBackoff = 100;
 	public static boolean timerFlag = false;
 	
-	public static int readers = 100;
-	public static int itemsPerUser = 10;
+	public static int readers = 4;
+	public static int itemsPerUser = 2;
 	public static double overlap = .5;
 	public static double R = 1;
 	

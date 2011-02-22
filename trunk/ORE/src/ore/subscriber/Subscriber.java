@@ -103,6 +103,7 @@ public class Subscriber {
 		try {
 			buffer(data);
 			if(isSuspended()) {
+				LogMan.info("Subscriber " + id + " got pushed");
 				PrintWriter pw = getContinuation().getServletResponse().getWriter();
 				flushData(pw);
 				pw.close();
@@ -129,7 +130,7 @@ public class Subscriber {
 				pw.close();
 				c = null;
 			} else {
-				//LogMan.info("Subscriber " + id + " empty pickup data");
+				LogMan.info("Subscriber " + id + " empty pickup data");
 				c.suspend(c.getServletResponse());
 			}
 	}
