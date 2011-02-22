@@ -1,4 +1,5 @@
 package ore.subscriber;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -24,6 +25,7 @@ public class Subscriber {
 	private Continuation c;
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
+	private ConcurrentLinkedQueue<char[]> buffer = new ConcurrentLinkedQueue<char[]>();
 	private boolean isRepartitioning = false;
 	
 	public boolean isRepartitioning() {
@@ -35,7 +37,6 @@ public class Subscriber {
 		rs.repartition(ipAddress, port);
 	}
 	
-	private ConcurrentLinkedQueue<Flushable> q = new ConcurrentLinkedQueue<Flushable>();
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
 	public void clear() {
@@ -50,13 +51,6 @@ public class Subscriber {
 	 */
 	Continuation getContinuation() {
 		return c;
-	}
-	
-	/** Get the buffer of events waiting to be delivered to the client
-	 * <br/> (package-protected
-	 */
-	ConcurrentLinkedQueue<Flushable> getQueue() {
-		return q;
 	}
 	
 	/** Make a new Subscriber with the given sessionID
@@ -86,8 +80,29 @@ public class Subscriber {
 		this.c = c;
 	}
 	
-	public void queue(Flushable e) {
-		q.add(e);
+	private void buffer(char[] data) {
+		buffer.add(data);
+	}
+	
+	public synchronized void print(char[] data) throws BrokenCometException {
+		try {
+			if(isSuspended()) {
+				PrintWriter out = getContinuation().getServletResponse().getWriter();
+				out.print('[');
+				out.println(data);
+				out.print(']');
+				LogMan.info("Subscriber " + getID() + " got pushed.");
+				if(isRepartitioning()) {
+					SubscriberManager.getInstance().remove(this);
+				}
+				getContinuation().complete();
+			} else {
+				buffer(data);
+			}
+		} catch(Exception e) {
+			throw new BrokenCometException(this, e);
+		}
+
 	}
 	
 	private void pickup() throws Exception {
@@ -95,10 +110,8 @@ public class Subscriber {
 			
 			boolean gotData = false;
 
-			for(Flushable listener : q) {
-				gotData |= listener.flushEvents(c.getServletResponse().getWriter());
-			}
-			q.clear();
+			gotData = flushEvents(c.getServletResponse().getWriter());
+			
 			if(gotData) {
 				LogMan.info("Subscriber " + id + " pickup data");
 				//c.complete();
@@ -133,4 +146,25 @@ public class Subscriber {
 		ClusterManager.getInstance().subscribe(userID, sx, className, key, property, Event.EventType.CollectionChanged);
 	}
 	
+	
+	public boolean flushEvents(PrintWriter pw) throws BrokenCometException {
+		boolean gotData = false;
+		try {
+			pw.print("[");
+			int i = 0;
+			for(char[] data : buffer) {
+				pw.print(data);
+				gotData = true;
+				if(i == (buffer.size()-1)) {
+					pw.print(',');
+				}
+				i++;
+			}
+			pw.print("]");
+			buffer.clear();
+		} catch(Exception e) {
+			throw new BrokenCometException(this, e);
+		}
+		return gotData;
+	}
 }
