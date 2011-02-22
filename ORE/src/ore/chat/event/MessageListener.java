@@ -11,8 +11,8 @@ import ore.chat.entity.ChatMessage;
 
 public class MessageListener extends DefaultCollectionChangeListener {
 	@Override
-	public void elementAdded(PrintWriter pw, Event event) {
+	public String elementAdded(Event event) {
 		ChatMessage message = (ChatMessage) event.getNewValue();
-		pw.print(message.toJSON());
+		return message.toJSON();
 	}
 }

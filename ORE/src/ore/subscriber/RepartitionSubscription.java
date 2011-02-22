@@ -10,10 +10,7 @@ public class RepartitionSubscription extends Subscription {
 
 	public void repartition(String ipAddress, String port) throws BrokenCometException {
 		String message = "{\"type\":'redirect',\"ip\":'" + ipAddress +"',\"port\"='" + port + "'}";
-		this.print(message.toCharArray());
+		this.print(message);
 	}
 	
-	public void remove() {
-		
-	}
 }

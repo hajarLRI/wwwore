@@ -25,7 +25,7 @@ public class Subscriber {
 	private Continuation c;
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
-	private ConcurrentLinkedQueue<char[]> buffer = new ConcurrentLinkedQueue<char[]>();
+	private ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
 	private boolean isRepartitioning = false;
 	
 	public boolean isRepartitioning() {
@@ -80,14 +80,14 @@ public class Subscriber {
 		this.c = c;
 	}
 	
-	private void buffer(char[] data) {
+	private void buffer(String data) {
 		buffer.add(data);
 	}
 	
 	private void flushData(PrintWriter pw) {
 		pw.print("[");
 		int i = 0;
-		for(char[] data : buffer) {
+		for(String data : buffer) {
 			pw.print(data);
 			if(i != (buffer.size()-1)) {
 				pw.print(',');
@@ -99,7 +99,7 @@ public class Subscriber {
 		buffer.clear();
 	}
 	
-	public synchronized void print(char[] data) throws BrokenCometException {
+	public synchronized void print(String data) throws BrokenCometException {
 		try {
 			buffer(data);
 			if(isSuspended()) {

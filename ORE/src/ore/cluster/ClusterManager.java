@@ -23,12 +23,10 @@ public class ClusterManager {
 	private List<Peer> peers = new LinkedList<Peer>();
 	Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
 	Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
-	Map<Subscription, Key> inverted = new HashMap<Subscription, Key>();
 	
 	public void clear() {
 		subscribers.clear();
 		local.clear();
-		inverted.clear();
 	}
 	
 	private ClusterManager(String selfIP, String[] peerIP) throws Exception  {
@@ -46,7 +44,7 @@ public class ClusterManager {
 		if(s != null) {
 			for(Subscription sub : s) {
 				try {
-					sub.print(msg.toCharArray());
+					sub.print(msg);
 				} catch (BrokenCometException e) {
 					//TODO Jetty specific problem
 					//e.printStackTrace();
@@ -97,10 +95,9 @@ public class ClusterManager {
 			}
 		}
 		s.add(subscription);
-		inverted.put(subscription, key);
 	}
 
-	public void publish(String user, char[] data, String className, String id, String propertyName) {
+	public void publish(String user, String data, String className, String id, String propertyName) {
 		Key key = new Key(className, id, propertyName);
 		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {
@@ -109,9 +106,8 @@ public class ClusterManager {
 				peers.add(p.getHost());
 			}
 			for(Peer p : peers) {
-				p.send(key, user, new String(data));
+				p.send(key, user, data);
 			}
-			System.out.println("PeersCount: " + peers.size());
 		} else {
 			System.out.println("Null: " + id);
 		}
@@ -163,7 +159,7 @@ public class ClusterManager {
 		}
 
 		@Override
-		public void publish(String user, char[] data, String className, String id, String propertyName) {
+		public void publish(String user, String data, String className, String id, String propertyName) {
 		
 		}
 		

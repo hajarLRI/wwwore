@@ -12,26 +12,14 @@ import ore.event.*;
 
 public class DefaultCollectionChangeListener implements CollectionChangeListener {
 
-	private List<Deleteable> owners = new LinkedList<Deleteable>();;
-	
 	@Override
-	public void elementAdded(PrintWriter pw, Event event) throws Exception {
-		//Empty convenience implementation
+	public String elementAdded( Event event) throws Exception {
+		return "";
 	}
 
 	@Override
-	public void elementRemoved(PrintWriter pw, Event event) throws Exception {
-		//Empty convenience implementation
+	public String elementRemoved(Event event) throws Exception {
+		return "";
 	}
 	
-	@Override
-	public void delete() {
-		for(Deleteable x : owners) {
-			x.delete();
-		}
-	}
-	
-	public void addOwner(Deleteable c) {
-		owners.add(c);
-	}
 }
