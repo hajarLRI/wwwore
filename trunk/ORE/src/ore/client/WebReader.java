@@ -66,9 +66,10 @@ public class WebReader implements Runnable {
 	
 	public void run() {
 		// Step 3
+		JSONArray arr = null;
 		while(true) {
 			try {
-				JSONArray arr = machine.receiveMessages(sessionID);
+				arr = machine.receiveMessages(sessionID);
 				for(int i=0; i < arr.length(); i++) {
 					JSONObject obj = arr.getJSONObject(i);
 					receive(obj);

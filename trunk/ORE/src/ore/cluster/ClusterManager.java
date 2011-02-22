@@ -104,8 +104,12 @@ public class ClusterManager {
 		key += "$" + event.getEntity().getClass().getName();
 		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {
+			Set<Peer> peers = new HashSet<Peer>();
 			for(RemoteSubscriber p : ps) {
-				p.getHost().send(key, p.getUserID(), new String(data));
+				peers.add(p.getHost());
+			}
+			for(Peer p : peers) {
+				p.send(key, "", new String(data));
 			}
 		}
 	}
