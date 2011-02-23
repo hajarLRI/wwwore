@@ -13,11 +13,26 @@ public class ClusterManager {
 	
 	private static ClusterManager instance;
 	private Peer self;
-	Map<String, Peer> peers = new HashMap<String, Peer>();
-	Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
-	Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
+	private Map<String, Peer> peers = new HashMap<String, Peer>();
+	private Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
 	
-	public void clear() {
+	public Peer getPeer(String ip) {
+		return peers.get(ip);
+	}
+	
+	public synchronized void addSubscriber(Key k, RemoteSubscriber s) {
+		Set<RemoteSubscriber> rs = subscribers.get(k);
+		if(rs == null) {
+			rs = new HashSet<RemoteSubscriber>();
+			subscribers.put(k, rs);
+		}
+		rs.add(s);
+	}
+	
+	
+	private Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
+	
+	public synchronized void clear() {
 		subscribers.clear();
 		local.clear();
 	}
@@ -32,7 +47,7 @@ public class ClusterManager {
 		}
 	}
 	
-	public void receive(Key key, String msg) {
+	public synchronized void receive(Key key, String msg) {
 		Set<Subscription> s = local.get(key);
 		if(s != null) {
 			for(Subscription sub : s) {
@@ -75,7 +90,7 @@ public class ClusterManager {
 		s.remove(sub);
 	}*/
    
-	public void subscribe(String userID, final Subscription subscription, String className, String id, String propertyName, EventType type) {
+	public synchronized void subscribe(String userID, final Subscription subscription, String className, String id, String propertyName, EventType type) {
 		Key key = new Key(className, id, propertyName);
 		Set<Subscription> s = local.get(key);
 		if(s == null) {
@@ -90,7 +105,7 @@ public class ClusterManager {
 		s.add(subscription);
 	}
 
-	public void publish(String user, String data, String className, String id, String propertyName) {
+	public synchronized void publish(String user, String data, String className, String id, String propertyName) {
 		Key key = new Key(className, id, propertyName);
 		Set<RemoteSubscriber> ps = subscribers.get(key);
 		if(ps != null) {

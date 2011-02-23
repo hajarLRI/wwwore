@@ -54,7 +54,7 @@ public class WebReader implements Runnable {
 			Config.readerResponses++;
 			if (Config.timerFlag) {
 				Config.avg = Config.avg + roundTime;
-				System.out.println("Avg: " + Config.avg /Config.readerResponses );
+				System.out.println("Avg: " + Config.avg / Config.readerResponses );
 				System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
 			} else {
 				if (Config.readerResponses > 1500) {
@@ -72,9 +72,13 @@ public class WebReader implements Runnable {
 		while(true) {
 			try {
 				arr = machine.receiveMessages(sessionID);
-				for(int i=0; i < arr.length(); i++) {
-					JSONObject obj = arr.getJSONObject(i);
-					receive(obj);
+				if(arr != null) {
+					for(int i=0; i < arr.length(); i++) {
+						JSONObject obj = arr.getJSONObject(i);
+						receive(obj);
+					}
+				} else {
+					return;
 				}
 				Thread.sleep(Config.cometBackoff);
 			} catch (Exception e) {

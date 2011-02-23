@@ -10,7 +10,7 @@ public class Config {
 	public static int readerResponses = 0;
 	public static int realReaderResponses = 0;
 	public static float avg = 0;
-	static long cometBackoff = 0;
+	static long cometBackoff = 100;
 	public static boolean timerFlag = false;
 	public static long startTime;
 	

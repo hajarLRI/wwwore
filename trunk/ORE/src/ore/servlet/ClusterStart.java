@@ -18,7 +18,6 @@ import org.eclipse.jetty.continuation.ContinuationSupport;
 public class ClusterStart extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			String selfIP = request.getParameter("selfIP");

@@ -32,16 +32,10 @@ public class SubscriptionListener implements MessageListener {
 				LogMan.info("Remote peer joins room: " + key);
 				//HyperEdge<Integer, Integer> hyperEdge = ORE.getGraph().getEdge(Integer.parseInt(content));
 				//ORE.getGraph().putNodeOnEdge(user, hyperEdge);
-				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(Key.parse(key));
-				if(ps == null) {
-					ps = new HashSet<RemoteSubscriber>();
-					ClusterManager.getInstance().subscribers.put(Key.parse(key), ps);
-				} else {
-					System.out.print("");
-				}
-				RemoteSubscriber rs = new RemoteSubscriber(user+"", ClusterManager.getInstance().peers.get(from));
+				
+				RemoteSubscriber rs = new RemoteSubscriber(user+"", ClusterManager.getInstance().getPeer(from));
 				System.out.println("Remote subscriber is: " + rs.getHost().getIP());
-				ps.add(rs);
+				ClusterManager.getInstance().addSubscriber(Key.parse(key), rs);
 			} else if(operation.equals("msg")) {
 				LogMan.info("Received message: " + key + "," + message);
 				ClusterManager.getInstance().receive(Key.parse(key), message);
