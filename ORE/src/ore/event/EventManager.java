@@ -26,24 +26,24 @@ public class EventManager {
 	private ObjectPropertyTable<PropertyChangeSubscription> propertySubscriptions = new ObjectPropertyTable();
 	private ObjectPropertyTable<CollectionChangeSubscription> collectionSubscriptions = new ObjectPropertyTable();
 	
-	public void clear() {
+	public synchronized void clear() {
 		propertySubscriptions.clear();
 		collectionSubscriptions.clear();
 	}
 	
-	public void addPropertyChangeSubscription(PropertyChangeSubscription subscription) {
+	public synchronized void addPropertyChangeSubscription(PropertyChangeSubscription subscription) {
 		propertySubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
 	}
 	
-	public void addCollectionChangeSubscription(CollectionChangeSubscription subscription) {
+	public synchronized void addCollectionChangeSubscription(CollectionChangeSubscription subscription) {
 		collectionSubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
 	}
 	
-	public void removePropertyChangeSubscription(String className, String key, String propertyName, PropertyChangeSubscription subscription) {
+	public synchronized void removePropertyChangeSubscription(String className, String key, String propertyName, PropertyChangeSubscription subscription) {
 		propertySubscriptions.removeSubscription(className, key, propertyName, subscription);
 	}
 	
-	public void removeCollectionChangeSubscription(String className, String key, String propertyName, CollectionChangeSubscription subscription) {
+	public synchronized void removeCollectionChangeSubscription(String className, String key, String propertyName, CollectionChangeSubscription subscription) {
 		collectionSubscriptions.removeSubscription(className, key, propertyName, subscription);
 	}
 	
@@ -51,7 +51,10 @@ public class EventManager {
 		Event event = new Event(entity, propertyName, oldValue, newValue, Event.EventType.PropertyChanged);
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
-		Set<PropertyChangeSubscription> subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		Set<PropertyChangeSubscription> subs = null;
+		synchronized(this) {
+			subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		}
 		for(PropertyChangeSubscription sub : subs) {
 			sub.propertyChanged(event);
 		}
@@ -61,7 +64,10 @@ public class EventManager {
 		Event event = new Event(entity, propertyName, null, element, Event.EventType.CollectionChanged);
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
-		Set<CollectionChangeSubscription> subs = collectionSubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		Set<CollectionChangeSubscription> subs = null;
+		synchronized(this) {
+			subs = collectionSubscriptions.lookupSubscription(className, key.toString(), propertyName);
+		}
 		for(CollectionChangeSubscription sub : subs) {
 			try {
 				sub.elementAdded(event);

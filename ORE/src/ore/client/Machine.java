@@ -1,5 +1,6 @@
 package ore.client;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -134,13 +135,21 @@ public class Machine implements Runnable {
 		HttpClient client = getCurrent();
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID);
 		client.executeMethod(method_tmp);
-		InputStream stream = method_tmp.getResponseBodyAsStream();
-		Reader r2 = new InputStreamReader(stream);
-		JSONArray arr = new JSONArray(new JSONTokener(r2));
-		//TODO Is the stream ready to release?
-		method_tmp.releaseConnection();
-		client.getHttpConnectionManager().closeIdleConnections(0);
-		return arr;
+		//InputStream stream = method_tmp.getResponseBodyAsStream();
+		String stream = method_tmp.getResponseBodyAsString();
+		if(method_tmp.getStatusCode() == 200) { 
+			Reader r2 = new InputStreamReader(new ByteArrayInputStream(stream.getBytes()));
+			try {
+				JSONArray arr = new JSONArray(new JSONTokener(r2));
+				//TODO Is the stream ready to release?
+				method_tmp.releaseConnection();
+				client.getHttpConnectionManager().closeIdleConnections(0);
+				return arr;
+			} catch(Exception e) {
+				System.err.println("Bad message format: " + stream);
+			}
+		} 
+		return null;
 	}
 	
 	public String getUrlPrefix() {

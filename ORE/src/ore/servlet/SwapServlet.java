@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ore.api.ORE;
 import ore.cluster.ClusterManager;
 import ore.subscriber.Subscriber;
 import ore.subscriber.SubscriberManager;
@@ -22,7 +23,7 @@ public class SwapServlet extends HttpServlet {
 		try {
 			String ip = request.getParameter("ip");
 			String port = request.getParameter("port");
-		
+			ORE.reset();
 			SubscriberManager.getInstance().redirectAll(ip, port);
 		} catch (Exception e) {
 			e.printStackTrace();

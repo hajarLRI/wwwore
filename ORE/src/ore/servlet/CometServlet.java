@@ -36,19 +36,12 @@ public class CometServlet extends HttpServlet {
 		Subscriber subscriber = null;
 		try {
 			subscriber = SubscriberManager.getInstance().get(id);
-		} catch(NoSuchSubscriber nss) {
-			String sessionID = SubscriberManager.getInstance().newSubscriber();
-			response.setHeader("Set-Cookie", "sessionID=" + sessionID);
-			response.setStatus(200);
-			return;
-		}
-		Continuation c = ContinuationSupport.getContinuation(request);
-		c.setTimeout(10*60*1000);
-		
-		try {
+			Continuation c = ContinuationSupport.getContinuation(request);
+			c.setTimeout(10*60*1000);
 			subscriber.pickup(c);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
+			response.setStatus(500);
 		}
 	}
 	
