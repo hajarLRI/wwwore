@@ -23,12 +23,16 @@ public class Peer {
 	private Connection connection;
 	private Session session;
 	
+	public String getIP() {
+		return ip;
+	}
+	
 	public Peer(String ip) {
 		System.out.println("Peer("+ip+")");
 		this.ip = ip;
 	}
 	
-	public void send(Key k, String user, String msg) {
+	/*public void send(Key k, String user, String msg) {
 		System.out.println("sent("+ip+")");
 		MessageProducer producer = null;
 		try {
@@ -40,21 +44,14 @@ public class Peer {
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
+	}*/
 	
-	public void subscriptionNotice(Key k, String user, boolean join) {
-		System.out.println("subscriptionNotice("+user+";"+"join"+")");
-		int userId = Integer.parseInt(user);
+	public void sendMessage(Key k, String user, String operation, String from, String msg) {
+		System.out.println("sendMessage(" + k.toString() + ";" + operation + ", user=" + user + ") to " + ip);
+		//int userId = Integer.parseInt(user);
 		MessageProducer producer = null;
-		String operation = null;
-		if(join) {
-			operation = "join";
-		} else {
-			operation = "leave";
-		}
 		try {
-			TextMessage message = createMessage(session, operation, k.toString());
-			message.setIntProperty("user", userId);
+			TextMessage message = createMessage(session, operation, k.toString(), 0, from, msg);
 			Topic msgChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
 			producer.send(message);
@@ -69,11 +66,11 @@ public class Peer {
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		Topic subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
-		Topic messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+		//Topic messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
 		MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
-		consumer.setMessageListener(new SubscriptionListener(this));
-		MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
-		consumer2.setMessageListener(new PublicationListener()); 
+		consumer.setMessageListener(new SubscriptionListener());
+		//MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
+		//consumer2.setMessageListener(new PublicationListener()); 
 		connection.start();
 	}
 	
@@ -98,9 +95,12 @@ public class Peer {
 		connection.start();
 	}
 	
-	private TextMessage createMessage(Session session, String operation, String s) throws JMSException {
-		TextMessage message = session.createTextMessage(s);
+	private TextMessage createMessage(Session session, String operation, String key, int user, String from, String msg) throws JMSException {
+		TextMessage message = session.createTextMessage(msg);
 		message.setStringProperty("operation", operation);
+		message.setStringProperty("key", key);
+		message.setIntProperty("user", user);
+		message.setStringProperty("from", from);
 		return message;
 	}
 	

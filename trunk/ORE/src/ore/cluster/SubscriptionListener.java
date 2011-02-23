@@ -13,39 +13,46 @@ import ore.hypergraph.HyperEdge;
 import ore.util.LogMan;
 
 public class SubscriptionListener implements MessageListener {
-	private Peer me;
-	
-	public SubscriptionListener(Peer me) {
-		this.me = me;
-	}
 	
 	public void onMessage(Message msg) {
-		//System.out.println("onMessage("+msg+")");
+		
 		TextMessage textMessage = (TextMessage) msg;
+		//System.out.println("!!!!!"+textMessage.toString());
 		try {
 			String operation = textMessage.getStringProperty("operation");
+			if(operation.equals("msg")) {
+				System.out.print("");
+			}
 			int user = textMessage.getIntProperty("user");
-			String content = textMessage.getText();
+			String message = textMessage.getText();
+			String key = textMessage.getStringProperty("key");
+			String from = textMessage.getStringProperty("from");
+			System.out.println("onMessage(" + key + ";" + message + ")");
 			if(operation.equals("join")) {
-				LogMan.info("Remote peer joins room: " + content);
+				LogMan.info("Remote peer joins room: " + key);
 				//HyperEdge<Integer, Integer> hyperEdge = ORE.getGraph().getEdge(Integer.parseInt(content));
 				//ORE.getGraph().putNodeOnEdge(user, hyperEdge);
-				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(Key.parse(content));
+				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(Key.parse(key));
 				if(ps == null) {
 					ps = new HashSet<RemoteSubscriber>();
-					ClusterManager.getInstance().subscribers.put(Key.parse(content), ps);
+					ClusterManager.getInstance().subscribers.put(Key.parse(key), ps);
 				} else {
 					System.out.print("");
 				}
-				RemoteSubscriber rs = new RemoteSubscriber(user+"", me);
+				RemoteSubscriber rs = new RemoteSubscriber(user+"", ClusterManager.getInstance().peers.get(from));
+				System.out.println("Remote subscriber is: " + rs.getHost().getIP());
 				ps.add(rs);
+			} else if(operation.equals("msg")) {
+				LogMan.info("Received message: " + key + "," + message);
+				ClusterManager.getInstance().receive(Key.parse(key), message);
 			} else {
-				Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(Key.parse(content));
+				//ClusterManager.getInstance().peers.get(from)
+				/*Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(Key.parse(key));
 				if(ps != null) {
-					LogMan.info("Remote peer leaves room: " + content);
+					LogMan.info("Remote peer leaves room: " + key);
 					RemoteSubscriber rs = new RemoteSubscriber(user+"", me);
 					ps.remove(rs);
-				}
+				}*/
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
