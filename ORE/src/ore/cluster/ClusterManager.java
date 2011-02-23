@@ -1,26 +1,19 @@
 package ore.cluster;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.JMSException;
-
-import ore.api.Event;
 import ore.api.Event.EventType;
 import ore.exception.BrokenCometException;
-import ore.hibernate.Metadata;
 import ore.subscriber.Subscription;
 
 public class ClusterManager {
 	
 	private static ClusterManager instance;
 	private Peer self;
-	private List<Peer> peers = new LinkedList<Peer>();
+	Map<String, Peer> peers = new HashMap<String, Peer>();
 	Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
 	Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
 	
@@ -34,7 +27,7 @@ public class ClusterManager {
 		self.start();
 		for(String ip : peerIP) {
 			Peer p = new Peer(ip);
-			peers.add(p);
+			peers.put(ip, p);
 			p.connect();
 		}
 	}
@@ -90,8 +83,8 @@ public class ClusterManager {
 			local.put(key, s);
 		}
 		if(s.size() == 0) {
-			for(Peer p : peers) {
-				p.subscriptionNotice(key, userID, true);
+			for(Peer p : peers.values()) {
+				p.sendMessage(key, userID, "join", self.getIP(), "");
 			}
 		}
 		s.add(subscription);
@@ -106,7 +99,7 @@ public class ClusterManager {
 				peers.add(p.getHost());
 			}
 			for(Peer p : peers) {
-				p.send(key, user, data);
+				p.sendMessage(key, user, "msg", self.getIP(), data);
 			}
 		} 
 	}
