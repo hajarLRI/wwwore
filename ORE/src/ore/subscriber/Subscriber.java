@@ -150,7 +150,9 @@ public class Subscriber {
 			if(p != null) {
 				String[] parts = p.getIP().split(":");
 				if(parts[0].equals("localhost")) {
-				parts[1] = map.get(parts[1]);
+					parts[1] = map.get(parts[1]);
+				} else {
+					parts[1] = "8080";
 				}
 				redirect(parts[0], parts[1]);
 			}
