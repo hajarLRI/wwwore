@@ -14,6 +14,8 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.json.JSONArray;
 import org.json.JSONTokener;
@@ -91,8 +93,8 @@ public class Machine implements Runnable {
 		method.releaseConnection();
 	}
 	
-	public void redirect(Machine other) throws Exception {
-		GetMethod method = makeMethod(getUrlPrefix() + "/swap", "none", "ip", other.ip, "port", other.port);
+	public void redirect(Machine other, String sessionID) throws Exception {
+		GetMethod method = makeMethod(getUrlPrefix() + "/connect", sessionID, "operation", "redirect", "ip", other.ip, "port", other.port);
 		HttpClient client = createClient();
 		client.executeMethod(method);
 		method.releaseConnection();
@@ -131,6 +133,20 @@ public class Machine implements Runnable {
 		HttpClient client = createClient();
 		GetMethod method_tmp = makeMethod(this.getUrlPrefix() + "/connect", "none");
 		client.executeMethod(method_tmp);
+		Header header = method_tmp.getResponseHeader("Set-Cookie");
+		String sessionStr = header.getValue();
+		String sessionID = sessionStr.split("=")[1];
+		method_tmp.releaseConnection();
+		client.getHttpConnectionManager().closeIdleConnections(0);
+		return sessionID;
+	}
+	
+	public String directed(JSONArray digest) throws Exception {
+		HttpClient client = createClient();
+		PostMethod method_tmp = makePostMethod(this.getUrlPrefix() + "/connect", "none", "operation", "directed");
+		method_tmp.setRequestEntity(new StringRequestEntity(digest.toString(), "text/json", "US-ASCII"));
+		client.executeMethod(method_tmp);
+		System.out.println(method_tmp.getStatusCode());
 		Header header = method_tmp.getResponseHeader("Set-Cookie");
 		String sessionStr = header.getValue();
 		String sessionID = sessionStr.split("=")[1];
@@ -212,6 +228,27 @@ public class Machine implements Runnable {
 			}
 		}
 		GetMethod method_tmp = new GetMethod(url);
+		method_tmp.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		method_tmp.setRequestHeader("Cookie", "sessionID=" + sessionID);
+		method_tmp.setRequestHeader("Connection", "close");
+		//					method_tmp.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
+		//							new DefaultHttpMethodRetryHandler());
+		return method_tmp;
+	}
+	
+	static PostMethod makePostMethod(String url, String sessionID, Object ... parms) {
+		if((parms != null) && (parms.length > 0)) {
+			url += '?';
+		}
+		for(int i=0; i < parms.length; i += 2) {
+			url += parms[i];
+			url += '=';
+			url += parms[i+1].toString();
+			if(i != (parms.length-2)) {
+				url += '&';
+			}
+		}
+		PostMethod method_tmp = new PostMethod(url);
 		method_tmp.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		method_tmp.setRequestHeader("Cookie", "sessionID=" + sessionID);
 		method_tmp.setRequestHeader("Connection", "close");

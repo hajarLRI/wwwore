@@ -41,6 +41,18 @@ public class Key {
 		return k;
 	}
 	
+	public String getClassName() {
+		return className;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public String getProperty() {
+		return property;
+	}
+
 	public String toString() {
 		return className + "__" + id + "__" + property;
 	}

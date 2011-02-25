@@ -2,8 +2,9 @@ package ore.subscriber;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import ore.exception.BrokenCometException;
 import ore.exception.NoSuchSubscriber;
+
+import org.json.JSONArray;
 
 /**
  * Maintains a map between sessionID and {@link Subscriber}
@@ -56,6 +57,15 @@ public class SubscriberManager {
 		int sessionIDNum = id++;
 		String sessionID = sessionIDNum + "";
 		Subscriber subscriber = new Subscriber(sessionID);
+		subscribers.put(sessionID, subscriber);
+		return sessionID;
+	}
+	
+	public String newSubscriber(JSONArray digest) throws Exception {
+		//TODO This is an error-prone strategy for creating sessionIDs
+		int sessionIDNum = id++;
+		String sessionID = sessionIDNum + "";
+		Subscriber subscriber = new Subscriber(sessionID, digest);
 		subscribers.put(sessionID, subscriber);
 		return sessionID;
 	}

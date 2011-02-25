@@ -35,13 +35,19 @@ public class WebReader implements Runnable {
 		// Step 2
 		machine.join(user, sessionID);
 	}
+	
+	public void direct(String ip, String port) throws Exception {
+		machine.redirect(Machine.getMachine(ip, port), sessionID);
+	}
 
 	private void redirect(JSONObject obj) throws Exception {
 		String ip = obj.getString("ip");
 		String port = obj.getString("port");
+		JSONArray digest = obj.getJSONArray("digest");
+		//System.out.println(digest.toString());
 		Machine newMachine = Machine.getMachine(ip, port);
 		this.machine = newMachine;
-		init();
+		sessionID = newMachine.directed(digest);
 	}
 	
 	private void receive(JSONObject obj) throws Exception {
