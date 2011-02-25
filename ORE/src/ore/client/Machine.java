@@ -1,6 +1,7 @@
 package ore.client;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -151,9 +152,15 @@ public class Machine implements Runnable {
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID);
 		client.executeMethod(method_tmp);
 		//InputStream stream = method_tmp.getResponseBodyAsStream();
-		String stream = method_tmp.getResponseBodyAsString();
+		InputStream stream = method_tmp.getResponseBodyAsStream();
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int size = 0;
+		while((size = stream.read(buffer)) != -1) {
+			output.write(buffer, 0, size);
+		}
 		if(method_tmp.getStatusCode() == 200) { 
-			Reader r2 = new InputStreamReader(new ByteArrayInputStream(stream.getBytes()));
+			Reader r2 = new InputStreamReader(new ByteArrayInputStream(output.toByteArray()));
 			try {
 				JSONArray arr = new JSONArray(new JSONTokener(r2));
 				//TODO Is the stream ready to release?
