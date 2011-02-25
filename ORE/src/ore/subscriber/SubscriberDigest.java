@@ -11,6 +11,10 @@ public class SubscriberDigest implements JSONable {
 
 	private Set<Key> keys = new HashSet<Key>();
 	
+	public Set<Key> getKeys() {
+		return keys;
+	}
+	
 	public SubscriberDigest(List<Subscription> subs) {
 		for(Subscription s : subs) {
 			addKey(s.getKey());

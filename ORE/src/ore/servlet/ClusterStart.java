@@ -22,6 +22,7 @@ public class ClusterStart extends HttpServlet {
 		try {
 			String selfIP = request.getParameter("selfIP");
 			String peerIP = request.getParameter("peerIP");
+			String mode = request.getParameter("mode");
 			String[] peerIPs = null;
 			if(peerIP != null) {
 				peerIP = peerIP.replace('~', ':');
@@ -30,7 +31,7 @@ public class ClusterStart extends HttpServlet {
 			if(selfIP != null) {
 				selfIP = selfIP.replace('~', ':');
 			}
-			ClusterManager.init(selfIP, peerIPs);
+			ClusterManager.init(selfIP, peerIPs, mode);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

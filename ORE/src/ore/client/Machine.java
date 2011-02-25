@@ -73,14 +73,14 @@ public class Machine implements Runnable {
 				}
 				num++;
 			}
-			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP);
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP, "mode", Config.mode);
 			try {
 				System.out.println(method.getURI().toString());
 			} catch (URIException e) {
 				e.printStackTrace();
 			}
 		} else {
-			method = makeMethod(getUrlPrefix() + "/clusterStart", "none");
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "mode", Config.mode);
 		}
 		
 		try {
@@ -165,7 +165,7 @@ public class Machine implements Runnable {
 	
 	public JSONArray receiveMessages(String sessionID) throws Exception {
 		HttpClient client = getCurrent();
-		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID);
+		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirectOK", "true");
 		client.executeMethod(method_tmp);
 		//InputStream stream = method_tmp.getResponseBodyAsStream();
 		InputStream stream = method_tmp.getResponseBodyAsStream();

@@ -41,8 +41,8 @@ public class SubscriptionListener implements MessageListener {
 				LogMan.info("Received message: " + key + "," + message);
 				ClusterManager.getInstance().receive(k, message);
 			} else {
-				Peer p = ClusterManager.getInstance().getPeer(from);
-				ClusterManager.getInstance().removeSubscriber(k, p);
+				RemoteSubscriber rs = new RemoteSubscriber(user+"", ClusterManager.getInstance().getPeer(from));
+				ClusterManager.getInstance().removeSubscriber(k, rs);
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
