@@ -14,6 +14,7 @@ public class Config {
 	public static boolean timerFlag = false;
 	public static long startTime;
 	public static String mode = "normal";
+	public static String redirectOK = "false";
 	
 	public static int readers = 50;
 	public static int itemsPerUser = 10;

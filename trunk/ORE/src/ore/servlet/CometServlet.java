@@ -69,7 +69,7 @@ public class CometServlet extends HttpServlet {
 				subscriber.redirect(request.getParameter("ip"), request.getParameter("port"));
 			} else {
 				String redirectString = request.getParameter("redirectOK");
-				boolean redirectOK = (redirectString != null);
+				boolean redirectOK = (!redirectString.equals("false"));
 				subscriber.pickup(c, redirectOK);
 			}
 		} catch (Exception e) {

@@ -165,7 +165,7 @@ public class Machine implements Runnable {
 	
 	public JSONArray receiveMessages(String sessionID) throws Exception {
 		HttpClient client = getCurrent();
-		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirectOK", "true");
+		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirectOK", Config.redirectOK);
 		client.executeMethod(method_tmp);
 		//InputStream stream = method_tmp.getResponseBodyAsStream();
 		InputStream stream = method_tmp.getResponseBodyAsStream();
