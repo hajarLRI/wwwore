@@ -29,6 +29,20 @@ public class ClusterManager {
 		rs.add(s);
 	}
 	
+	public synchronized void removeSubscriber(Key k, Peer p) {
+		Set<RemoteSubscriber> rs = subscribers.get(k);
+		RemoteSubscriber remover = null;
+		if(rs != null) {
+			for(RemoteSubscriber r : rs) {
+				if(r.getHost() == p) {
+					remover = r;
+					break;
+				}
+			}
+			rs.remove(remover);
+		}
+	}
+	
 	
 	private Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
 	
