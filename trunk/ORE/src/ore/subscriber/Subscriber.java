@@ -39,10 +39,10 @@ public class Subscriber {
 	
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
-	public void clear() {
-		//for(Subscription sub : subs) {
-		//	ClusterManager.getInstance().delete(sub);
-		//}
+	public void stop() {
+		for(Subscription s : subs) {
+			s.remove();
+		}
 	}
 	
 	/**

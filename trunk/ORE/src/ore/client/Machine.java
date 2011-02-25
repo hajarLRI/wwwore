@@ -131,6 +131,14 @@ public class Machine implements Runnable {
 		return sessionID;
 	}
 	
+	public void stopMe(String sessionID) throws Exception {
+		HttpClient client = createClient();
+		GetMethod method_tmp = makeMethod(this.getUrlPrefix() + "/connect", sessionID, "operation", "stop");
+		client.executeMethod(method_tmp);
+		method_tmp.releaseConnection();
+		client.getHttpConnectionManager().closeIdleConnections(0);
+	}
+	
 	public JSONArray receiveMessages(String sessionID) throws Exception {
 		HttpClient client = getCurrent();
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID);

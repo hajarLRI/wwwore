@@ -19,6 +19,8 @@ public abstract class Subscription {
 		return className;
 	}
 
+	public abstract void remove();
+	
 	public void setClassName(String className) {
 		this.className = className;
 	}

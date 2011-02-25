@@ -6,13 +6,19 @@ import java.util.List;
 
 public class ReaderWorkload implements Runnable {
 	List<User> users;
+	List<WebReader> runners = new LinkedList<WebReader>();
 	
 	public ReaderWorkload(List<User> users) {
 		this.users = users;
 	}
 	
+	public void stop() throws Exception {
+		for(WebReader r : runners) {
+			r.stop();
+		}
+	}
+	
 	public void run() {
-		List<WebReader> runners = new LinkedList<WebReader>();
 		int m = users.size();
 		int n = Machine.machines.size();
 		int i = 0;

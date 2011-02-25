@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 
 import ore.api.Event;
 import ore.api.PropertyChangeListener;
+import ore.cluster.ClusterManager;
+import ore.cluster.Key;
+import ore.event.EventManager;
 import ore.exception.BrokenCometException;
 
 /**
@@ -29,4 +32,8 @@ public class PropertyChangeSubscription extends Subscription {
 		}
 	}
 	
+	public void remove() {
+		EventManager.getInstance().removePropertyChangeSubscription(className, key, property, this);
+		ClusterManager.getInstance().delete(new Key(className, key, property), subscriber.getID());
+	}
 }

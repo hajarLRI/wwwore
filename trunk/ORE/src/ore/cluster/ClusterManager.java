@@ -15,7 +15,7 @@ public class ClusterManager {
 	private Peer self;
 	private Map<String, Peer> peers = new HashMap<String, Peer>();
 	private Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
-	
+
 	public Peer getPeer(String ip) {
 		return peers.get(ip);
 	}
@@ -47,8 +47,11 @@ public class ClusterManager {
 		}
 	}
 	
-	public synchronized void receive(Key key, String msg) {
-		Set<Subscription> s = local.get(key);
+	public  void receive(Key key, String msg) {
+		Set<Subscription> s = null;
+		synchronized(this) {
+			s = local.get(key);
+		}
 		if(s != null) {
 			for(Subscription sub : s) {
 				try {
@@ -61,21 +64,22 @@ public class ClusterManager {
 		}
 	}
 	
-	/*public void delete(Subscription sub) {
-		String room = inverted.get(sub);
-		Set<Subscription> s = local.get(room);
+	public void delete(Key sub, String user) {
+		Set<Subscription> s = null;
+		synchronized(this) {
+			s = local.get(sub);
+		}
 		if(s == null) {
 			throw new IllegalStateException();
 		}
 		if(s.size() == 1) {
-			for(Peer p : peers) {
-				//TODO Handle deletes
-				p.subscriptionNotice(room, "", false);
+			for(Peer p : peers.values()) {
+				p.sendMessage(sub, user, "leave", self.getIP(), "");
 			}
 		}
 		s.remove(sub);
 	}
-	
+	/*
 	public void delete(String room, Subscription sub) {
 		Set<Subscription> s = local.get(room);
 		if(s == null) {
@@ -90,9 +94,12 @@ public class ClusterManager {
 		s.remove(sub);
 	}*/
    
-	public synchronized void subscribe(String userID, final Subscription subscription, String className, String id, String propertyName, EventType type) {
+	public  void subscribe(String userID, final Subscription subscription, String className, String id, String propertyName, EventType type) {
 		Key key = new Key(className, id, propertyName);
-		Set<Subscription> s = local.get(key);
+		Set<Subscription> s = null;
+		synchronized(this) {
+			s = local.get(key);
+		}
 		if(s == null) {
 			s = new HashSet<Subscription>();
 			local.put(key, s);
@@ -107,7 +114,10 @@ public class ClusterManager {
 
 	public synchronized void publish(String user, String data, String className, String id, String propertyName) {
 		Key key = new Key(className, id, propertyName);
-		Set<RemoteSubscriber> ps = subscribers.get(key);
+		Set<RemoteSubscriber> ps = null;
+		synchronized(this) {
+			ps = subscribers.get(key);
+		}
 		if(ps != null) {
 			Set<Peer> peers = new HashSet<Peer>();
 			for(RemoteSubscriber p : ps) {
