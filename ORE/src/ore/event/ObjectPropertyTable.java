@@ -22,7 +22,12 @@ public class ObjectPropertyTable<T extends Subscription> {
 	}
 	
 	public Set<T> lookupSubscription(Key key) {
-		return table.get(key);
+		Set<T> ret = table.get(key);
+		if(ret == null) {
+			table.put(key, ret);
+			return new HashSet<T>();
+		}
+		return ret;
 	}
 	
 	public void removeSubscription(T s) {

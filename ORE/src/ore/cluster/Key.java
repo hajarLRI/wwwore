@@ -37,7 +37,7 @@ public class Key {
 	
 	public static Key parse(String s) {
 		String[] parts = s.split("__");
-		Key k = new Key(parts[0], parts[1], parts[2]);
+		Key k = create(parts[0], parts[1], parts[2]);
 		return k;
 	}
 	
