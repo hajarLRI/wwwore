@@ -46,6 +46,8 @@ public class CollectionChangeSubscription extends Subscription {
 
 	public void remove() {
 		EventManager.getInstance().removeCollectionChangeSubscription(className, key, property, this);
-		ClusterManager.getInstance().delete(new Key(className, key, property), subscriber.getID());
+		Key k = new Key(className, key, property);
+		//System.out.println("KEY: " + key.toString());
+		ClusterManager.getInstance().delete(this, k, subscriber.getID());
 	}
 }

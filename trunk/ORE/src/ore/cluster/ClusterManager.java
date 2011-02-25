@@ -78,20 +78,20 @@ public class ClusterManager {
 		}
 	}
 	
-	public void delete(Key sub, String user) {
+	public void delete(Subscription sub, Key k, String user) {
 		Set<Subscription> s = null;
-		synchronized(this) {
-			s = local.get(sub);
-		}
-		if(s == null) {
-			throw new IllegalStateException();
-		}
-		if(s.size() == 1) {
-			for(Peer p : peers.values()) {
-				p.sendMessage(sub, user, "leave", self.getIP(), "");
+		synchronized(local) {
+			s = local.get(k);
+			if(s == null) {
+				throw new IllegalStateException();
 			}
+			if(s.size() == 1) {
+				for(Peer p : peers.values()) {
+					p.sendMessage(k, user, "leave", self.getIP(), "");
+				}
+			}
+			s.remove(sub);
 		}
-		s.remove(sub);
 	}
 	/*
 	public void delete(String room, Subscription sub) {

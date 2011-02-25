@@ -14,7 +14,7 @@ public class Config {
 	public static boolean timerFlag = false;
 	public static long startTime;
 	
-	public static int readers = 50;
+	public static int readers = 10;
 	public static int itemsPerUser = 10;
 	public static double overlap = .5;
 	public static double R = 1;

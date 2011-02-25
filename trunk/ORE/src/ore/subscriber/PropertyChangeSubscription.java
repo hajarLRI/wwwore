@@ -34,6 +34,6 @@ public class PropertyChangeSubscription extends Subscription {
 	
 	public void remove() {
 		EventManager.getInstance().removePropertyChangeSubscription(className, key, property, this);
-		ClusterManager.getInstance().delete(new Key(className, key, property), subscriber.getID());
+		ClusterManager.getInstance().delete(this, new Key(className, key, property), subscriber.getID());
 	}
 }
