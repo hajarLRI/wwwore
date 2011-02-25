@@ -21,6 +21,13 @@ public class Machine implements Runnable {
 
 	public static List<Machine> machines = new LinkedList<Machine>();
 	
+	public static Machine getRandomMachine() {
+		double r = Math.random();
+		double scaled = r * machines.size();
+		int index = (int) scaled;
+		return machines.get(index);
+	}
+	
 	public static Machine getMachine(String ip, String port) {
 		for(Machine m : machines) {
 			if(m.ip.equals(ip) && m.port.equals(port)) {

@@ -8,11 +8,15 @@ public class WebReader implements Runnable {
 	private Machine machine;
 	private String sessionID;
 	private User user;
+	public User getUser() {
+		return user;
+	}
+	
 	private boolean stop = false;
 	
-	public void stop() throws Exception {
-		machine.stopMe(sessionID);
+	public synchronized void stop() throws Exception {
 		stop = true;
+		machine.stopMe(sessionID);
 	}
 
 	public WebReader(Machine machine, User user) {
@@ -77,7 +81,9 @@ public class WebReader implements Runnable {
 		JSONArray arr = null;
 		while(!stop) {
 			try {
-				arr = machine.receiveMessages(sessionID);
+				synchronized(this) {
+					arr = machine.receiveMessages(sessionID);
+				}
 				if(arr != null) {
 					for(int i=0; i < arr.length(); i++) {
 						JSONObject obj = arr.getJSONObject(i);

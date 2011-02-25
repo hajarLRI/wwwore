@@ -39,9 +39,16 @@ public class Subscriber {
 	
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
-	public void stop() {
+	public void stop() throws BrokenCometException {
 		for(Subscription s : subs) {
 			s.remove();
+		}
+		synchronized(this) {
+			SubscriberManager.getInstance().remove(this);
+			if(isSuspended()) {
+				String message = "{\"type\":'stop'}";
+				this.print(message);
+			}
 		}
 	}
 	
