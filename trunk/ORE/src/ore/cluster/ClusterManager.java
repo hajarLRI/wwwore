@@ -108,8 +108,8 @@ public class ClusterManager {
 		s.remove(sub);
 	}*/
    
-	public  void subscribe(String userID, final Subscription subscription, String className, String id, String propertyName, EventType type) {
-		Key key = new Key(className, id, propertyName);
+	public  void subscribe(String userID, Subscription subscription, EventType type) {
+		Key key = subscription.getKey();
 		Set<Subscription> s = null;
 		synchronized(this) {
 			s = local.get(key);
@@ -126,8 +126,7 @@ public class ClusterManager {
 		s.add(subscription);
 	}
 
-	public synchronized void publish(String user, String data, String className, String id, String propertyName) {
-		Key key = new Key(className, id, propertyName);
+	public synchronized void publish(String user, String data, Key key) {
 		Set<RemoteSubscriber> ps = null;
 		synchronized(this) {
 			ps = subscribers.get(key);
@@ -183,13 +182,12 @@ public class ClusterManager {
 		}*/
 
 		@Override
-		public void subscribe(String userID, Subscription subscription, String className,
-				String identifier, String propertyName, EventType type) {
+		public void subscribe(String userID, Subscription subscription, EventType type) {
 			
 		}
 
 		@Override
-		public void publish(String user, String data, String className, String id, String propertyName) {
+		public void publish(String user, String data, Key k) {
 		
 		}
 		

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import ore.api.Event;
 import ore.cluster.ClusterManager;
+import ore.cluster.Key;
 import ore.exception.BrokenCometException;
 import ore.hibernate.Metadata;
 import ore.subscriber.CollectionChangeSubscription;
@@ -32,19 +33,19 @@ public class EventManager {
 	}
 	
 	public synchronized void addPropertyChangeSubscription(PropertyChangeSubscription subscription) {
-		propertySubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
+		propertySubscriptions.addSubscription(subscription);
 	}
 	
 	public synchronized void addCollectionChangeSubscription(CollectionChangeSubscription subscription) {
-		collectionSubscriptions.addSubscription(subscription.getClassName(), subscription.getKey(), subscription.getProperty(), subscription);
+		collectionSubscriptions.addSubscription(subscription);
 	}
 	
-	public synchronized void removePropertyChangeSubscription(String className, String key, String propertyName, PropertyChangeSubscription subscription) {
-		propertySubscriptions.removeSubscription(className, key, propertyName, subscription);
+	public synchronized void removePropertyChangeSubscription(PropertyChangeSubscription subscription) {
+		propertySubscriptions.removeSubscription(subscription);
 	}
 	
-	public synchronized void removeCollectionChangeSubscription(String className, String key, String propertyName, CollectionChangeSubscription subscription) {
-		collectionSubscriptions.removeSubscription(className, key, propertyName, subscription);
+	public synchronized void removeCollectionChangeSubscription(CollectionChangeSubscription subscription) {
+		collectionSubscriptions.removeSubscription(subscription);
 	}
 	
 	public void entityPropertyChanged(String propertyName, Object entity, Object oldValue, Object newValue) throws Exception {
@@ -52,8 +53,9 @@ public class EventManager {
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
 		Set<PropertyChangeSubscription> subs = null;
+		Key k = Key.create(className, key.toString(), propertyName);
 		synchronized(this) {
-			subs = propertySubscriptions.lookupSubscription(className, key.toString(), propertyName);
+			subs = propertySubscriptions.lookupSubscription(k);
 		}
 		for(PropertyChangeSubscription sub : subs) {
 			sub.propertyChanged(event);
@@ -65,8 +67,9 @@ public class EventManager {
 		Serializable key = Metadata.getPrimaryKeyValue(entity);
 		String className = entity.getClass().getName();
 		Set<CollectionChangeSubscription> subs = null;
+		Key k = Key.create(className, key.toString(), propertyName);
 		synchronized(this) {
-			subs = collectionSubscriptions.lookupSubscription(className, key.toString(), propertyName);
+			subs = collectionSubscriptions.lookupSubscription(k);
 		}
 		for(CollectionChangeSubscription sub : subs) {
 			try {
@@ -80,7 +83,7 @@ public class EventManager {
 		if(obj instanceof JSONable) {
 			JSONable message = (JSONable) obj;
 			String str = message.toJSON();
-			ClusterManager.getInstance().publish(user, str, className, key.toString(), propertyName);
+			ClusterManager.getInstance().publish(user, str, k);
 		}
 	}
 	

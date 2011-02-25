@@ -24,7 +24,7 @@ public class SwapServlet extends HttpServlet {
 			String ip = request.getParameter("ip");
 			String port = request.getParameter("port");
 			ORE.reset();
-			SubscriberManager.getInstance().redirectAll(ip, port);
+		//	SubscriberManager.getInstance().redirectAll(ip, port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
