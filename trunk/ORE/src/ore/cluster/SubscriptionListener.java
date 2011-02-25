@@ -26,6 +26,7 @@ public class SubscriptionListener implements MessageListener {
 			int user = textMessage.getIntProperty("user");
 			String message = textMessage.getText();
 			String key = textMessage.getStringProperty("key");
+			Key k = Key.parse(key);
 			String from = textMessage.getStringProperty("from");
 			System.out.println("onMessage(" + key + ";" + message + ")");
 			if(operation.equals("join")) {
@@ -35,18 +36,13 @@ public class SubscriptionListener implements MessageListener {
 				
 				RemoteSubscriber rs = new RemoteSubscriber(user+"", ClusterManager.getInstance().getPeer(from));
 				System.out.println("Remote subscriber is: " + rs.getHost().getIP());
-				ClusterManager.getInstance().addSubscriber(Key.parse(key), rs);
+				ClusterManager.getInstance().addSubscriber(k, rs);
 			} else if(operation.equals("msg")) {
 				LogMan.info("Received message: " + key + "," + message);
-				ClusterManager.getInstance().receive(Key.parse(key), message);
+				ClusterManager.getInstance().receive(k, message);
 			} else {
-				//ClusterManager.getInstance().peers.get(from)
-				/*Set<RemoteSubscriber> ps = ClusterManager.getInstance().subscribers.get(Key.parse(key));
-				if(ps != null) {
-					LogMan.info("Remote peer leaves room: " + key);
-					RemoteSubscriber rs = new RemoteSubscriber(user+"", me);
-					ps.remove(rs);
-				}*/
+				Peer p = ClusterManager.getInstance().getPeer(from);
+				ClusterManager.getInstance().removeSubscriber(k, p);
 			}
 		} catch (JMSException e) {
 			e.printStackTrace();
