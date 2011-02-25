@@ -28,7 +28,7 @@ public class Leave extends Action {
 		room.getCurrentUsers().remove(user);
 		session.saveOrUpdate(room);
 		try {
-			SubscriberManager.getInstance().get(CookieFilter.getSessionID()).clear();
+			SubscriberManager.getInstance().get(CookieFilter.getSessionID()).stop();
 		} catch (NoSuchSubscriber e) {
 			e.printStackTrace();
 		}

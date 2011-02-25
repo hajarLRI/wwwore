@@ -38,7 +38,12 @@ public class CometServlet extends HttpServlet {
 			subscriber = SubscriberManager.getInstance().get(id);
 			Continuation c = ContinuationSupport.getContinuation(request);
 			c.setTimeout(10*60*1000);
-			subscriber.pickup(c);
+			String operation = request.getParameter("operation");
+			if((operation != null) && (operation.equals("stop"))) {
+				subscriber.stop();
+			} else {
+				subscriber.pickup(c);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			response.setStatus(500);

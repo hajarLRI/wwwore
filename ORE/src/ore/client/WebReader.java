@@ -8,6 +8,12 @@ public class WebReader implements Runnable {
 	private Machine machine;
 	private String sessionID;
 	private User user;
+	private boolean stop = false;
+	
+	public void stop() throws Exception {
+		machine.stopMe(sessionID);
+		stop = true;
+	}
 
 	public WebReader(Machine machine, User user) {
 		this.machine = machine;
@@ -69,7 +75,7 @@ public class WebReader implements Runnable {
 	public void run() {
 		// Step 3
 		JSONArray arr = null;
-		while(true) {
+		while(!stop) {
 			try {
 				arr = machine.receiveMessages(sessionID);
 				if(arr != null) {
@@ -85,5 +91,6 @@ public class WebReader implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	
 	}
 }

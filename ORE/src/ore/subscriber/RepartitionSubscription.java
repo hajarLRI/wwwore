@@ -13,4 +13,5 @@ public class RepartitionSubscription extends Subscription {
 		this.print(message);
 	}
 	
+	public void remove() {}
 }

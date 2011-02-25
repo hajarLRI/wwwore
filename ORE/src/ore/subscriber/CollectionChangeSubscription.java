@@ -1,10 +1,9 @@
 package ore.subscriber;
 
-import java.io.CharArrayWriter;
-import java.io.PrintWriter;
-
 import ore.api.CollectionChangeListener;
 import ore.api.Event;
+import ore.cluster.ClusterManager;
+import ore.cluster.Key;
 import ore.event.EventManager;
 import ore.exception.BrokenCometException;
 
@@ -44,5 +43,9 @@ public class CollectionChangeSubscription extends Subscription {
 			throw new BrokenCometException(subscriber, e);
 		}
 	}
-	
+
+	public void remove() {
+		EventManager.getInstance().removeCollectionChangeSubscription(className, key, property, this);
+		ClusterManager.getInstance().delete(new Key(className, key, property), subscriber.getID());
+	}
 }
