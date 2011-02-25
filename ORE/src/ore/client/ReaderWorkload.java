@@ -6,7 +6,7 @@ import java.util.List;
 
 public class ReaderWorkload implements Runnable {
 	List<User> users;
-	List<WebReader> runners = new LinkedList<WebReader>();
+	LinkedList<WebReader> runners = new LinkedList<WebReader>();
 	
 	public ReaderWorkload(List<User> users) {
 		this.users = users;
@@ -16,6 +16,33 @@ public class ReaderWorkload implements Runnable {
 		for(WebReader r : runners) {
 			r.stop();
 		}
+	}
+	
+	public void stopAtRandom() throws Exception {
+		double r = Math.random();
+		double scaled = r * runners.size();
+		int index = (int) scaled;
+		WebReader wr = runners.get(index);
+		wr.stop();
+		runners.remove(wr);
+	}
+	
+	public void stopOldest() throws Exception {
+		WebReader wr = runners.get(0);
+		wr.stop();
+		runners.remove(wr);
+	}
+	
+	public synchronized void changeOldest() throws Exception {
+		WebReader wr = runners.get(0);
+		wr.stop();
+		runners.remove(wr);
+		User u = wr.getUser();
+		wr = new WebReader(Machine.getRandomMachine(), u);
+		runners.add(wr);
+		wr.init();
+		Thread t = new Thread(wr);
+		t.start();
 	}
 	
 	public void run() {

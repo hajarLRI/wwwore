@@ -29,7 +29,7 @@ public class Leave extends Action {
 		session.saveOrUpdate(room);
 		try {
 			SubscriberManager.getInstance().get(CookieFilter.getSessionID()).stop();
-		} catch (NoSuchSubscriber e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
