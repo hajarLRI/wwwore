@@ -20,10 +20,7 @@ public class WorkloadDriver {
 		ReaderWorkload read = new ReaderWorkload(users);
 		read.run();
 		Writers.loopWriters();
-		Thread.sleep(20000);
-		while(true) {
-			Thread.sleep(5000);
-			read.changeOldest();
-		}
+		Thread.sleep(10000);
+		read.redirectAll("localhost", "8090");
 	}
 }

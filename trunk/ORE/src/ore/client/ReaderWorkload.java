@@ -12,6 +12,13 @@ public class ReaderWorkload implements Runnable {
 		this.users = users;
 	}
 	
+	public void redirectAll(String ip, String port) throws Exception {
+		for(WebReader r : runners) {
+			r.direct(ip, port);
+			Thread.sleep(1000);
+		}
+	}
+	
 	public void stop() throws Exception {
 		for(WebReader r : runners) {
 			r.stop();

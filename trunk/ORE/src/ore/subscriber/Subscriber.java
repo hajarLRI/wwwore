@@ -9,13 +9,15 @@ import javax.jms.JMSException;
 import ore.api.CollectionChangeListener;
 import ore.api.Event;
 import ore.api.PropertyChangeListener;
+import ore.chat.event.MessageListener;
 import ore.cluster.ClusterManager;
+import ore.cluster.Key;
 import ore.event.EventManager;
 import ore.exception.BrokenCometException;
-import ore.hibernate.Metadata;
 import ore.util.LogMan;
 
 import org.eclipse.jetty.continuation.Continuation;
+import org.json.JSONArray;
 
 /**
  * Maintains the Comet connection to a particular client and provides buffering
@@ -29,6 +31,16 @@ public class Subscriber {
 	
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
+	
+	public Subscriber(String sessionID, JSONArray digest) throws Exception {
+		this(sessionID);
+		for(int i=0;i < digest.length();i++) {
+			String key = digest.getString(i);
+			Key k = Key.parse(key);
+			addCollectionChangeListener(this.id	, k.getClassName(), k.getId(), k.getProperty(), new MessageListener());
+		}
+	}
+	
 	public void stop() throws BrokenCometException {
 		for(Subscription s : subs) {
 			s.remove();
@@ -40,6 +52,16 @@ public class Subscriber {
 				this.print(message);
 			}
 		}
+	}
+	
+	public void redirect(String ip, String port) throws BrokenCometException {
+		SubscriberDigest digest = new SubscriberDigest();
+		for(Subscription s : subs) {
+			s.remove();
+			digest.addKey(s.getKey());
+		}
+		String msg = "{\"type\":'redirect',\"ip\":'" + ip + "',\"port\":'" + port + "',\"digest\":" + digest.toJSON() + "}";
+		print(msg);
 	}
 	
 	/**
