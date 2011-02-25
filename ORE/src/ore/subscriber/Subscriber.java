@@ -26,16 +26,6 @@ public class Subscriber {
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
 	private ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
-	private boolean isRepartitioning = false;
-	
-	public boolean isRepartitioning() {
-		return isRepartitioning;
-	}
-	
-	public synchronized void redirect(String ipAddress, String port) throws BrokenCometException {
-		isRepartitioning = true;
-		rs.repartition(ipAddress, port);
-	}
 	
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
@@ -112,10 +102,6 @@ public class Subscriber {
 				LogMan.info("Subscriber " + id + " got pushed");
 				PrintWriter pw = getContinuation().getServletResponse().getWriter();
 				flushData(pw);
-				//pw.close();
-				if(isRepartitioning()) {
-					SubscriberManager.getInstance().remove(this);
-				}
 				getContinuation().complete();
 			} 
 		} catch(Exception e) {
@@ -129,10 +115,6 @@ public class Subscriber {
 				LogMan.info("Subscriber " + id + " pickup data");
 				PrintWriter pw = c.getServletResponse().getWriter();
 				flushData(pw);
-				if(isRepartitioning) {
-					SubscriberManager.getInstance().remove(this);
-				}
-				//pw.close();
 				c = null;
 			} else {
 				LogMan.info("Subscriber " + id + " empty pickup data");
@@ -149,14 +131,14 @@ public class Subscriber {
 		PropertyChangeSubscription sx = new PropertyChangeSubscription(listener, this, className, key, property);
 		subs.add(sx);
 		EventManager.getInstance().addPropertyChangeSubscription(sx);
-		ClusterManager.getInstance().subscribe(userID, sx, className, key, property, Event.EventType.PropertyChanged);
+		ClusterManager.getInstance().subscribe(userID, sx, Event.EventType.PropertyChanged);
 	}
 	
 	public void addCollectionChangeListener(String userID, String className, String key, String property, CollectionChangeListener listener) throws JMSException {
 		CollectionChangeSubscription sx = new CollectionChangeSubscription(listener, this, className, key, property);
 		subs.add(sx);
 		EventManager.getInstance().addCollectionChangeSubscription(sx);
-		ClusterManager.getInstance().subscribe(userID, sx, className, key, property, Event.EventType.CollectionChanged);
+		ClusterManager.getInstance().subscribe(userID, sx, Event.EventType.CollectionChanged);
 	}
 
 }
