@@ -13,6 +13,7 @@ public class Config {
 	static long cometBackoff = 100;
 	public static boolean timerFlag = false;
 	public static long startTime;
+	public static String mode = "normal";
 	
 	public static int readers = 50;
 	public static int itemsPerUser = 10;

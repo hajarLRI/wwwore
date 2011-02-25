@@ -1,7 +1,9 @@
 package ore.subscriber;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.jms.JMSException;
@@ -12,6 +14,7 @@ import ore.api.PropertyChangeListener;
 import ore.chat.event.MessageListener;
 import ore.cluster.ClusterManager;
 import ore.cluster.Key;
+import ore.cluster.Peer;
 import ore.event.EventManager;
 import ore.exception.BrokenCometException;
 import ore.util.LogMan;
@@ -28,12 +31,20 @@ public class Subscriber {
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
 	private ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
+	private boolean chanceForRedirect = false;
+	private static Map<String, String> map = new HashMap<String, String>();
+	static {
+		map.put("61616", "8080");
+		map.put("61617", "8090");
+	}
+ 	
 	
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
 	
 	public Subscriber(String sessionID, JSONArray digest) throws Exception {
 		this(sessionID);
+		chanceForRedirect = true;
 		for(int i=0;i < digest.length();i++) {
 			String key = digest.getString(i);
 			Key k = Key.parse(key);
@@ -132,21 +143,32 @@ public class Subscriber {
 
 	}
 	
-	private synchronized void pickup() throws Exception {	
-			if(buffer.size() > 0) {
-				LogMan.info("Subscriber " + id + " pickup data");
-				PrintWriter pw = c.getServletResponse().getWriter();
-				flushData(pw);
-				c = null;
-			} else {
-				LogMan.info("Subscriber " + id + " empty pickup data");
-				c.suspend(c.getServletResponse());
+	private synchronized void pickup(boolean redirectOK) throws Exception {	
+		if(!chanceForRedirect && redirectOK) {
+			chanceForRedirect = true;
+			Peer p = ClusterManager.getInstance().greedyRedirect(new SubscriberDigest(subs));
+			if(p != null) {
+				String[] parts = p.getIP().split(":");
+				if(parts[0].equals("localhost")) {
+				parts[1] = map.get(parts[1]);
+				}
+				redirect(parts[0], parts[1]);
 			}
+		}
+		if(buffer.size() > 0) {
+			LogMan.info("Subscriber " + id + " pickup data");
+			PrintWriter pw = c.getServletResponse().getWriter();
+			flushData(pw);
+			c = null;
+		} else {
+			LogMan.info("Subscriber " + id + " empty pickup data");
+			c.suspend(c.getServletResponse());
+		}
 	}
 	
-	public void pickup(Continuation c) throws Exception {
+	public void pickup(Continuation c, boolean redirectOK) throws Exception {
 		this.connect(c);
-		this.pickup();
+		this.pickup(redirectOK);
 	}
 
 	public void addPropertyChangeListener(String userID, String className, String key, String property, PropertyChangeListener listener) throws JMSException {

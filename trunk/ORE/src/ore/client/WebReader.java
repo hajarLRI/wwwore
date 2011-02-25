@@ -47,6 +47,7 @@ public class WebReader implements Runnable {
 		//System.out.println(digest.toString());
 		Machine newMachine = Machine.getMachine(ip, port);
 		this.machine = newMachine;
+		System.out.println("GOT REDIRECTED");
 		sessionID = newMachine.directed(digest);
 	}
 	
@@ -70,8 +71,8 @@ public class WebReader implements Runnable {
 			Config.readerResponses++;
 			if (Config.timerFlag) {
 				Config.avg = Config.avg + roundTime;
-				System.out.println("Avg: " + Config.avg / Config.readerResponses );
-				System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
+				//System.out.println("Avg: " + Config.avg / Config.readerResponses );
+				//System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
 			} else {
 				if (Config.readerResponses > 1500) {
 					Config.timerFlag = true;

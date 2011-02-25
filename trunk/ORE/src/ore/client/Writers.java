@@ -53,7 +53,7 @@ public class Writers {
 
 					if (id==(num-1)) { 
 						start = true;
-						System.err.println(num+" Writers created");
+						//System.err.println(num+" Writers created");
 					}
 					//System.out.println("Write: " + id + ", to ");
 					getAddress();
@@ -70,7 +70,7 @@ public class Writers {
 							msgs++;
 							long stop = System.currentTimeMillis();
 							double elapsed = (stop-st)/(double) 1000;
-							System.out.println("Write/Sec: " + ((double)msgs/(double)elapsed));
+							//System.out.println("Write/Sec: " + ((double)msgs/(double)elapsed));
 						}
 					}
 					Thread.sleep(1000);
