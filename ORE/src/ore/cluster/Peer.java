@@ -28,12 +28,12 @@ public class Peer {
 	}
 	
 	public Peer(String ip) {
-		System.out.println("Peer("+ip+")");
+		LogMan.info("Peer("+ip+")");
 		this.ip = ip;
 	}
 	
 	/*public void send(Key k, String user, String msg) {
-		System.out.println("sent("+ip+")");
+		LogMan.info("sent("+ip+")");
 		MessageProducer producer = null;
 		try {
 			TextMessage message = createMessage(session, k.toString(), msg);
@@ -47,7 +47,7 @@ public class Peer {
 	}*/
 	
 	public void sendMessage(Key k, String user, String operation, String from, String msg) {
-		System.out.println("sendMessage(" + k.toString() + ";" + operation + ", user=" + user + ") to " + ip);
+		LogMan.info("sendMessage(" + k.toString() + ";" + operation + ", user=" + user + ") to " + ip);
 		//int userId = Integer.parseInt(user);
 		MessageProducer producer = null;
 		try {
@@ -61,7 +61,7 @@ public class Peer {
 	}
 	
 	public void start() throws JMSException {
-		System.out.println("start("+")");
+		LogMan.info("start("+")");
 		connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+ip+")");
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -75,7 +75,7 @@ public class Peer {
 	}
 	
 	public void connect() throws JMSException {
-		System.out.println("connect("+")");
+		LogMan.info("connect("+")");
 		boolean done = false;
 		while(!done) {
 			try {

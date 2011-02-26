@@ -23,7 +23,7 @@ public class LogMan {
 	}
 	
 	public static void info(String str) {
-		getInstance().logger.info(str);
+		//getInstance().logger.info(str);
 	}
 	
 	public static void error(String str) {

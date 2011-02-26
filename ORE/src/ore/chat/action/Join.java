@@ -1,25 +1,18 @@
 package ore.chat.action;
 
 import static ore.util.HTTPServletUtil.getRequiredParameter;
-import static ore.util.JSONUtil.quote;
-import static ore.util.JSONUtil.toJSONObject;
 
 import java.io.PrintWriter;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import ore.api.CollectionChangeListener;
-import ore.api.Event;
 import ore.api.ORE;
-import ore.api.PropertyChangeListener;
 import ore.chat.entity.ChatSession;
 import ore.chat.entity.User;
 import ore.chat.event.MessageListener;
-import ore.chat.event.UsersListener;
 import ore.servlet.CookieFilter;
+import ore.util.LogMan;
 
 import org.hibernate.Session;
 
@@ -38,7 +31,7 @@ public class Join extends Action {
 			}
 
 			for(String roomName : roomNames) {
-				System.out.println("User " + CookieFilter.getSessionID() + " joined room " + roomName);
+				LogMan.info("User " + CookieFilter.getSessionID() + " joined room " + roomName);
 				ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
 				Set<ChatSession> rooms = user.getRooms();
 				if(rooms != null) {

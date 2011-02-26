@@ -14,6 +14,7 @@ import ore.hypergraph.Hypergraph;
 import ore.servlet.CookieFilter;
 import ore.subscriber.Subscriber;
 import ore.subscriber.SubscriberManager;
+import ore.util.LogMan;
 
 /**
  * Developers use this class to register for mutation events.
@@ -61,7 +62,7 @@ public class ORE {
 	 */
 	public static void addCollectionChangeListener(String userID, Object entity, String property, CollectionChangeListener listener) throws JMSException {
 		String sessionID = CookieFilter.getSessionID();
-		System.out.println("Session ID is "+sessionID);
+		LogMan.info("Session ID is "+sessionID);
 		Subscriber subscriber = null;
 		try {
 			subscriber = SubscriberManager.getInstance().get(sessionID);
