@@ -214,7 +214,7 @@ public class HibernateListener implements 	DeleteEventListener,
 			try {
 				dirts = arg0.getPersister().findDirty(arg0.getState(), arg0.getOldState(), arg0.getEntity(), arg0.getSession());
 			} catch(Exception e) {
-				System.out.println("Find dirty Exception");
+				LogMan.info("Find dirty Exception");
 			}
 			if(dirts != null) {
 				for(int i=0;i < dirts.length;i++) {

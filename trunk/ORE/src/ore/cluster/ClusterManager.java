@@ -9,6 +9,7 @@ import ore.api.Event.EventType;
 import ore.exception.BrokenCometException;
 import ore.subscriber.SubscriberDigest;
 import ore.subscriber.Subscription;
+import ore.util.LogMan;
 
 public class ClusterManager {
 	
@@ -18,6 +19,8 @@ public class ClusterManager {
 	private Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
 	private Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
 	private String mode;
+	private double totalWrites = 0;
+	private double totalSend = 0;
 	
 	public Peer getPeer(String ip) {
 		return peers.get(ip);
@@ -133,6 +136,9 @@ public class ClusterManager {
 	}
 
 	public synchronized void publish(String user, String data, Key key) {
+		synchronized(this) {
+			totalWrites++;
+		}
 		Set<RemoteSubscriber> ps = null;
 		synchronized(this) {
 			ps = subscribers.get(key);
@@ -144,6 +150,10 @@ public class ClusterManager {
 			}
 			for(Peer p : peers) {
 				p.sendMessage(key, user, "msg", self.getIP(), data);
+				synchronized(this) {
+					totalSend++;
+					LogMan.trace("Send/Write: " + (totalSend/totalWrites));
+				}
 			}
 		} 
 	}
