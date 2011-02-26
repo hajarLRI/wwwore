@@ -25,8 +25,8 @@ public class ObjectPropertyTable<T extends Subscription> {
 	public Set<T> lookupSubscription(Key key) {
 		Set<T> ret = table.get(key);
 		if(ret == null) {
+			ret = Collections.newSetFromMap(new ConcurrentHashMap<T, Boolean>());
 			table.put(key, ret);
-			return Collections.newSetFromMap(new ConcurrentHashMap<T, Boolean>());
 		}
 		return ret;
 	}
