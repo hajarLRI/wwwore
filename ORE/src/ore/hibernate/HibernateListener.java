@@ -104,102 +104,102 @@ public class HibernateListener implements 	DeleteEventListener,
 
 	@Override
 	public void onLoad(LoadEvent arg0, LoadType arg1) throws HibernateException {
-		//LogMan.trace("LOAD: " + arg0.getEntityId().toString() + " of type " + arg0.getEntityClassName());
+		//LogMan.internal("LOAD: " + arg0.getEntityId().toString() + " of type " + arg0.getEntityClassName());
 	}
 
 	@Override
 	public void onDelete(DeleteEvent arg0) throws HibernateException {
-		//LogMan.trace("DELETE: " + arg0.getEntityName());
+		//LogMan.internal("DELETE: " + arg0.getEntityName());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onDelete(DeleteEvent arg0, Set arg1) throws HibernateException {
-		//LogMan.trace("DELETE: " + arg0.getEntityName());
+		//LogMan.internal("DELETE: " + arg0.getEntityName());
 	}
 
 	@Override
 	public void onDirtyCheck(DirtyCheckEvent arg0) throws HibernateException {
-		//LogMan.trace("DIRTY_CHECK: " + arg0.isDirty());
+		//LogMan.internal("DIRTY_CHECK: " + arg0.isDirty());
 	}
 
 	@Override
 	public void onEvict(EvictEvent arg0) throws HibernateException {
-		//LogMan.trace("EVICT");
+		//LogMan.internal("EVICT");
 	}
 
 	@Override
 	public void onFlushEntity(FlushEntityEvent arg0) throws HibernateException {
-		//LogMan.trace("FLUSH_ENTITY");
+		//LogMan.internal("FLUSH_ENTITY");
 	}
 
 	@Override
 	public void onFlush(FlushEvent arg0) throws HibernateException {
-		//LogMan.trace("FLUSH");
+		//LogMan.internal("FLUSH");
 	}
 
 	@Override
 	public void onInitializeCollection(InitializeCollectionEvent arg0)
 			throws HibernateException {
-		//LogMan.trace("INIT_COLLECTION");
+		//LogMan.internal("INIT_COLLECTION");
 	}
 
 	@Override
 	public void onLock(LockEvent arg0) throws HibernateException {
-		//LogMan.trace("LOCK");
+		//LogMan.internal("LOCK");
 	}
 
 	@Override
 	public void onMerge(MergeEvent arg0) throws HibernateException {
-		//LogMan.trace("MERGE");
+		//LogMan.internal("MERGE");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onMerge(MergeEvent arg0, Map arg1) throws HibernateException {
-		//LogMan.trace("MERGE");
+		//LogMan.internal("MERGE");
 	}
 
 	@Override
 	public void onPersist(PersistEvent arg0) throws HibernateException {
-		//LogMan.trace("PERSIST");
+		//LogMan.internal("PERSIST");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onPersist(PersistEvent arg0, Map arg1)
 			throws HibernateException {
-		//LogMan.trace("PERSIST");
+		//LogMan.internal("PERSIST");
 	}
 
 	@Override
 	public void onPostRecreateCollection(PostCollectionRecreateEvent arg0) {
-		//LogMan.trace("POST_RECREATE_COLLECTION");
+		//LogMan.internal("POST_RECREATE_COLLECTION");
 	}
 
 	@Override
 	public void onPostRemoveCollection(PostCollectionRemoveEvent arg0) {
-		//LogMan.trace("POST_REMOVE_COLLECTION");
+		//LogMan.internal("POST_REMOVE_COLLECTION");
 	}
 
 	@Override
 	public void onPostUpdateCollection(PostCollectionUpdateEvent arg0) {
-		//LogMan.trace("POST_UPDATE_COLLECTION");	
+		//LogMan.internal("POST_UPDATE_COLLECTION");	
 	}
 
 	@Override
 	public void onPostDelete(PostDeleteEvent arg0) {
-		//LogMan.trace("POST_DELETE");
+		//LogMan.internal("POST_DELETE");
 	}
 
 	@Override
 	public void onPostInsert(PostInsertEvent arg0) {
-		LogMan.trace("POST_INSERT: " + arg0.getId().toString() + " of type " + arg0.getEntity().getClass().getSimpleName());
+		LogMan.internal("POST_INSERT: " + arg0.getId().toString() + " of type " + arg0.getEntity().getClass().getSimpleName());
 	}
 
 	@Override
 	public void onPostLoad(PostLoadEvent arg0) {
-		LogMan.trace("POST_LOAD: " + arg0.getId() + " of type " + arg0.getEntity().getClass().getSimpleName());
+		LogMan.internal("POST_LOAD: " + arg0.getId() + " of type " + arg0.getEntity().getClass().getSimpleName());
 	}
 
 	/**
@@ -209,7 +209,7 @@ public class HibernateListener implements 	DeleteEventListener,
 	@Override
 	public void onPostUpdate(PostUpdateEvent arg0) {
 		try {
-			LogMan.trace("POST_UPDATE");
+			LogMan.internal("POST_UPDATE");
 			int[] dirts = null; 
 			try {
 				dirts = arg0.getPersister().findDirty(arg0.getState(), arg0.getOldState(), arg0.getEntity(), arg0.getSession());
@@ -229,12 +229,12 @@ public class HibernateListener implements 	DeleteEventListener,
 
 	@Override
 	public void onPreRecreateCollection(PreCollectionRecreateEvent arg0) {
-		LogMan.trace("PRE_RECREATE_COLLECTION");
+		LogMan.internal("PRE_RECREATE_COLLECTION");
 	}
 
 	@Override
 	public void onPreRemoveCollection(PreCollectionRemoveEvent arg0) {
-		LogMan.trace("PRE_REMOVE_COLLECTION");
+		LogMan.internal("PRE_REMOVE_COLLECTION");
 	}
 
 	/**
@@ -249,7 +249,7 @@ public class HibernateListener implements 	DeleteEventListener,
 	@Override
 	public void onPreUpdateCollection(PreCollectionUpdateEvent arg0) {
 		try {
-			LogMan.trace("PRE_UPDATE_COLLECTION");
+			LogMan.internal("PRE_UPDATE_COLLECTION");
 			Object snapShot = arg0.getCollection().getStoredSnapshot();
 			Object value = arg0.getCollection().getValue();
 			if((snapShot instanceof Map) && (value instanceof Set)) {
@@ -300,48 +300,48 @@ public class HibernateListener implements 	DeleteEventListener,
 
 	@Override
 	public boolean onPreDelete(PreDeleteEvent arg0) {
-		LogMan.trace("PRE_DELETE");
+		LogMan.internal("PRE_DELETE");
 		return true;
 	}
 
 	@Override
 	public boolean onPreInsert(PreInsertEvent arg0) {
-		LogMan.trace("PRE_INSERT");
+		LogMan.internal("PRE_INSERT");
 		return true;
 	}
 
 	@Override
 	public void onPreLoad(PreLoadEvent arg0) {
-		LogMan.trace("PRE_LOAD");
+		LogMan.internal("PRE_LOAD");
 	}
 
 	@Override
 	public boolean onPreUpdate(PreUpdateEvent arg0) {
-		LogMan.trace("PRE_UPDATE");
+		LogMan.internal("PRE_UPDATE");
 		return true;
 	}
 
 	@Override
 	public void onRefresh(RefreshEvent arg0) throws HibernateException {
-		LogMan.trace("REFRESH");
+		LogMan.internal("REFRESH");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onRefresh(RefreshEvent arg0, Map arg1)
 			throws HibernateException {
-		LogMan.trace("REFRESH");
+		LogMan.internal("REFRESH");
 	}
 
 	@Override
 	public void onReplicate(ReplicateEvent arg0) throws HibernateException {
-		LogMan.trace("REPLICATE");
+		LogMan.internal("REPLICATE");
 	}
 
 	@Override
 	public void onSaveOrUpdate(SaveOrUpdateEvent arg0)
 			throws HibernateException {
-		LogMan.trace("SAVE_OR_UPDATE: " + arg0.getEntityName());
+		LogMan.internal("SAVE_OR_UPDATE: " + arg0.getEntityName());
 	}
 
 }

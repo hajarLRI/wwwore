@@ -35,6 +35,11 @@ public class LogMan {
 		System.out.println(str);
 	}
 	
+	public static void internal(String str) {
+		//getInstance().logger.trace(str);
+		//System.out.println(str);
+	}
+	
 	public static void info(String str, Object ... args) {
 		getInstance().logger.info(str, args);
 	}
