@@ -31,7 +31,8 @@ public class LogMan {
 	}
 	
 	public static void trace(String str) {
-		getInstance().logger.trace(str);
+		//getInstance().logger.trace(str);
+		System.out.println(str);
 	}
 	
 	public static void info(String str, Object ... args) {
