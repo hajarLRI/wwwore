@@ -31,7 +31,6 @@ public class Subscriber {
 	private String id;
 	private RepartitionSubscription rs = new RepartitionSubscription(this);
 	private ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
-	private boolean chanceForRedirect = false;
 	private static Map<String, String> map = new HashMap<String, String>();
 	static {
 		map.put("61616", "8080");
@@ -44,7 +43,6 @@ public class Subscriber {
 	
 	public Subscriber(String sessionID, JSONArray digest) throws Exception {
 		this(sessionID);
-		chanceForRedirect = true;
 		for(int i=0;i < digest.length();i++) {
 			String key = digest.getString(i);
 			Key k = Key.parse(key);
@@ -65,13 +63,23 @@ public class Subscriber {
 		}
 	}
 	
-	public void redirect(String ip, String port) throws BrokenCometException {
+	public void redirect(Peer p, boolean swap) throws BrokenCometException {
+		String[] parts = p.getIP().split(":");
+		if(parts[0].equals("localhost")) {
+			parts[1] = map.get(parts[1]);
+		} else {
+			parts[1] = "8080";
+		}
+		redirect(parts[0], parts[1], swap);
+	}
+	
+	public void redirect(String ip, String port, boolean swap) throws BrokenCometException {
 		SubscriberDigest digest = new SubscriberDigest();
 		for(Subscription s : subs) {
 			s.remove();
 			digest.addKey(s.getKey());
 		}
-		String msg = "{\"type\":'redirect',\"ip\":'" + ip + "',\"port\":'" + port + "',\"digest\":" + digest.toJSON() + "}";
+		String msg = "{\"type\":'redirect',\"ip\":'" + ip + "',\"port\":'" + port + "',\"swap\":'" + swap + "',\"from\":'" + ClusterManager.getInstance().getSelf().getIP() + "',\"digest\":" + digest.toJSON() + "}";
 		print(msg);
 	}
 	
@@ -102,7 +110,7 @@ public class Subscriber {
 		return (c != null);
 	}
 	
-	boolean isSuspended() {
+	public boolean isSuspended() {
 		return (c != null) && (c.isSuspended());
 	}
 	
@@ -143,18 +151,11 @@ public class Subscriber {
 
 	}
 	
-	private synchronized void pickup(boolean redirectOK) throws Exception {	
-		if(!chanceForRedirect && redirectOK) {
-			chanceForRedirect = true;
+	private synchronized void pickup(String redirect) throws Exception {	
+		if(!redirect.equals("no")) {
 			Peer p = ClusterManager.getInstance().greedyRedirect(new SubscriberDigest(subs));
 			if(p != null) {
-				String[] parts = p.getIP().split(":");
-				if(parts[0].equals("localhost")) {
-					parts[1] = map.get(parts[1]);
-				} else {
-					parts[1] = "8080";
-				}
-				redirect(parts[0], parts[1]);
+				redirect(p, true);
 			}
 		}
 		if(buffer.size() > 0) {
@@ -168,9 +169,9 @@ public class Subscriber {
 		}
 	}
 	
-	public void pickup(Continuation c, boolean redirectOK) throws Exception {
+	public void pickup(Continuation c, String redirect) throws Exception {
 		this.connect(c);
-		this.pickup(redirectOK);
+		this.pickup(redirect);
 	}
 
 	public void addPropertyChangeListener(String userID, String className, String key, String property, PropertyChangeListener listener) throws JMSException {

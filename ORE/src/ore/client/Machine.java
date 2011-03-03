@@ -18,11 +18,16 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 public class Machine implements Runnable {
 
 	public static List<Machine> machines = new LinkedList<Machine>();
+	
+	public static Machine getMachine(int i) {
+		return machines.get(i);
+	}
 	
 	public static Machine getRandomMachine() {
 		double r = Math.random();
@@ -141,7 +146,7 @@ public class Machine implements Runnable {
 		return sessionID;
 	}
 	
-	public String directed(JSONArray digest) throws Exception {
+	public String directed(JSONObject digest) throws Exception {
 		HttpClient client = createClient();
 		PostMethod method_tmp = makePostMethod(this.getUrlPrefix() + "/connect", "none", "operation", "directed");
 		method_tmp.setRequestEntity(new StringRequestEntity(digest.toString(), "text/json", "US-ASCII"));
@@ -163,9 +168,13 @@ public class Machine implements Runnable {
 		client.getHttpConnectionManager().closeIdleConnections(0);
 	}
 	
-	public JSONArray receiveMessages(String sessionID) throws Exception {
+	public JSONArray receiveMessages(String sessionID, String redirect) throws Exception {
+		String redirectOK = "true";
+		if(redirect.equals("no") || (Config.redirectOK.equals("no"))) {
+			redirectOK = "no";
+		}
 		HttpClient client = getCurrent();
-		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirectOK", Config.redirectOK);
+		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirect", redirectOK);
 		client.executeMethod(method_tmp);
 		//InputStream stream = method_tmp.getResponseBodyAsStream();
 		InputStream stream = method_tmp.getResponseBodyAsStream();
@@ -179,6 +188,7 @@ public class Machine implements Runnable {
 			Reader r2 = new InputStreamReader(new ByteArrayInputStream(output.toByteArray()));
 			try {
 				JSONArray arr = new JSONArray(new JSONTokener(r2));
+				System.out.println(arr.toString());
 				//TODO Is the stream ready to release?
 				method_tmp.releaseConnection();
 				client.getHttpConnectionManager().closeIdleConnections(0);

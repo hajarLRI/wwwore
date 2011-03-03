@@ -14,11 +14,13 @@ public class Config {
 	public static boolean timerFlag = false;
 	public static long startTime;
 	public static String mode = "normal"; //"weighted"
-	public static String redirectOK = "false"; //"true"
+	public static String redirectOK = "no"; //"true"
 	
 	public static int readers = 50;
 	public static int itemsPerUser = 10;
 	public static double overlap = .5;
-	public static double R = 0;
-	
+	public static double R = 1;
+	public static boolean random = true;
+
+	public static int num = (int) Math.ceil(readers * (itemsPerUser * (1-overlap)));
 }

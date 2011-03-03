@@ -1,10 +1,15 @@
 package ore.hypergraph;
 
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import ore.client.Config;
+import ore.client.HMetis;
+import ore.client.RandomGenerator;
+import ore.client.User;
 
 public class Hypergraph<N, E> {
 	private Map<N, HyperNode<N, E>> nodes = new HashMap<N, HyperNode<N, E>>();
@@ -50,6 +55,11 @@ public class Hypergraph<N, E> {
 		return edge;
 	}
 	
+	public HyperNode<N, E> getNode(N data) {
+		HyperNode<N, E> node = nodes.get(data);
+		return node;
+	}
+	
 	public void print(PrintWriter pw) {
 		int numOfVertices = nodes.size();
 		int numOfEdges = edges.size();
@@ -77,5 +87,15 @@ public class Hypergraph<N, E> {
 		}
 		
 		pw.println("}");
+	}
+	
+	public static void main(String[] args) throws Exception {
+		RandomGenerator rg = new RandomGenerator();
+		List<User<Integer>> user = rg.generate(Config.readers, Config.itemsPerUser, Config.overlap);
+		Hypergraph hg = User.makeHyperGraph(user);
+		HMetis.shmetis(hg, 7, 5);
+		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.out"));
+		hg.toDot(pw);
+		pw.close();
 	}
 }

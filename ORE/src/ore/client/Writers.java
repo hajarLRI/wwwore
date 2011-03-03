@@ -10,14 +10,13 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 
 public class Writers {
 
-	private static int num = (int) Math.ceil(Config.readers * (Config.itemsPerUser * (1-Config.overlap)));
 	static {
-		System.out.println("Num of Writers: " + num);
+		System.out.println("Num of Writers: " + Config.num);
 	}
 	private static int msgs = 0;
 
 	public static void loopWriters() throws InterruptedException{
-		for(int i = 0; i < num; i++) {
+		for(int i = 0; i < Config.num; i++) {
 			HttpClient client = Machine.createClient();
 			Thread thread = new Thread(new Running(i , client));
 			Thread.sleep(50);
@@ -37,7 +36,7 @@ public class Writers {
 		
 		private String getAddress() {
 			int numOfMachines = Config.IPs.length;
-			double chunkSize = num / numOfMachines;
+			double chunkSize = Config.num / numOfMachines;
 			double position = id / chunkSize;
 			int index = (int) position;
 			return "http://" + Config.IPs[index] + ':' + Config.httpPorts[index] + '/' + Config.PROJECT;
@@ -51,7 +50,7 @@ public class Writers {
 				try {
 					long insertTime = System.currentTimeMillis();
 
-					if (id==(num-1)) { 
+					if (id==(Config.num-1)) { 
 						start = true;
 						//System.err.println(num+" Writers created");
 					}

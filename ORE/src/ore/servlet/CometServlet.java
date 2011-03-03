@@ -14,7 +14,7 @@ import ore.util.HTTPServletUtil;
 
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
-import org.json.JSONArray;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 /**
@@ -33,8 +33,13 @@ public class CometServlet extends HttpServlet {
 
 			if((operation != null) && operation.equals("directed")) {
 				InputStreamReader reader = new InputStreamReader(request.getInputStream());
-				JSONArray digest = new JSONArray(new JSONTokener(reader));
-				String sessionID = SubscriberManager.getInstance().newSubscriber(digest);
+				JSONObject digest = new JSONObject(new JSONTokener(reader));
+				String swapString = digest.getString("swap");
+				boolean swap = false;
+				if((swapString != null) && (swapString.equals("true"))) {
+					swap = true;
+				}
+				String sessionID = SubscriberManager.getInstance().newSubscriber(digest, swap);
 				response.setHeader("Set-Cookie", "sessionID=" + sessionID);
 				response.setStatus(200);
 				return;
@@ -66,11 +71,13 @@ public class CometServlet extends HttpServlet {
 			if((operation != null) && (operation.equals("stop"))) {
 				subscriber.stop();
 			} else if((operation != null) && (operation.equals("redirect"))) {
-				subscriber.redirect(request.getParameter("ip"), request.getParameter("port"));
+				subscriber.redirect(request.getParameter("ip"), request.getParameter("port"), false);
 			} else {
-				String redirectString = request.getParameter("redirectOK");
-				boolean redirectOK = (!redirectString.equals("false"));
-				subscriber.pickup(c, redirectOK);
+				String redirectString = request.getParameter("redirect");
+				if(redirectString == null) {
+					redirectString = "no";
+				}
+				subscriber.pickup(c, redirectString);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
