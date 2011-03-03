@@ -8,6 +8,7 @@ public class WebReader implements Runnable {
 	private Machine machine;
 	private String sessionID;
 	private User user;
+	private String redirect = "yes";
 	public User getUser() {
 		return user;
 	}
@@ -41,14 +42,14 @@ public class WebReader implements Runnable {
 	}
 
 	private void redirect(JSONObject obj) throws Exception {
+		redirect = "no";
 		String ip = obj.getString("ip");
 		String port = obj.getString("port");
-		JSONArray digest = obj.getJSONArray("digest");
 		//System.out.println(digest.toString());
 		Machine newMachine = Machine.getMachine(ip, port);
 		this.machine = newMachine;
-		System.out.println("GOT REDIRECTED");
-		sessionID = newMachine.directed(digest);
+		System.out.println("GOT REDIRECTED: " + obj.getString("swap"));
+		sessionID = newMachine.directed(obj);
 	}
 	
 	private void receive(JSONObject obj) throws Exception {
@@ -89,7 +90,7 @@ public class WebReader implements Runnable {
 		while(!stop) {
 			try {
 				synchronized(this) {
-					arr = machine.receiveMessages(sessionID);
+					arr = machine.receiveMessages(sessionID, redirect);
 				}
 				if(arr != null) {
 					for(int i=0; i < arr.length(); i++) {

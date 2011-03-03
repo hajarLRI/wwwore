@@ -4,11 +4,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ReaderWorkload implements Runnable {
-	List<User> users;
+import ore.util.MathUtil;
+
+public class ReaderWorkload<T> implements Runnable {
+	List<User<T>> users;
 	LinkedList<WebReader> runners = new LinkedList<WebReader>();
 	
-	public ReaderWorkload(List<User> users) {
+	public ReaderWorkload(List<User<T>> users) {
 		this.users = users;
 	}
 	
@@ -26,6 +28,9 @@ public class ReaderWorkload implements Runnable {
 	}
 	
 	public void stopAtRandom() throws Exception {
+		if(runners.size() == 0) {
+			return;
+		}
 		double r = Math.random();
 		double scaled = r * runners.size();
 		int index = (int) scaled;
@@ -40,8 +45,8 @@ public class ReaderWorkload implements Runnable {
 		runners.remove(wr);
 	}
 	
-	public synchronized void changeOldest() throws Exception {
-		WebReader wr = runners.get(0);
+	public synchronized void change(int index) throws Exception {
+		WebReader wr = runners.get(index);
 		wr.stop();
 		runners.remove(wr);
 		User u = wr.getUser();
@@ -52,7 +57,15 @@ public class ReaderWorkload implements Runnable {
 		t.start();
 	}
 	
-	public void run() {
+	public synchronized void changeOldest() throws Exception {
+		change(0);
+	}
+	
+	public synchronized void changeAtRandom() throws Exception {
+		change(MathUtil.randomInt(0, Config.readers));
+	}
+	
+	protected void setup() {
 		int m = users.size();
 		int n = Machine.machines.size();
 		int i = 0;
@@ -81,6 +94,10 @@ public class ReaderWorkload implements Runnable {
 				i = 0;
 			}
 		}
+	}
+	
+	public void run() {
+		setup();
 		System.out.println("Readers joined");
 		for(WebReader current : runners) {
 			Thread thread = new Thread(current);

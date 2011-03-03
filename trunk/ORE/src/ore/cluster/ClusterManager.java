@@ -1,12 +1,15 @@
 package ore.cluster;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ore.api.Event.EventType;
 import ore.exception.BrokenCometException;
+import ore.subscriber.Subscriber;
 import ore.subscriber.SubscriberDigest;
 import ore.subscriber.Subscription;
 import ore.util.LogMan;
@@ -16,54 +19,76 @@ public class ClusterManager {
 	private static ClusterManager instance;
 	private Peer self;
 	private Map<String, Peer> peers = new HashMap<String, Peer>();
-	private Map<Key, Set<RemoteSubscriber>> subscribers = new HashMap<Key, Set<RemoteSubscriber>>();
-	private Map<Key, Set<Subscription>> local = new HashMap<Key, Set<Subscription>>();
+	private Map<Key, Set<RemoteSubscriber>> subscribers = new ConcurrentHashMap<Key, Set<RemoteSubscriber>>();
+	private Map<Key, Set<Subscription>> local = new ConcurrentHashMap<Key, Set<Subscription>>();
 	private String mode;
 	private double totalWrites = 0;
 	private double totalSend = 0;
+	
+	public Peer getSelf() {
+		return self;
+	}
+	
+	public Subscriber getMaxFor(String ip) {
+		Peer p = peers.get(ip);
+		return p.max();
+	}
 	
 	public Peer getPeer(String ip) {
 		return peers.get(ip);
 	}
 	
-	public synchronized void addSubscriber(Key k, RemoteSubscriber s) {
+	public void addSubscriber(Key k, RemoteSubscriber s) {
 		Set<RemoteSubscriber> rs = subscribers.get(k);
 		if(rs == null) {
-			rs = new HashSet<RemoteSubscriber>();
+			rs = Collections.newSetFromMap(new ConcurrentHashMap<RemoteSubscriber, Boolean>());
 			subscribers.put(k, rs);
 		}
 		rs.add(s);
+		//Handle interest weights
+		Set<Subscription> locals = local.get(k);
+		Peer p = s.getHost();
+		if(locals != null) {
+			for(Subscription subscription : locals) {
+				p.inc(subscription.getSubscriber());
+			}
+		}
 	}
 	
-	public synchronized void removeSubscriber(Key k, RemoteSubscriber remote) {
+	public void removeSubscriber(Key k, RemoteSubscriber remote) {
 		Set<RemoteSubscriber> rs = subscribers.get(k);
-		RemoteSubscriber remover = null;
 		if(rs != null) {
 			if(mode.equals("weighted")) {
 				rs.remove(remote);
 			} else {
 				for(RemoteSubscriber r : rs) {
 					if(r.getHost() == remote.getHost()) {
-						remover = r;
-						break;
+						rs.remove(r);
 					}
 				}
-				rs.remove(remover);
+			}
+		}
+		//Handle interest weights
+		Set<Subscription> locals = local.get(k);
+		Peer p = remote.getHost();
+		if(locals != null) {
+			for(Subscription subscription : locals) {
+				p.dec(subscription.getSubscriber());
 			}
 		}
 	}
 	
-	public synchronized void clear() {
+	public void clear() {
 		subscribers.clear();
 		local.clear();
 	}
 	
 	private ClusterManager(String selfIP, String[] peerIP, String mode) throws Exception  {
 		this.mode = mode;
-		self = new Peer(selfIP);
+		self = Peer.create(selfIP);
 		self.start();
 		for(String ip : peerIP) {
-			Peer p = new Peer(ip);
+			Peer p = Peer.create(ip);
 			peers.put(ip, p);
 			p.connect();
 		}
@@ -71,9 +96,7 @@ public class ClusterManager {
 	
 	public  void receive(Key key, String msg) {
 		Set<Subscription> s = null;
-		synchronized(this) {
-			s = local.get(key);
-		}
+		s = local.get(key);
 		if(s != null) {
 			for(Subscription sub : s) {
 				try {
@@ -88,17 +111,22 @@ public class ClusterManager {
 	
 	public void delete(Subscription sub, Key k, String user) {
 		Set<Subscription> s = null;
-		synchronized(local) {
-			s = local.get(k);
-			if(s == null) {
-				throw new IllegalStateException();
+		s = local.get(k);
+		if(s == null) {
+			throw new IllegalStateException();
+		}
+		if((s.size() == 1) || mode.equals("weighted")) {
+			for(Peer p : peers.values()) {
+				p.sendMessage(k, user, "leave", self.getIP(), "");
 			}
-			if((s.size() == 1) || mode.equals("weighted")) {
-				for(Peer p : peers.values()) {
-					p.sendMessage(k, user, "leave", self.getIP(), "");
-				}
+		}
+		s.remove(sub);
+		//Handle interest weights
+		Set<RemoteSubscriber> rs = subscribers.get(k);
+		if(rs != null) {
+			for(RemoteSubscriber r : rs) {
+				r.getHost().inc(sub.getSubscriber());
 			}
-			s.remove(sub);
 		}
 	}
 	
@@ -120,11 +148,9 @@ public class ClusterManager {
 	public  void subscribe(String userID, Subscription subscription, EventType type) {
 		Key key = subscription.getKey();
 		Set<Subscription> s = null;
-		synchronized(this) {
-			s = local.get(key);
-		}
+		s = local.get(key);
 		if(s == null) {
-			s = new HashSet<Subscription>();
+			s = Collections.newSetFromMap(new ConcurrentHashMap<Subscription, Boolean>());
 			local.put(key, s);
 		}
 		if((s.size() == 0) || mode.equals("weighted")) {
@@ -133,6 +159,13 @@ public class ClusterManager {
 			}
 		}
 		s.add(subscription);
+		//Handle interest weights
+		Set<RemoteSubscriber> rs = subscribers.get(key);
+		if(rs != null) {
+			for(RemoteSubscriber r : rs) {
+				r.getHost().inc(subscription.getSubscriber());
+			}
+		}
 	}
 
 	public synchronized void publish(String user, String data, Key key) {
@@ -140,9 +173,7 @@ public class ClusterManager {
 			totalWrites++;
 		}
 		Set<RemoteSubscriber> ps = null;
-		synchronized(this) {
-			ps = subscribers.get(key);
-		}
+		ps = subscribers.get(key);
 		if(ps != null) {
 			Set<Peer> peers = new HashSet<Peer>();
 			for(RemoteSubscriber p : ps) {

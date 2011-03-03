@@ -12,7 +12,16 @@ import ore.hypergraph.HyperEdge;
 public class User<T> {
 	private static int idCounter = 0;
 	private String id;
+	private int partition;
 	
+	public int getPartition() {
+		return partition;
+	}
+
+	public void setPartition(int partition) {
+		this.partition = partition;
+	}
+
 	public User() {
 		synchronized(User.class) {
 			this.id = (idCounter++)+"";

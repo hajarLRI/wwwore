@@ -2,9 +2,12 @@ package ore.subscriber;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import ore.cluster.ClusterManager;
+import ore.cluster.Peer;
 import ore.exception.NoSuchSubscriber;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Maintains a map between sessionID and {@link Subscriber}
@@ -61,10 +64,19 @@ public class SubscriberManager {
 		return sessionID;
 	}
 	
-	public String newSubscriber(JSONArray digest) throws Exception {
+	public String newSubscriber(JSONObject migrateInfo, boolean swap) throws Exception {
 		//TODO This is an error-prone strategy for creating sessionIDs
+		if(swap) {
+			String from = migrateInfo.getString("from");
+			Peer p = ClusterManager.getInstance().getPeer(from);
+			Subscriber s = ClusterManager.getInstance().getMaxFor(from);
+			if(s != null) {
+				s.redirect(p, false);
+			}
+		}
 		int sessionIDNum = id++;
 		String sessionID = sessionIDNum + "";
+		JSONArray digest = migrateInfo.getJSONArray("digest");
 		Subscriber subscriber = new Subscriber(sessionID, digest);
 		subscribers.put(sessionID, subscriber);
 		return sessionID;

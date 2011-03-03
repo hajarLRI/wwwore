@@ -1,18 +1,18 @@
 package ore.cluster;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
+import ore.subscriber.Subscriber;
+import ore.util.CountingMap;
 import ore.util.LogMan;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -22,14 +22,38 @@ public class Peer {
 	private ActiveMQConnectionFactory connectionFactory;
 	private Connection connection;
 	private Session session;
+	private CountingMap interest = new CountingMap(true);
+	
+	public void inc(Subscriber s) {
+		interest.inc(s);
+	}
+	
+	public void dec(Subscriber s) {
+		interest.dec(s);
+	}
+	
+	public Subscriber max() {
+		return interest.max();
+	}
 	
 	public String getIP() {
 		return ip;
 	}
 	
-	public Peer(String ip) {
+	//Flyweight pattern
+	private static Map<String, Peer> instances = new HashMap<String, Peer>();
+	private Peer(String ip) {
 		LogMan.info("Peer("+ip+")");
 		this.ip = ip;
+	}
+	
+	public static Peer create(String ip) {
+		Peer p = instances.get(ip);
+		if(p == null) {
+			p = new Peer(ip);
+			instances.put(ip, p);
+		}
+		return p;
 	}
 	
 	/*public void send(Key k, String user, String msg) {
@@ -62,7 +86,7 @@ public class Peer {
 	
 	public void start() throws JMSException {
 		LogMan.info("start("+")");
-		connectionFactory = new ActiveMQConnectionFactory("vm:broker:(tcp://"+ip+")");
+		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+")?broker.persistent=false)");
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		Topic subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
