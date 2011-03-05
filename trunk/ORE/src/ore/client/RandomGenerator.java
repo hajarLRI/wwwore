@@ -13,13 +13,7 @@ public class RandomGenerator implements WorkloadGenerator<Integer> {
 	public List<User<Integer>> generate(int clients, int itemsPerUser, double overlap) {
 		List<User<Integer>> users = new LinkedList<User<Integer>>();
 		for(int i=0; i < clients; i++) {
-			User<Integer> user = new User<Integer>();
-			int items = MathUtil.randomInt(1, itemsPerUser + 1);
-			for(int j=0; j < items; j++) {
-				Integer interest = MathUtil.randomInt(0, Config.num - 1);
-				System.out.println("Interest(" + i + ", " + interest + ")");
-				user.addInterest(interest);
-			}
+			User<Integer> user = User.newRandomUser(itemsPerUser);
 			users.add(user);
 		}
 		return users;

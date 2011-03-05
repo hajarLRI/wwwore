@@ -7,8 +7,16 @@ import java.util.Set;
 public class HyperNode<T, E> {
 	private T data;
 	private Hypergraph<T, E> graph;
-	private Set<HyperEdge<E, T>> edges;
+	private Set<HyperEdge<E, T>> edges = new HashSet<HyperEdge<E, T>>();
 	private int assignedPartition;
+	
+	public int relationWeight(HyperNode<T, E> other) {
+		int weight = 0;
+		Set<HyperEdge<E, T>> edgesClone = new HashSet<HyperEdge<E, T>>();
+		edgesClone.addAll(edges);
+		edgesClone.retainAll(other.edges);
+		return edgesClone.size();
+	}
 	
 	public int getPart() {
 		return assignedPartition;
@@ -28,9 +36,6 @@ public class HyperNode<T, E> {
 	}
 	
 	public void addEdge(HyperEdge<E, T> edge) {
-		if(edges == null) {
-			edges = new HashSet<HyperEdge<E, T>>();
-		}
 		edges.add(edge);
 	}
 	

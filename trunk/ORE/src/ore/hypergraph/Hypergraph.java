@@ -3,8 +3,10 @@ package ore.hypergraph;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ore.client.Config;
 import ore.client.HMetis;
@@ -14,7 +16,81 @@ import ore.client.User;
 public class Hypergraph<N, E> {
 	private Map<N, HyperNode<N, E>> nodes = new HashMap<N, HyperNode<N, E>>();
 	private Map<E, HyperEdge<E, N>> edges =  new HashMap<E, HyperEdge<E, N>>();
-	private Map<Integer, Partition> parts = new HashMap<Integer, Partition>();
+	private Map<Integer, Partition<N, E>> parts = new HashMap<Integer, Partition<N, E>>();
+	
+
+	
+	public void removeNode(N data) {
+		HyperNode<N, E> node = nodes.remove(data);
+		for(Partition<N, E> part : parts.values()) {
+			part.removeNode(node);
+		}
+		for(HyperEdge<E, N> edge : edges.values()) {
+			edge.removeNode(node);
+		}
+	}
+	
+	public N addUserToPartition(N userID, User<E> user, int partNum) {
+		Partition<N, E> part = parts.get(partNum);
+		HyperNode<N, E> node = this.createNode(userID);
+		for(E edgeData : user.getInterests()) {
+			HyperEdge<E, N> edge = this.getEdge(edgeData);
+			edge.addNode(node);
+		}
+		part.add(node);
+		return userID;
+	}
+	
+	public N bestNodeForPartitionFromPartition(int forPartition, int fromPartition) {
+		Partition<N, E> forPart = parts.get(forPartition);
+		Partition<N, E> fromPart = parts.get(fromPartition);
+		int max = Integer.MIN_VALUE;
+		N bestNode = null;
+		for(HyperNode<N, E> i : fromPart.getNodes()) {
+			int size = relationWeight(i, forPart);
+			if(size > max) {
+				max = size;
+				bestNode = i.getData();
+			}
+		}
+		return bestNode;
+	}
+	
+	public int findMostRelatedPartition(N nodeData) {
+		HyperNode<N, E> node = this.getNode(nodeData);
+		int max = Integer.MIN_VALUE;
+		int partition = -1;
+		for(Map.Entry<Integer, Partition<N, E>> part : parts.entrySet()) {
+			int weight = relationWeight(node, part.getValue());
+			if(weight > max) {
+				max = weight;
+				partition = part.getKey();
+			}
+		}
+		return partition;
+	}
+	
+	private int relationWeight(HyperNode<N, E> node, Partition<N, E> p) {
+		int weight = 0;
+		for(HyperNode<N, E> other : p.getNodes()) {
+			weight += node.relationWeight(other);
+		}
+		return weight;
+	}
+	
+	public int getLeastLoadedPartition() {
+		int min = Integer.MAX_VALUE;
+		int partitionNumber = -1;
+		for(Map.Entry<Integer, Partition<N, E>> part : parts.entrySet()) {
+			Partition p = part.getValue();
+			int size = p.getSize();
+			if(size < min) {
+				size = min;
+				partitionNumber = part.getKey();
+			}
+		}
+		return partitionNumber;
+	}
 	
 	public int getNumOfEdges() {
 		return edges.size();
@@ -33,6 +109,15 @@ public class Hypergraph<N, E> {
 			parts.put(part, partition);
 		}
 		partition.add(node);
+	}
+	
+	private HyperNode<N, E> createNode(N nodeData) {
+		HyperNode<N, E> node = nodes.get(nodeData);
+		if(node == null) {
+			node = new HyperNode(nodeData, this);
+			nodes.put(nodeData, node);
+		}
+		return node;
 	}
 	
 	public void putNodeOnEdge(N nodeData, HyperEdge<E, N> edge) {
@@ -97,5 +182,14 @@ public class Hypergraph<N, E> {
 		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.out"));
 		hg.toDot(pw);
 		pw.close();
+	}
+
+	public void moveNode(N userNumber, int mostRelated) {
+		HyperNode<N, E> node = nodes.get(userNumber);
+		for(Partition<N, E> part : parts.values()) {
+			part.removeNode(node);
+		}
+		Partition partition = parts.get(mostRelated);
+		partition.add(node);
 	}
 }

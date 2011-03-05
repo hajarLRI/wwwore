@@ -9,11 +9,22 @@ import java.util.Map;
 import java.util.Set;
 
 import ore.hypergraph.HyperEdge;
+import ore.util.MathUtil;
 
 public class User<T> implements Serializable{
 	private static int idCounter = 0;
 	private String id;
 	private int partition;
+	
+	public static User<Integer> newRandomUser(int itemsPerUser) {
+		User<Integer> user = new User<Integer>();
+		int items = MathUtil.randomInt(1, itemsPerUser + 1);
+		for(int j=0; j < items; j++) {
+			Integer interest = MathUtil.randomInt(0, Config.num - 1);
+			user.addInterest(interest);
+		}
+		return user;
+	}
 	
 	public int getPartition() {
 		return partition;
