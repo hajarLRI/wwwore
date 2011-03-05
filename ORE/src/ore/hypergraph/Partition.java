@@ -4,16 +4,24 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Partition {
+public class Partition<V, E> {
 	private int id;
 	
-	private Set<HyperNode<?, ?>> nodes = new HashSet<HyperNode<?, ?>>();
+	private Set<HyperNode<V, E>> nodes = new HashSet<HyperNode<V, E>>();
+	
+	public void removeNode(HyperNode<V, E> node) {
+		nodes.remove(node);
+	}
+	
+	public int getSize() {
+		return nodes.size();
+	}
 	
 	public Partition(int id) {
 		this.id = id;
 	}
 	
-	public void add(HyperNode<?, ?>  node) {
+	public void add(HyperNode<V, E>  node) {
 		nodes.add(node);
 	}
 	
@@ -25,5 +33,9 @@ public class Partition {
 			node.toDot(pw);
 		}
 		pw.println("}");
+	}
+
+	public Set<HyperNode<V, E>> getNodes() {
+		return nodes;
 	}
 }

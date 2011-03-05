@@ -2,9 +2,9 @@ package ore.client;
 
 public class Config {
 
-	public static String[] IPs = {"192.168.0.2", "192.168.0.10"};
-	public static String[] httpPorts = {"8080", "8080"};
-	public static String[] jmsPorts = {"61616", "61616"};
+	public static String[] IPs = {"localhost", "localhost"};
+	public static String[] httpPorts = {"8080", "8090"};
+	public static String[] jmsPorts = {"61616", "61617"};
 	
 	public static String PROJECT = "ORE";
 	public static int readerResponses = 0;
@@ -24,5 +24,5 @@ public class Config {
 
 	public static int num = (int) Math.ceil(readers * (itemsPerUser * (1-overlap)));
 	
-	public static boolean generated = true; //false means generate new interest graph, true means using old one 
+	public static boolean generated = false; //false means generate new interest graph, true means using old one 
 }

@@ -27,9 +27,9 @@ public class ReaderWorkload<T> implements Runnable {
 		}
 	}
 	
-	public void stopAtRandom() throws Exception {
+	public User<T> stopAtRandom() throws Exception {
 		if(runners.size() == 0) {
-			return;
+			return null;
 		}
 		double r = Math.random();
 		double scaled = r * runners.size();
@@ -37,6 +37,7 @@ public class ReaderWorkload<T> implements Runnable {
 		WebReader wr = runners.get(index);
 		wr.stop();
 		runners.remove(wr);
+		return wr.getUser();
 	}
 	
 	public void stopOldest() throws Exception {
@@ -51,6 +52,27 @@ public class ReaderWorkload<T> implements Runnable {
 		runners.remove(wr);
 		User u = wr.getUser();
 		wr = new WebReader(Machine.getRandomMachine(), u);
+		runners.add(wr);
+		wr.init();
+		Thread t = new Thread(wr);
+		t.start();
+	}
+	
+	public User stop(int nodeToSwap) throws Exception {
+		WebReader stopped = null;
+		for(WebReader wr : runners) {
+			if(Integer.parseInt(wr.getUser().getID()) == nodeToSwap) {
+				wr.stop();
+				stopped = wr;
+				break;
+			}
+		}
+		runners.remove(stopped);
+		return stopped.getUser();
+	}
+	
+	public void addUser(User<Integer> u, int mostRelated) throws Exception {
+		WebReader wr = new WebReader(Machine.getMachine(mostRelated), u);
 		runners.add(wr);
 		wr.init();
 		Thread t = new Thread(wr);

@@ -42,17 +42,29 @@ public class WorkloadDriver {
 		}
 
 		//ReaderWorkload read = new ReaderWorkload(users);
-		
-	    Hypergraph hg = User.makeHyperGraph(users); HMetis.shmetis(hg,Config.IPs.length, 5); 
-	    PartitionedWorkload read = new PartitionedWorkload(users, hg);
-		 
+		Hypergraph<Integer, Integer> hg = User.makeHyperGraph(users);	
+		HMetis.shmetis(hg, Config.IPs.length, 5);
+		PartitionedWorkload read = new PartitionedWorkload(users, hg);
+
 		read.run();
 		Writers.loopWriters();
-		// Thread.sleep(10000);
-		// Config.redirectOK = "yes";
-		// while(true) {
-		// Thread.sleep(100);
-		// read.changeAtRandom();
-		// }
+		Thread.sleep(1000);
+		Config.redirectOK = "no";
+		while(true) {
+			Thread.sleep(1000);
+			int stopped = Integer.parseInt(read.stopAtRandom().getID());
+			hg.removeNode(stopped);
+			User<Integer> u = User.newRandomUser(Config.itemsPerUser);
+			int part = hg.getLeastLoadedPartition();
+			int userNumber = hg.addUserToPartition(Integer.parseInt(u.getID()), u, part);
+			int mostRelated = hg.findMostRelatedPartition(userNumber);
+			hg.moveNode(userNumber, mostRelated);
+			int nodeToSwap = hg.bestNodeForPartitionFromPartition(part, mostRelated);
+			hg.moveNode(nodeToSwap, part);
+			//
+			read.addUser(u, mostRelated);
+			User swappedUser = read.stop(nodeToSwap);
+			read.addUser(swappedUser, part);
+		}
 	}
 }

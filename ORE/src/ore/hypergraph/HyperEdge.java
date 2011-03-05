@@ -9,11 +9,15 @@ public class HyperEdge<T, N> {
 	private Hypergraph<N, T> graph;
 	private Set<HyperNode<N, T>> nodes;
 	
+	public void removeNode(HyperNode<N, T> node) {
+		nodes.remove(node);
+	}
+	
 	public T getData() {
 		return data;
 	}
 	
-	public HyperEdge(T data, Hypergraph graph) {
+	HyperEdge(T data, Hypergraph graph) {
 		this.graph = graph;
 		this.data = data;
 	}
