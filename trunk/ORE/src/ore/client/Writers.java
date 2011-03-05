@@ -15,14 +15,14 @@ public class Writers {
 	}
 	private static int msgs = 0;
 
-	public static void loopWriters() throws InterruptedException{
-		for(int i = 0; i < Config.num; i++) {
+	public static void loopWriters() throws InterruptedException {
+		for (int i = 0; i < Config.num; i++) {
 			HttpClient client = Machine.createClient();
-			Thread thread = new Thread(new Running(i , client));
+			Thread thread = new Thread(new Running(i, client));
 			Thread.sleep(50);
 			thread.start();
 		}
-		
+
 	}
 
 	static class Running implements Runnable {
@@ -33,47 +33,60 @@ public class Writers {
 			this.id = id;
 			this.client = client;
 		}
-		
+
 		private String getAddress() {
-			int numOfMachines = Config.IPs.length;
-			double chunkSize = Config.num / numOfMachines;
-			double position = id / chunkSize;
-			int index = (int) position;
-			return "http://" + Config.IPs[index] + ':' + Config.httpPorts[index] + '/' + Config.PROJECT;
+			String st = null;
+			int numOfMachines = 0;
+			double chunkSize = 0.0;
+			try {
+				numOfMachines = Config.IPs.length;
+				chunkSize = Math.ceil(Config.num / numOfMachines) + 1;
+				double position = id / chunkSize;
+				int index = (int) position;
+				st = "http://" + Config.IPs[index] + ':'
+						+ Config.httpPorts[index] + '/' + Config.PROJECT;
+			} catch (Exception e) {
+				System.err.println("hello" + Config.num + "   " + numOfMachines
+						+ "   " + chunkSize + "   " + id);
+			}
+			return st;
 		}
- 
+
 		public void run() {
 			GetMethod method_tmp = null;
 			long st = System.currentTimeMillis();
 			boolean start = false;
-			while(true) {   
+			while (true) {
 				try {
 					long insertTime = System.currentTimeMillis();
 
-					if (id==(Config.num-1)) { 
+					if (id == (Config.num - 1)) {
 						start = true;
-						//System.err.println(num+" Writers created");
+						// System.err.println(num+" Writers created");
 					}
-					//System.out.println("Write: " + id + ", to ");
+					// System.out.println("Write: " + id + ", to ");
 					getAddress();
-					
-					method_tmp = Machine.makeMethod(getAddress() + "/chat", "none", "operation", "chat", "roomName", id, "userName", id, "message", insertTime);
+
+					method_tmp = Machine.makeMethod(getAddress() + "/chat",
+							"none", "operation", "chat", "roomName", id,
+							"userName", id, "message", insertTime);
 
 					client.executeMethod(method_tmp);
 
-					//method_tmp.releaseConnection();
-					//client.getHttpConnectionManager().closeIdleConnections(0);
-					
-					synchronized(Writers.class) {
-						if(start) {
+					// method_tmp.releaseConnection();
+					// client.getHttpConnectionManager().closeIdleConnections(0);
+
+					synchronized (Writers.class) {
+						if (start) {
 							msgs++;
 							long stop = System.currentTimeMillis();
-							double elapsed = (stop-st)/(double) 1000;
-							//System.out.println("Write/Sec: " + ((double)msgs/(double)elapsed));
+							double elapsed = (stop - st) / (double) 1000;
+							// System.out.println("Write/Sec: " +
+							// ((double)msgs/(double)elapsed));
 						}
 					}
 					Thread.sleep(1000);
-				} catch(Exception e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
 					method_tmp.releaseConnection();
