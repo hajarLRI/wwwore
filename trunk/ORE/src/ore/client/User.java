@@ -1,5 +1,6 @@
 package ore.client;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 import ore.hypergraph.HyperEdge;
 
-public class User<T> {
+public class User<T> implements Serializable{
 	private static int idCounter = 0;
 	private String id;
 	private int partition;
