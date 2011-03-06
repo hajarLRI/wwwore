@@ -17,9 +17,7 @@ public class Hypergraph<N, E> {
 	private Map<N, HyperNode<N, E>> nodes = new HashMap<N, HyperNode<N, E>>();
 	private Map<E, HyperEdge<E, N>> edges =  new HashMap<E, HyperEdge<E, N>>();
 	private Map<Integer, Partition<N, E>> parts = new HashMap<Integer, Partition<N, E>>();
-	
 
-	
 	public void removeNode(N data) {
 		HyperNode<N, E> node = nodes.remove(data);
 		for(Partition<N, E> part : parts.values()) {
@@ -35,19 +33,19 @@ public class Hypergraph<N, E> {
 		HyperNode<N, E> node = this.createNode(userID);
 		for(E edgeData : user.getInterests()) {
 			HyperEdge<E, N> edge = this.getEdge(edgeData);
-			edge.addNode(node);
+			this.putNodeOnEdge(node.getData(), edge);
 		}
 		part.add(node);
 		return userID;
 	}
 	
-	public N bestNodeForPartitionFromPartition(int forPartition, int fromPartition) {
-		Partition<N, E> forPart = parts.get(forPartition);
+	public N bestNodeForPartitionFromPartition(int toPartition, int fromPartition) {
+		Partition<N, E> toPart = parts.get(toPartition);
 		Partition<N, E> fromPart = parts.get(fromPartition);
 		int max = Integer.MIN_VALUE;
 		N bestNode = null;
 		for(HyperNode<N, E> i : fromPart.getNodes()) {
-			int size = relationWeight(i, forPart);
+			int size = relationWeight(i, toPart);
 			if(size > max) {
 				max = size;
 				bestNode = i.getData();
@@ -85,7 +83,7 @@ public class Hypergraph<N, E> {
 			Partition p = part.getValue();
 			int size = p.getSize();
 			if(size < min) {
-				size = min;
+				min = size;
 				partitionNumber = part.getKey();
 			}
 		}
