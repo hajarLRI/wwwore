@@ -52,22 +52,22 @@ public class WorkloadDriver {
 		Config.redirectOK = "no";
 		while(true) {
 			Thread.sleep(1000);
-			read.changeAtRandom();
-//			int stopped = Integer.parseInt(read.stopAtRandom().getID());
-//			
-//			hg.removeNode(stopped);
-//			User<Integer> u = User.newRandomUser(Config.itemsPerUser);
-//			int part = hg.getLeastLoadedPartition();
-//			System.out.println(part);
-//			int userNumber = hg.addUserToPartition(Integer.parseInt(u.getID()), u, part);
-//			int mostRelated = hg.findMostRelatedPartition(userNumber);
-//			hg.moveNode(userNumber, mostRelated);
-//			int nodeToSwap = hg.bestNodeForPartitionFromPartition(part, mostRelated);
-//			hg.moveNode(nodeToSwap, part);
-//			//
-//			read.addUser(u, mostRelated);
-//			User swappedUser = read.stop(nodeToSwap);
-//			read.addUser(swappedUser, part);
+			//read.changeAtRandom();
+			int stopped = Integer.parseInt(read.stopAtRandom().getID());
+			
+			hg.removeNode(stopped);
+			User<Integer> u = User.newRandomUser(Config.itemsPerUser);
+			int part = hg.getLeastLoadedPartition();
+			System.out.println(part);
+			int userNumber = hg.addUserToPartition(Integer.parseInt(u.getID()), u, part);
+			int mostRelated = hg.findMostRelatedPartition(userNumber);
+			hg.moveNode(userNumber, mostRelated);
+			int nodeToSwap = hg.bestNodeForPartitionFromPartition(part, mostRelated);
+			hg.moveNode(nodeToSwap, part);
+			//
+			read.addUser(u, mostRelated);
+			User swappedUser = read.stop(nodeToSwap);
+			read.addUser(swappedUser, part);
 		}
 	}
 }
