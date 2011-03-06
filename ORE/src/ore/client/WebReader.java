@@ -1,8 +1,14 @@
 package ore.client;
 
+import java.io.IOException;
+import java.util.Stack;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.parser.ContentHandler;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class WebReader implements Runnable {
 	private Machine machine;
@@ -106,5 +112,151 @@ public class WebReader implements Runnable {
 			}
 		}
 	
+	}
+	
+	private class ResponseHandler implements ContentHandler {
+		Stack<Object> building = new Stack<Object>();
+		String currentKey = null;
+		Object finalValue;
+		
+		private void finishValue(Object value) {
+			Object top = building.peek();
+			if(top == null) {
+				finalValue = top;
+			} else if(top instanceof JSONArray) {
+				JSONArray arr = (JSONArray) top;
+				arr.put(value);
+			} else if(top instanceof JSONObject) {
+				JSONObject obj = (JSONObject) top;
+				try {
+					obj.put(currentKey, value);
+				} catch (JSONException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				throw new IllegalStateException();
+			}
+		}
+		
+		@Override
+		public boolean endArray() throws ParseException, IOException {
+			Object obj = building.pop();
+			finishValue(obj);
+			return true;
+		}
+
+		@Override
+		public void endJSON() throws ParseException, IOException {}
+
+		@Override
+		public boolean endObject() throws ParseException, IOException {
+			Object obj = building.pop();
+			finishValue(obj);
+			return true;
+		}
+
+		@Override
+		public boolean endObjectEntry() throws ParseException, IOException {
+			this.currentKey = null;
+			return true;
+		}
+
+		@Override
+		public boolean primitive(Object arg0) throws ParseException, IOException {
+			finishValue(arg0);
+			return true;
+		}
+
+		@Override
+		public boolean startArray() throws ParseException, IOException {
+			JSONArray arr = new JSONArray();
+			building.push(arr);
+			return true;
+		}
+
+		@Override
+		public void startJSON() throws ParseException, IOException {}
+
+		@Override
+		public boolean startObject() throws ParseException, IOException {
+			JSONObject obj = new JSONObject();
+			building.push(obj);
+			return true;
+		}
+
+		@Override
+		public boolean startObjectEntry(String key) throws ParseException, IOException {
+			currentKey = key;
+			return true;
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		 String jsonText = "{\"first\": 123, \"second\": [{\"k1\":{\"id\":\"id1\"}}, 4, 5, 6, {\"id\": 123}], \"third\": 789, \"id\": null}";
+		  JSONParser parser = new JSONParser();
+		  TestHandler finder = new TestHandler();
+		
+		  try{
+		      parser.parse(jsonText, finder, true);
+		  }
+		  catch(ParseException pe){
+		    pe.printStackTrace();
+		  }
+	}
+	
+	private static class TestHandler implements ContentHandler {
+		
+		public TestHandler() {
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public boolean endArray() throws ParseException, IOException {
+			System.out.println("endArray");
+			return true;
+		}
+
+		@Override
+		public void endJSON() throws ParseException, IOException {}
+
+		@Override
+		public boolean endObject() throws ParseException, IOException {
+			System.out.println("endArray");
+			return true;
+		}
+
+		@Override
+		public boolean endObjectEntry() throws ParseException, IOException {
+			System.out.println("endObjectEntry");
+			return true;
+		}
+
+		@Override
+		public boolean primitive(Object arg0) throws ParseException, IOException {
+			System.out.println("primitive");
+			return true;
+		}
+
+		@Override
+		public boolean startArray() throws ParseException, IOException {
+			System.out.println("startArray");
+			return true;
+		}
+
+		@Override
+		public void startJSON() throws ParseException, IOException {}
+
+		@Override
+		public boolean startObject() throws ParseException, IOException {
+			System.out.println("startObject");
+			return true;
+		}
+
+		@Override
+		public boolean startObjectEntry(String key) throws ParseException, IOException {
+			System.out.println("startObjectEntry");
+			return true;
+		}
 	}
 }

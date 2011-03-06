@@ -188,7 +188,7 @@ public class Machine implements Runnable {
 			Reader r2 = new InputStreamReader(new ByteArrayInputStream(output.toByteArray()));
 			try {
 				JSONArray arr = new JSONArray(new JSONTokener(r2));
-				System.out.println(arr.toString());
+				//System.out.println(arr.toString());
 				//TODO Is the stream ready to release?
 				method_tmp.releaseConnection();
 				client.getHttpConnectionManager().closeIdleConnections(0);

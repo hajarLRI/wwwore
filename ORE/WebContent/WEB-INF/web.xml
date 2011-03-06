@@ -44,6 +44,19 @@
     	ore.servlet.HyperServlet</servlet-class>
     </servlet>
     
+    <servlet>
+    	<servlet-name>TestServlet</servlet-name>
+    	<display-name>TestServlet</display-name>
+    	<description></description>
+    	<servlet-class>
+    	ore.servlet.TestServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+    	<servlet-name>TestServlet</servlet-name>
+    	<url-pattern>/test</url-pattern>
+    </servlet-mapping>
+    
     <servlet-mapping>
     	<servlet-name>HyperServlet</servlet-name>
     	<url-pattern>/hyper</url-pattern>
