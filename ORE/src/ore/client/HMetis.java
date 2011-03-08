@@ -4,11 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+
+import ore.util.StreamCleaner;
 
 public class HMetis {
 
@@ -35,21 +36,4 @@ public class HMetis {
 		}
 	}
 	
-	private static class StreamCleaner extends Thread {
-		private InputStream input;
-		
-		public StreamCleaner(InputStream input) {
-			this.input = input;
-		}
-
-		@Override
-		public void run() {
-			byte[] buffer = new byte[512];
-			try {
-				while(input.read(buffer) != -1);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
 }

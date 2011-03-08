@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import ore.subscriber.Subscriber;
 import ore.subscriber.SubscriberManager;
+import ore.util.CPUTimer;
 import ore.util.HTTPServletUtil;
 
 import org.eclipse.jetty.continuation.Continuation;
@@ -25,6 +26,24 @@ import org.json.JSONTokener;
  */
 public class CometServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
+	@Override
+	public void init() {
+		final CPUTimer timer = new CPUTimer(100);
+		timer.start();
+		new Thread(new Runnable() {
+			public void run() {
+				while(true) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					System.out.println("Overall: " + timer.getTotal() + ", Recent: " + timer.getRecent());
+				}
+			}
+		}).start();
+	}
 	
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
