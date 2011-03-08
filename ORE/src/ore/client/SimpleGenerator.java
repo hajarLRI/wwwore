@@ -8,12 +8,12 @@ import java.util.List;
 public class SimpleGenerator implements WorkloadGenerator<Integer> {
 
 	@Override
-	public List<User<Integer>> generate(int clients, int itemsPerUser, double overlap) {
+	public List<User<Integer>> generate() {
 		List<User<Integer>> users = new LinkedList<User<Integer>>();
-		for(int i=0; i < clients; i++) {
+		for(int i=0; i < Config.readers; i++) {
 			User<Integer> user = new User<Integer>();
-			for(int j=0; j < itemsPerUser; j++) {
-				Integer interest = (int) Math.ceil(((i*itemsPerUser) * (1 - overlap) + j));
+			for(int j=0; j < Config.itemsPerUser; j++) {
+				Integer interest = (int) Math.ceil(((i*Config.itemsPerUser) * (1 - Config.overlap) + j));
 				System.out.println("Interest(" + i + ", " + interest + ")");
 				user.addInterest(interest);
 			}
@@ -24,7 +24,7 @@ public class SimpleGenerator implements WorkloadGenerator<Integer> {
 	
 	public static void main(String[] args) throws Exception {
 		SimpleGenerator s = new SimpleGenerator();
-		ore.hypergraph.Hypergraph graph = User.makeHyperGraph(s.generate(Config.readers, Config.itemsPerUser, Config.overlap));
+		ore.hypergraph.Hypergraph graph = User.makeHyperGraph(s.generate());
 		long start = System.currentTimeMillis();
 		HMetis.shmetis(graph, 7, 5);
 		long stop = System.currentTimeMillis();

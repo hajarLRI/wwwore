@@ -86,7 +86,7 @@ public class Peer {
 	
 	public void start() throws JMSException {
 		LogMan.info("start("+")");
-		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+")?broker.persistent=false)");
+		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+"))");
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		Topic subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));

@@ -10,10 +10,10 @@ import ore.util.MathUtil;
 public class RandomGenerator implements WorkloadGenerator<Integer> {
 
 	@Override
-	public List<User<Integer>> generate(int clients, int itemsPerUser, double overlap) {
+	public List<User<Integer>> generate() {
 		List<User<Integer>> users = new LinkedList<User<Integer>>();
-		for(int i=0; i < clients; i++) {
-			User<Integer> user = User.newRandomUser(itemsPerUser);
+		for(int i=0; i < Config.readers; i++) {
+			User<Integer> user = User.newRandomUser(Config.itemsPerUser);
 			users.add(user);
 		}
 		return users;
@@ -21,7 +21,7 @@ public class RandomGenerator implements WorkloadGenerator<Integer> {
 	
 	public static void main(String[] args) throws Exception {
 		RandomGenerator s = new RandomGenerator();
-		ore.hypergraph.Hypergraph graph = User.makeHyperGraph(s.generate(Config.readers, Config.itemsPerUser, Config.overlap));
+		ore.hypergraph.Hypergraph graph = User.makeHyperGraph(s.generate());
 		long start = System.currentTimeMillis();
 		HMetis.shmetis(graph, 7, 5);
 		long stop = System.currentTimeMillis();

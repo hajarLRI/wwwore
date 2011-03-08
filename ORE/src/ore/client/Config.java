@@ -2,13 +2,12 @@ package ore.client;
 
 public class Config {
 
-	public static String[] IPs = {"localhost", "localhost"};
+	public static String[] IPs = {"localhost" , "localhost"};
 	public static String[] httpPorts = {"8080", "8090"};
 	public static String[] jmsPorts = {"61616", "61617"};
 	
 	public static String PROJECT = "ORE";
 	public static int readerResponses = 0;
-	public static int realReaderResponses = 0;
 	public static float avg = 0;
 	static long cometBackoff = 100;
 	public static boolean timerFlag = false;
@@ -20,9 +19,11 @@ public class Config {
 	public static int itemsPerUser = 5;
 	public static double overlap = .5;
 	public static double R = 0;
-	public static boolean random = true;
+	public static boolean random = false;
+	public static boolean graphGenerator = true;
 
 	public static int num = (int) Math.ceil(readers * (itemsPerUser * (1-overlap)));
 	
-	public static boolean generated = false; //false means generate new interest graph, true means using old one 
+	public static boolean generated = true; //false means generate new interest graph, true means using old one 
+	public static boolean readerWorkload = true;
 }

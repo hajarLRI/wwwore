@@ -10,6 +10,10 @@ public class ReaderWorkload<T> implements Runnable {
 	List<User<T>> users;
 	LinkedList<WebReader> runners = new LinkedList<WebReader>();
 	
+	public List<WebReader> getReaders() {
+		return runners;
+	}
+	
 	public ReaderWorkload(List<User<T>> users) {
 		this.users = users;
 	}
@@ -61,7 +65,7 @@ public class ReaderWorkload<T> implements Runnable {
 	public User stop(int nodeToSwap) throws Exception {
 		WebReader stopped = null;
 		for(WebReader wr : runners) {
-			if(Integer.parseInt(wr.getUser().getID()) == nodeToSwap) {
+			if(wr.getUser().getID() == nodeToSwap) {
 				wr.stop();
 				stopped = wr;
 				break;
@@ -92,8 +96,6 @@ public class ReaderWorkload<T> implements Runnable {
 		int n = Machine.machines.size();
 		int i = 0;
 		int chunkSize = (int) Math.round((m * Config.R)/n + 1);
-		System.out.println("Chunksize: " + chunkSize);
-		System.out.println("Writers: " + (int) Math.ceil(Config.readers * (Config.itemsPerUser * (1-Config.overlap))));
 		Iterator<Machine> it = Machine.machines.iterator();
 		Machine machine = it.next();
 		for(User user : users) {

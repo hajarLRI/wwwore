@@ -15,9 +15,8 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 	
 	@Override
 	public void setup() {
-		int i = 0;
 		for(User<T> user : users) {
-			int part = graph.getNode(i).getPart();
+			int part = graph.getNode(user.getID()).getPart();
 			Machine m = Machine.getMachine(part);
 			WebReader wr = new WebReader(m, user);
 			try {
@@ -26,7 +25,6 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 				e.printStackTrace();
 			}
 			runners.add(wr);
-			i++;
 		}
 	}
 

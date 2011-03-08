@@ -2,21 +2,59 @@ package ore.hypergraph;
 
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import ore.client.Config;
 import ore.client.HMetis;
 import ore.client.RandomGenerator;
 import ore.client.User;
+import ore.client.WorkloadGenerator;
+import ore.jung.JungUtil;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.util.Pair;
 
-public class Hypergraph<N, E> {
+public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	private Map<N, HyperNode<N, E>> nodes = new HashMap<N, HyperNode<N, E>>();
 	private Map<E, HyperEdge<E, N>> edges =  new HashMap<E, HyperEdge<E, N>>();
 	private Map<Integer, Partition<N, E>> parts = new HashMap<Integer, Partition<N, E>>();
+	
+	public static Hypergraph<Integer, Integer> generatePowerLaw(int numVertices, int numEdges, int r) {
+		Graph<Integer, Integer> graph = JungUtil.generatePowerLaw(numVertices, numEdges, r);
+		return fromJUNG(graph);
+	}
+	
+	public static Hypergraph<Integer, Integer> generateKleinberg(int latticeSize, double clusteringExponent) {
+		Graph<Integer, Integer> graph = JungUtil.generateKleinberg(latticeSize, clusteringExponent);
+		return fromJUNG(graph);
+	}
+	
+	public static <N> Hypergraph<N, N> fromJUNG(edu.uci.ics.jung.graph.Graph<N, N> jung) {
+		Hypergraph<N, N> graph = new Hypergraph<N, N>();
+		SortedSet<N> sorted = new TreeSet();
+		for(N nodeData : jung.getVertices()) {
+			sorted.add(nodeData);
+		}
+		for(N nodeData : sorted) {
+			System.out.println("Vertex: " + nodeData);
+			HyperEdge<N, N> myEdge = graph.getEdge(nodeData);
+			graph.putNodeOnEdge(nodeData, myEdge);
+		}
+		for(N edgeData : jung.getEdges()) {
+			Pair<N> nodes = jung.getEndpoints(edgeData);
+			N fstNodeData = nodes.getFirst();
+			N sndNodeData = nodes.getSecond();
+			HyperEdge<N, N> fstEdge = graph.getEdge(fstNodeData);
+			HyperEdge<N, N> sndEdge = graph.getEdge(sndNodeData);
+			graph.putNodeOnEdge(fstNodeData, sndEdge);
+			graph.putNodeOnEdge(sndNodeData, fstEdge);
+		}
+		return graph;
+	}
 
 	public void removeNode(N data) {
 		HyperNode<N, E> node = nodes.remove(data);
@@ -30,7 +68,7 @@ public class Hypergraph<N, E> {
 	
 	public N addUserToPartition(N userID, User<E> user, int partNum) {
 		Partition<N, E> part = parts.get(partNum);
-		HyperNode<N, E> node = this.createNode(userID);
+		HyperNode<N, E> node = getNode(userID);
 		for(E edgeData : user.getInterests()) {
 			HyperEdge<E, N> edge = this.getEdge(edgeData);
 			this.putNodeOnEdge(node.getData(), edge);
@@ -99,7 +137,7 @@ public class Hypergraph<N, E> {
 	}
 	
 	public void setPartition(N nodeData, int part) {
-		HyperNode<N, E> node = nodes.get(nodeData);
+		HyperNode<N, E> node = getNode(nodeData);
 		node.setPart(part);
 		Partition partition = parts.get(part);
 		if(partition == null) {
@@ -109,22 +147,8 @@ public class Hypergraph<N, E> {
 		partition.add(node);
 	}
 	
-	private HyperNode<N, E> createNode(N nodeData) {
-		HyperNode<N, E> node = nodes.get(nodeData);
-		if(node == null) {
-			node = new HyperNode(nodeData, this);
-			nodes.put(nodeData, node);
-		}
-		return node;
-	}
-	
 	public void putNodeOnEdge(N nodeData, HyperEdge<E, N> edge) {
-		
-		HyperNode<N, E> node = nodes.get(nodeData);
-		if(node == null) {
-			node = new HyperNode(nodeData, this);
-			nodes.put(nodeData, node);
-		}
+		HyperNode<N, E> node = getNode(nodeData);
 		edge.addNode(node);
 		node.addEdge(edge);
 	}
@@ -140,6 +164,10 @@ public class Hypergraph<N, E> {
 	
 	public HyperNode<N, E> getNode(N data) {
 		HyperNode<N, E> node = nodes.get(data);
+		if(node == null) {
+			node = new HyperNode<N, E>(data, this);
+			nodes.put(data, node);
+		}
 		return node;
 	}
 	
@@ -174,7 +202,7 @@ public class Hypergraph<N, E> {
 	
 	public static void main(String[] args) throws Exception {
 		RandomGenerator rg = new RandomGenerator();
-		List<User<Integer>> user = rg.generate(Config.readers, Config.itemsPerUser, Config.overlap);
+		List<User<Integer>> user = rg.generate();
 		Hypergraph hg = User.makeHyperGraph(user);
 		HMetis.shmetis(hg, 7, 5);
 		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.out"));
@@ -189,5 +217,15 @@ public class Hypergraph<N, E> {
 		}
 		Partition partition = parts.get(mostRelated);
 		partition.add(node);
+	}
+
+	@Override
+	public List<User<E>> generate() {
+		List<User<E>> list = new LinkedList<User<E>>();
+		for(HyperNode<N, E> node : nodes.values()) {
+			list.add(node.generateUser());
+		}
+		Collections.sort(list);
+		return list;
 	}
 }

@@ -14,7 +14,7 @@ import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 import edu.uci.ics.jung.visualization.BasicVisualizationServer;
 
 public class JungUtil {
-	public static Graph generateKleinberg() {
+	public static Graph<Integer, Integer> generateKleinberg(int latticeSize, double clusteringExponent) {
 		return new KleinbergSmallWorldGenerator(new org.apache.commons.collections15.Factory<Graph<Integer,Integer>>() {
 			@Override
 			public Graph<Integer, Integer> create() {
@@ -36,11 +36,11 @@ public class JungUtil {
 				return count++;
 			}
 		}, 
-		10, 
-		.5).create();
+		latticeSize, 
+		clusteringExponent).create();
 	}
 	
-	public static Graph generatePowerLaw() {
+	public static Graph<Integer, Integer> generatePowerLaw(int numVertices, int numEdges, int r) {
 		return new EppsteinPowerLawGenerator(
 				new org.apache.commons.collections15.Factory<Graph<Integer,Integer>>() {
 					@Override
@@ -63,7 +63,7 @@ public class JungUtil {
 						return count++;
 					}
 				}, 
-				100, 200, 20).create(); 
+				numVertices, numEdges, r).create(); 
 	}
 	
 	public static  BarabasiAlbertGenerator generateBarbasiAlbert() {

@@ -1,4 +1,5 @@
 package ore.subscriber;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,6 +51,16 @@ public class Subscriber {
 		}
 	}
 	
+	private void close() throws IOException {
+		if(isSuspended()) {
+			LogMan.info("Subscriber " + id + " got pushed");
+			PrintWriter pw = getContinuation().getServletResponse().getWriter();
+			pw.print("{}]");
+			pw.close();
+			getContinuation().complete();
+		} 
+	}
+	
 	public void stop() throws BrokenCometException {
 		for(Subscription s : subs) {
 			s.remove();
@@ -57,8 +68,13 @@ public class Subscriber {
 		synchronized(this) {
 			SubscriberManager.getInstance().remove(this);
 			if(isSuspended()) {
-				String message = "{\"type\":'stop'}";
+				String message = "{\"type\":\"stop\"}";
 				this.print(message);
+				try {
+				this.close();
+				} catch (IOException e) {
+					throw new BrokenCometException(this, e);
+				}
 			}
 		}
 	}
@@ -81,6 +97,11 @@ public class Subscriber {
 		}
 		String msg = "{\"type\":'redirect',\"ip\":'" + ip + "',\"port\":'" + port + "',\"swap\":'" + swap + "',\"from\":'" + ClusterManager.getInstance().getSelf().getIP() + "',\"digest\":" + digest.toJSON() + "}";
 		print(msg);
+		try {
+			close();
+		} catch (IOException e) {
+			throw new BrokenCometException(this, e);
+		}
 	}
 	
 	/**
@@ -123,16 +144,17 @@ public class Subscriber {
 	}
 	
 	private void flushData(PrintWriter pw) {
-		pw.print("[");
-		int i = 0;
+		//pw.print("[");
+		//int i = 0;
 		for(String data : buffer) {
 			pw.print(data);
-			if(i != (buffer.size()-1)) {
+			//if(i != (buffer.size()-1)) {
 				pw.print(',');
-			}
-			i++;
+			//}
+			//i++;
 		}
-		pw.print("]");
+		pw.flush();
+		//pw.print("]");
 		buffer.clear();
 	}
 	
@@ -143,12 +165,12 @@ public class Subscriber {
 				LogMan.info("Subscriber " + id + " got pushed");
 				PrintWriter pw = getContinuation().getServletResponse().getWriter();
 				flushData(pw);
-				getContinuation().complete();
+				//pw.close();
+				//getContinuation().complete();
 			} 
 		} catch(Exception e) {
 			throw new BrokenCometException(this, e);
 		}
-
 	}
 	
 	private synchronized void pickup(String redirect) throws Exception {	
@@ -158,15 +180,16 @@ public class Subscriber {
 				redirect(p, true);
 			}
 		}
-		if(buffer.size() > 0) {
-			LogMan.info("Subscriber " + id + " pickup data");
-			PrintWriter pw = c.getServletResponse().getWriter();
-			flushData(pw);
-			c = null;
-		} else {
+		//if(buffer.size() > 0) {
+		//	LogMan.info("Subscriber " + id + " pickup data");
+		PrintWriter pw = c.getServletResponse().getWriter();
+		pw.print("[");	
+		//flushData(pw);
+		//	c = null;
+		//} else {
 			LogMan.info("Subscriber " + id + " empty pickup data");
-			c.suspend(c.getServletResponse());
-		}
+			c.suspend();
+		//}
 	}
 	
 	public void pickup(Continuation c, String redirect) throws Exception {
