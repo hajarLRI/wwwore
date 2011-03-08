@@ -1,21 +1,21 @@
-package ore.client;
+package ore.client.initializers;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import ore.client.Config;
+import ore.client.Machine;
+import ore.client.User;
+import ore.client.WebReader;
 import ore.util.MathUtil;
 
-public class ReaderWorkload<T> implements Runnable {
+public class ReaderWorkload<T> implements WorkloadInitializer {
 	List<User<T>> users;
 	LinkedList<WebReader> runners = new LinkedList<WebReader>();
 	
 	public List<WebReader> getReaders() {
 		return runners;
-	}
-	
-	public ReaderWorkload(List<User<T>> users) {
-		this.users = users;
 	}
 	
 	public void redirectAll(String ip, String port) throws Exception {
@@ -127,6 +127,12 @@ public class ReaderWorkload<T> implements Runnable {
 			Thread thread = new Thread(current);
 			thread.start();
 		}
+	}
+
+	@Override
+	public ReaderWorkload initialize(List users) throws Exception {
+		this.users = users;
+		return this;
 	}
 
 }

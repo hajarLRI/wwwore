@@ -1,10 +1,13 @@
-package ore.client;
+package ore.client.generators;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
+import ore.client.Config;
+import ore.client.HMetis;
+import ore.client.User;
 import ore.util.MathUtil;
 
 public class RandomGenerator implements WorkloadGenerator<Integer> {

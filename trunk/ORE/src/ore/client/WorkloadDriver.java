@@ -1,14 +1,14 @@
 package ore.client;
 
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
-import ore.hypergraph.Hypergraph;
+import ore.client.executors.WorkloadExecutor;
+import ore.client.generators.WorkloadGenerator;
+import ore.client.initializers.ReaderWorkload;
+import ore.client.initializers.WorkloadInitializer;
 
 public class WorkloadDriver {
 	public static void main(String[] args) throws Exception {
@@ -22,63 +22,40 @@ public class WorkloadDriver {
 		for (Thread t : threads) {
 			t.join();
 		}
-		WorkloadGenerator generator = null;
-		if (Config.random) {
-			generator = new RandomGenerator();
-		} else if(Config.graphGenerator) {
-			generator = Hypergraph.generatePowerLaw(200, 200, 20);
-		} else {
-			generator = new SimpleGenerator();
-		}
-		List<User<Integer>> users = null;
-		
-		if (!Config.generated) {
-			users = generator.generate();
-			FileOutputStream fos = new FileOutputStream("C:\\Temp\\test.text");
-			ObjectOutputStream out = new ObjectOutputStream(fos);
-			out.writeObject(users);
-			out.close();
-		} else {
-			FileInputStream fis = new FileInputStream("C:\\Temp\\test.text");
-			ObjectInputStream in = new ObjectInputStream(fis);
-			users = (LinkedList) in.readObject();
-			in.close();
-		}
-		ReaderWorkload read;
-		if(Config.readerWorkload) {
-			read = new ReaderWorkload(users);
-		} else {
-			Hypergraph<Integer, Integer> hg = User.makeHyperGraph(users);	
-			HMetis.shmetis(hg, Config.IPs.length, 5);
-			read = new PartitionedWorkload(users, hg);
-			PrintWriter pw = new PrintWriter(System.out);
-			hg.toDot(pw);
-			pw.flush();
-		}
-		
+		List<User<Integer>> users = generate();
+		saveGraph(users);
+		ReaderWorkload read = initialize(users);
+		write(read);
+		execute(read);
+	}
+	
+	private static List<User<Integer>> generate() throws Exception {
+		WorkloadGenerator generator = (WorkloadGenerator) Class.forName(Config.generator).newInstance();
+		List<User<Integer>> users = generator.generate();
+		return users;
+	}
+	
+	private static ReaderWorkload initialize(List<User<Integer>> users) throws Exception {
+		WorkloadInitializer initializer = (WorkloadInitializer) Class.forName(Config.initializer).newInstance();
+		ReaderWorkload read = initializer.initialize(users);
 		read.run();
+		return read;
+	}
+	
+	private static void write(ReaderWorkload read) {
 		WriterWorkload writers = new WriterWorkload(read.getReaders());
 		writers.run();
-//		Thread.sleep(1000);
-//		Config.redirectOK = "no";
-//		while(true) {
-//			Thread.sleep(1000);
-//			read.changeAtRandom();
-//			int stopped = Integer.parseInt(read.stopAtRandom().getID());
-//			
-//			hg.removeNode(stopped);
-//			User<Integer> u = User.newRandomUser(Config.itemsPerUser);
-//			int part = hg.getLeastLoadedPartition();
-//			System.out.println(part);
-//			int userNumber = hg.addUserToPartition(Integer.parseInt(u.getID()), u, part);
-//			int mostRelated = hg.findMostRelatedPartition(userNumber);
-//			hg.moveNode(userNumber, mostRelated);
-//			int nodeToSwap = hg.bestNodeForPartitionFromPartition(part, mostRelated);
-//			hg.moveNode(nodeToSwap, part);
-//			//
-//			read.addUser(u, mostRelated);
-//			User swappedUser = read.stop(nodeToSwap);
-//			read.addUser(swappedUser, part);
-//		}
+	}
+	
+	private static void execute(ReaderWorkload read) throws Exception {
+		WorkloadExecutor executor = (WorkloadExecutor) Class.forName(Config.executor).newInstance();
+		executor.execute(read);
+	}
+	
+	private static <T> void saveGraph(List<User<T>> users) throws Exception {
+		FileOutputStream fos = new FileOutputStream("C:\\Temp\\test.text");
+		ObjectOutputStream out = new ObjectOutputStream(fos);
+		out.writeObject(users);
+		out.close();
 	}
 }
