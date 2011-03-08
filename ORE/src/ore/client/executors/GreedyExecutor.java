@@ -27,7 +27,7 @@ public class GreedyExecutor implements WorkloadExecutor {
 			int stopped = read.stopAtRandom().getID();
 			
 			hg.removeNode(stopped);
-			User<Integer> u = User.newRandomUser(Config.itemsPerUser);
+			User<Integer> u = User.newRandomUser(Config.itemsPerUser, Config.readers);
 			int part = hg.getLeastLoadedPartition();
 			System.out.println(part);
 			int userNumber = hg.addUserToPartition(u.getID(), u, part);
