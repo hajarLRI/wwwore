@@ -176,19 +176,11 @@ public class Machine implements Runnable {
 		HttpClient client = getCurrent();
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirect", redirectOK);
 		client.executeMethod(method_tmp);
-		//InputStream stream = method_tmp.getResponseBodyAsStream();
 		InputStream stream = method_tmp.getResponseBodyAsStream();
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		int size = 0;
-		while((size = stream.read(buffer)) != -1) {
-			output.write(buffer, 0, size);
-		}
 		if(method_tmp.getStatusCode() == 200) { 
-			Reader r2 = new InputStreamReader(new ByteArrayInputStream(output.toByteArray()));
+			Reader r2 = new InputStreamReader(stream);
 			try {
 				JSONArray arr = new JSONArray(new JSONTokener(r2));
-				//System.out.println(arr.toString());
 				//TODO Is the stream ready to release?
 				method_tmp.releaseConnection();
 				client.getHttpConnectionManager().closeIdleConnections(0);
@@ -198,6 +190,21 @@ public class Machine implements Runnable {
 			}
 		} 
 		return null;
+	}
+	
+	public GetMethod receiveMessagesStreaming(String sessionID, String redirect) throws Exception {
+		String redirectOK = "true";
+		if(redirect.equals("no") || (Config.redirectOK.equals("no"))) {
+			redirectOK = "no";
+		}
+		HttpClient client = getCurrent();
+		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirect", redirectOK);
+		client.executeMethod(method_tmp);
+		if(method_tmp.getStatusCode() == 200) { 
+			return method_tmp;
+		} else {
+			return null;
+		}
 	}
 	
 	public String getUrlPrefix() {

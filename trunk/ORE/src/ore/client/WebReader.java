@@ -1,8 +1,11 @@
 package ore.client;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Stack;
 
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -59,13 +62,13 @@ public class WebReader implements Runnable {
 	}
 	
 	private void receive(JSONObject obj) throws Exception {
-		String type = obj.getString("type");
-		if(type.equals("chatMessage")) {
-			receiveChat(obj);
-		} else if(type.equals("redirect")) {
-			redirect(obj);
-		} else {
-			throw new IllegalArgumentException();
+		if(obj.has("type")) {
+			String type = obj.getString("type");
+			if(type.equals("chatMessage")) {
+				receiveChat(obj);
+			} else if(type.equals("redirect")) {
+				redirect(obj);
+			} 
 		}
 	}
 	
@@ -78,8 +81,8 @@ public class WebReader implements Runnable {
 			Config.readerResponses++;
 			if (Config.timerFlag) {
 				Config.avg = Config.avg + roundTime;
-				//System.out.println("Avg: " + Config.avg / Config.readerResponses );
-				//System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
+				System.out.println("Avg: " + Config.avg / Config.readerResponses );
+				System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
 			} else {
 				if (Config.readerResponses > 1500) {
 					Config.timerFlag = true;
@@ -92,23 +95,23 @@ public class WebReader implements Runnable {
 	
 	public void run() {
 		// Step 3
-		JSONArray arr = null;
+		GetMethod response = null;
 		while(!stop) {
 			try {
-				synchronized(this) {
-					arr = machine.receiveMessages(sessionID, redirect);
-				}
-				if(arr != null) {
-					for(int i=0; i < arr.length(); i++) {
-						JSONObject obj = arr.getJSONObject(i);
-						receive(obj);
-					}
+				response = machine.receiveMessagesStreaming(sessionID, redirect);
+				if(response != null) {
+					Reader reader = new InputStreamReader(response.getResponseBodyAsStream());
+					ResponseHandler handler = new ResponseHandler();
+					JSONParser parser = new JSONParser();
+					parser.parse(reader, handler);
 				} else {
 					return;
 				}
 				Thread.sleep(Config.cometBackoff);
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				response.releaseConnection();
 			}
 		}
 	
@@ -120,17 +123,26 @@ public class WebReader implements Runnable {
 		Object finalValue;
 		
 		private void finishValue(Object value) {
-			Object top = building.peek();
-			if(top == null) {
-				finalValue = top;
-			} else if(top instanceof JSONArray) {
-				JSONArray arr = (JSONArray) top;
-				arr.put(value);
-			} else if(top instanceof JSONObject) {
-				JSONObject obj = (JSONObject) top;
+			if(building.size() > 0) {
+				Object top = building.peek();
+				if(top instanceof JSONArray) {
+					JSONArray arr = (JSONArray) top;
+					arr.put(value);
+				} else if(top instanceof JSONObject) {
+					JSONObject obj = (JSONObject) top;
+					try {
+						obj.put(currentKey, value);
+					} catch (JSONException e) {
+						throw new RuntimeException(e);
+					}
+				} else {
+					throw new IllegalStateException();
+				}
+			} else if(value instanceof JSONObject){
+				JSONObject obj = (JSONObject) value;
 				try {
-					obj.put(currentKey, value);
-				} catch (JSONException e) {
+					receive(obj);
+				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			} else {
@@ -140,8 +152,10 @@ public class WebReader implements Runnable {
 		
 		@Override
 		public boolean endArray() throws ParseException, IOException {
-			Object obj = building.pop();
-			finishValue(obj);
+			if(building.size() > 0) {
+				Object obj = building.pop();
+				finishValue(obj);
+			} 
 			return true;
 		}
 
@@ -169,8 +183,10 @@ public class WebReader implements Runnable {
 
 		@Override
 		public boolean startArray() throws ParseException, IOException {
-			JSONArray arr = new JSONArray();
-			building.push(arr);
+			if(building.size() > 0) {
+				JSONArray arr = new JSONArray();
+				building.push(arr);
+			} 
 			return true;
 		}
 
@@ -258,5 +274,9 @@ public class WebReader implements Runnable {
 			System.out.println("startObjectEntry");
 			return true;
 		}
+	}
+
+	public Machine getMachine() {
+		return machine;
 	}
 }

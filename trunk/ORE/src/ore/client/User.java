@@ -11,9 +11,9 @@ import java.util.Set;
 import ore.hypergraph.HyperEdge;
 import ore.util.MathUtil;
 
-public class User<T> implements Serializable{
+public class User<T> implements Serializable, Comparable<User<T>> {
 	private static int idCounter = 0;
-	private String id;
+	private int id;
 	private int partition;
 	
 	public static User<Integer> newRandomUser(int itemsPerUser) {
@@ -34,13 +34,17 @@ public class User<T> implements Serializable{
 		this.partition = partition;
 	}
 
+	public User(int id) {
+		this.id = id;
+	}
+	
 	public User() {
 		synchronized(User.class) {
-			this.id = (idCounter++)+"";
+			this.id = (idCounter++);
 		}
 	}
 	
-	public String getID() {
+	public int getID() {
 		return id;
 	}
 	
@@ -77,6 +81,17 @@ public class User<T> implements Serializable{
 			}
 		}
 		return graph;
+	}
+
+	@Override
+	public int compareTo(User<T> other) {
+		if(this.id < other.id) {
+			return -1;
+		} else if(this.id == other.id) {
+			return 0;
+		} else {
+			return 1;
+		}
 	}
 	
 }

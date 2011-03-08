@@ -25,10 +25,13 @@ public class HMetis {
 		new StreamCleaner(error).start();
 		proc.waitFor();
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("C:\\Temp\\hmetisIn.part." + parts)));
-		int size = graph.getNumOfNodes();
-		for(int i=0; i < size; i++) {
-			int part = Integer.parseInt(br.readLine());
+		String partString = br.readLine();
+		int i=0;
+		while(partString != null) {
+			int part = Integer.parseInt(partString);
 			graph.setPartition(i, part);
+			i++;
+			partString = br.readLine();
 		}
 	}
 	

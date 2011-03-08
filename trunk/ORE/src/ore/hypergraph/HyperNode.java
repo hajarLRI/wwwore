@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Set;
 
+import ore.client.User;
+
 public class HyperNode<T, E> {
 	private T data;
 	private Hypergraph<T, E> graph;
@@ -16,6 +18,14 @@ public class HyperNode<T, E> {
 		edgesClone.addAll(edges);
 		edgesClone.retainAll(other.edges);
 		return edgesClone.size();
+	}
+	
+	public User<E> generateUser() {
+		User<E> user = new User((Integer) data);
+		for(HyperEdge<E, T> edge : edges) {
+			user.addInterest(edge.getData());
+		}
+		return user;
 	}
 	
 	public int getPart() {
