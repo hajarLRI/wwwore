@@ -11,9 +11,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import ore.client.HMetis;
-import ore.client.RandomGenerator;
 import ore.client.User;
-import ore.client.WorkloadGenerator;
+import ore.client.generators.RandomGenerator;
+import ore.client.generators.WorkloadGenerator;
 import ore.jung.JungUtil;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
