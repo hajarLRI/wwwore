@@ -22,8 +22,8 @@ public class Config {
 	
 	public static int num = (int) Math.ceil(readers * (itemsPerUser * (1-overlap)));
 	
-	public static String generator = "ore.client.generators." + "RandomGenerator"; //"PowerLawGenerator", "SmallWorldGenerator", "FileResourceGenerator", "SimpleGenerator"
+	public static String generator = "ore.client.generators." + "PowerLawGenerator"; //"PowerLawGenerator", "SmallWorldGenerator", "FileResourceGenerator", "SimpleGenerator"
 	public static String executor = "ore.client.executors." + "NoOpExecutor"; //"GreedyExecutor"
-	public static String initializer = "ore.client.initializers." + "PartitionedWorkload"; //"ReaderWorkload"
+	public static String initializer = "ore.client.initializers." + "ReaderWorkload"; //"ReaderWorkload"
 	
 }

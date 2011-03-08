@@ -88,7 +88,7 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 	}
 	
 	public synchronized void changeAtRandom() throws Exception {
-		change(MathUtil.randomInt(0, Config.readers));
+		change(MathUtil.randomInt(0, runners.size()));
 	}
 	
 	protected void setup() {
