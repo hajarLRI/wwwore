@@ -16,11 +16,11 @@ public class User<T> implements Serializable, Comparable<User<T>> {
 	private int id;
 	private int partition;
 	
-	public static User<Integer> newRandomUser(int itemsPerUser) {
+	public static User<Integer> newRandomUser(int itemsPerUser, int numberOfObjects) {
 		User<Integer> user = new User<Integer>();
 		int items = MathUtil.randomInt(1, itemsPerUser + 1);
 		for(int j=0; j < items; j++) {
-			Integer interest = MathUtil.randomInt(0, Config.num - 1);
+			Integer interest = MathUtil.randomInt(0, numberOfObjects - 1);
 			user.addInterest(interest);
 		}
 		return user;

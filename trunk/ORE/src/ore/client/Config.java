@@ -19,10 +19,10 @@ public class Config {
 	public static int itemsPerUser = 5;
 	public static double overlap = .5;
 	public static double R = 0;
-	public static String generator = "ore.client.generators." + "RandomGenerator"; //"PowerLawGenerator", "SmallWorldGenerator", "FileResourceGenerator", "SimpleGenerator"
 	
 	public static int num = (int) Math.ceil(readers * (itemsPerUser * (1-overlap)));
-	public static boolean readerWorkload = true;
+	
+	public static String generator = "ore.client.generators." + "RandomGenerator"; //"PowerLawGenerator", "SmallWorldGenerator", "FileResourceGenerator", "SimpleGenerator"
 	public static String executor = "ore.client.executors." + "NoOpExecutor"; //"GreedyExecutor"
 	public static String initializer = "ore.client.initializers." + "PartitionedWorkload"; //"ReaderWorkload"
 	

@@ -16,7 +16,7 @@ public class RandomGenerator implements WorkloadGenerator<Integer> {
 	public List<User<Integer>> generate() {
 		List<User<Integer>> users = new LinkedList<User<Integer>>();
 		for(int i=0; i < Config.readers; i++) {
-			User<Integer> user = User.newRandomUser(Config.itemsPerUser);
+			User<Integer> user = User.newRandomUser(Config.itemsPerUser, Config.readers);
 			users.add(user);
 		}
 		return users;
