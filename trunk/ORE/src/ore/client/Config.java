@@ -15,15 +15,16 @@ public class Config {
 	public static String mode = "normal"; //"weighted"
 	public static String redirectOK = "no"; //"true"
 	
-	public static int readers = 50;
-	public static int itemsPerUser = 5;
+	public static int readers = 150;
+	public static int itemsPerUser = 10;
 	public static double overlap = .5;
-	public static double R = 0;
+	public static double R = 1;
 	
 	public static int num = (int) Math.ceil(readers * (itemsPerUser * (1-overlap)));
 	
-	public static String generator = "ore.client.generators." + "PowerLawGenerator"; //"PowerLawGenerator", "SmallWorldGenerator", "FileResourceGenerator", "SimpleGenerator"
+	public static String generator = "ore.client.generators." + "SimpleGenerator"; //"PowerLawGenerator", "SmallWorldGenerator", "FileResourceGenerator", "SimpleGenerator"
 	public static String executor = "ore.client.executors." + "NoOpExecutor"; //"GreedyExecutor"
 	public static String initializer = "ore.client.initializers." + "ReaderWorkload"; //"ReaderWorkload"
+	public static String writer = "ore.client.writers." + "WriterPerUser"; //"ReaderWorkload"
 	
 }

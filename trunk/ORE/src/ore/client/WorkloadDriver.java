@@ -9,6 +9,7 @@ import ore.client.executors.WorkloadExecutor;
 import ore.client.generators.WorkloadGenerator;
 import ore.client.initializers.ReaderWorkload;
 import ore.client.initializers.WorkloadInitializer;
+import ore.client.writers.WriterWorkload;
 
 public class WorkloadDriver {
 	public static void main(String[] args) throws Exception {
@@ -22,6 +23,7 @@ public class WorkloadDriver {
 		for (Thread t : threads) {
 			t.join();
 		}
+		
 		List<User<Integer>> users = generate();
 		saveGraph(users);
 		ReaderWorkload read = initialize(users);
@@ -42,8 +44,9 @@ public class WorkloadDriver {
 		return read;
 	}
 	
-	private static void write(ReaderWorkload read) {
-		WriterWorkload writers = new WriterWorkload(read.getReaders());
+	private static void write(ReaderWorkload read) throws Exception {
+		WriterWorkload writers = (WriterWorkload) Class.forName(Config.writer).newInstance();
+		writers.init(read);
 		writers.run();
 	}
 	

@@ -1,7 +1,5 @@
 package ore.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -105,7 +103,7 @@ public class Machine implements Runnable {
 		method.releaseConnection();
 	}
 	
-	public void join(User user, String sessionID) throws Exception {
+	public  void join(User user, String sessionID) throws Exception {
 		HttpClient client = getCurrent();
 		int size = user.getInterests().size();
 		int i = 0;
@@ -228,11 +226,11 @@ public class Machine implements Runnable {
     	connectionManager.setParams(params); 
 	}
 	
-	static HttpClient createClient() {
+	public static HttpClient createClient() {
 		return new HttpClient(connectionManager);
 	}
 	
-	static GetMethod makeMethod(String url, String sessionID, Object ... parms) {
+	public static GetMethod makeMethod(String url, String sessionID, Object ... parms) {
 		if((parms != null) && (parms.length > 0)) {
 			url += '?';
 		}

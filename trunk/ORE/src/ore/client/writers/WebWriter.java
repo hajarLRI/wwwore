@@ -1,5 +1,7 @@
-package ore.client;
+package ore.client.writers;
 
+import ore.client.Machine;
+import ore.client.User;
 import ore.util.MathUtil;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -27,7 +29,7 @@ public class WebWriter extends Thread {
 						"none", "operation", "chat", "roomName", item.toString(),
 						"userName", user.getID(), "message", insertTime);
 				client.executeMethod(method_tmp);
-				Thread.sleep(1000);
+				Thread.sleep(200);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
