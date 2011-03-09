@@ -7,7 +7,7 @@ import ore.client.initializers.WorkloadInitializer;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 
-public class WriterPerObject {
+public class WriterPerObject implements WriterWorkload {
 	private int numObjects;
 	private static int msgs = 0;
 	

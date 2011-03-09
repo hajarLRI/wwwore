@@ -18,6 +18,7 @@ import ore.cluster.Key;
 import ore.cluster.Peer;
 import ore.event.EventManager;
 import ore.exception.BrokenCometException;
+import ore.servlet.ClusterStart;
 import ore.util.LogMan;
 
 import org.eclipse.jetty.continuation.Continuation;
@@ -30,7 +31,6 @@ import org.json.JSONArray;
 public class Subscriber {
 	private Continuation c;
 	private String id;
-	private RepartitionSubscription rs = new RepartitionSubscription(this);
 	private ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
 	private static Map<String, String> map = new HashMap<String, String>();
 	static {
@@ -144,17 +144,15 @@ public class Subscriber {
 	}
 	
 	private void flushData(PrintWriter pw) {
-		//pw.print("[");
-		//int i = 0;
+		int i = 0;
 		for(String data : buffer) {
 			pw.print(data);
-			//if(i != (buffer.size()-1)) {
+			if((!ClusterStart.longPolling) || (i != (buffer.size()-1))) {
 				pw.print(',');
-			//}
-			//i++;
+			}
+			i++;
 		}
 		pw.flush();
-		//pw.print("]");
 		buffer.clear();
 	}
 	
@@ -165,8 +163,11 @@ public class Subscriber {
 				LogMan.info("Subscriber " + id + " got pushed");
 				PrintWriter pw = getContinuation().getServletResponse().getWriter();
 				flushData(pw);
-				//pw.close();
-				//getContinuation().complete();
+				if(ClusterStart.longPolling) {
+					pw.print("]");
+					pw.close();
+					getContinuation().complete();
+				}
 			} 
 		} catch(Exception e) {
 			throw new BrokenCometException(this, e);
@@ -180,16 +181,27 @@ public class Subscriber {
 				redirect(p, true);
 			}
 		}
-		//if(buffer.size() > 0) {
-		//	LogMan.info("Subscriber " + id + " pickup data");
-		PrintWriter pw = c.getServletResponse().getWriter();
-		pw.print("[");	
-		//flushData(pw);
-		//	c = null;
-		//} else {
+		if(ClusterStart.longPolling) {
+			if(buffer.size() > 0) {
+				LogMan.info("Subscriber " + id + " pickup data");
+				PrintWriter pw = c.getServletResponse().getWriter();
+				pw.print("[");	
+				flushData(pw);
+				pw.print("]");
+				pw.close();
+				c = null;
+				getContinuation().complete();
+			} else {
+				LogMan.info("Subscriber " + id + " empty pickup data");
+				c.suspend();
+			}
+		} else {
+			PrintWriter pw = c.getServletResponse().getWriter();
+			pw.print("[");	
 			LogMan.info("Subscriber " + id + " empty pickup data");
 			c.suspend();
-		//}
+		}
+		
 	}
 	
 	public void pickup(Continuation c, String redirect) throws Exception {

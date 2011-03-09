@@ -17,12 +17,17 @@ import org.eclipse.jetty.continuation.ContinuationSupport;
 
 public class ClusterStart extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	public static boolean longPolling = false;
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			String selfIP = request.getParameter("selfIP");
 			String peerIP = request.getParameter("peerIP");
 			String mode = request.getParameter("mode");
+			String longPollingString = request.getParameter("longPolling");
+			boolean longPoll= Boolean.parseBoolean(longPollingString);
+			longPolling = longPoll;
+			
 			String[] peerIPs = null;
 			if(peerIP != null) {
 				peerIP = peerIP.replace('~', ':');
