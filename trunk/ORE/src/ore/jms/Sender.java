@@ -52,12 +52,27 @@ public class Sender {
 		}
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		connection.start();
-		Topic msgChannel = session.createTopic("topic");
-		while(true) {
-			Thread.sleep(1000);
-			TextMessage message = session.createTextMessage("HELLO HELLO HELLO HELLO HELLO HELLO HELLO HELLO");
-			MessageProducer producer = session.createProducer(msgChannel);
-			producer.send(message);
+		final Topic msgChannel = session.createTopic("topic");
+		for(int i=0;i < 10; i++) {
+			Thread t = new Thread(new Runnable() {
+				public void run() {
+					while(true) {
+						try {
+							Thread.sleep(10);
+							StringBuffer hello = new StringBuffer(); 
+							for(int j=0;j < 100; j++) {
+								hello.append("HELLO ");
+							}
+							TextMessage message = session.createTextMessage(hello.toString());
+							MessageProducer producer = session.createProducer(msgChannel);
+							producer.send(message);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+			t.start();
 		}
 	}
 }
