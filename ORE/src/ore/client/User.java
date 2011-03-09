@@ -15,6 +15,8 @@ public class User<T> implements Serializable, Comparable<User<T>> {
 	private static int idCounter = 0;
 	private int id;
 	private int partition;
+	private List<T> interests = new LinkedList<T>();
+	
 	
 	public static User<Integer> newRandomUser(int itemsPerUser, int numberOfObjects) {
 		User<Integer> user = new User<Integer>();
@@ -48,7 +50,6 @@ public class User<T> implements Serializable, Comparable<User<T>> {
 		return id;
 	}
 	
-	private List<T> interests = new LinkedList<T>();
 	
 	public void addInterest(T interest) {
 		interests.add(interest);

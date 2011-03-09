@@ -183,7 +183,7 @@ public class ClusterManager {
 				p.sendMessage(key, user, "msg", self.getIP(), data);
 				synchronized(this) {
 					totalSend++;
-					if((totalSend) % 10 == 0) {
+					if((totalSend % 10) == 0) {
 						LogMan.trace("Send/Write: " + (totalSend/totalWrites));
 					}
 				}

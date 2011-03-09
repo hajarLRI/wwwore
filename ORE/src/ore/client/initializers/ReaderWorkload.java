@@ -1,8 +1,10 @@
 package ore.client.initializers;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import ore.client.Config;
 import ore.client.Machine;
@@ -13,6 +15,7 @@ import ore.util.MathUtil;
 public class ReaderWorkload<T> implements WorkloadInitializer {
 	List<User<T>> users;
 	LinkedList<WebReader> runners = new LinkedList<WebReader>();
+	private Set<T> interests = new HashSet<T>();
 	
 	public List<WebReader> getReaders() {
 		return runners;
@@ -132,7 +135,17 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 	@Override
 	public ReaderWorkload initialize(List users) throws Exception {
 		this.users = users;
+		for(User<T> user : this.users) {
+			for(T interest : user.getInterests()) {
+				interests.add(interest);
+			}
+		}
 		return this;
+	}
+
+	@Override
+	public int getNumObjects() {
+		return interests.size();
 	}
 
 }
