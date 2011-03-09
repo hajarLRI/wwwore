@@ -76,7 +76,7 @@ public class Machine implements Runnable {
 				}
 				num++;
 			}
-			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP, "mode", Config.mode);
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP, "mode", Config.mode, "longPolling", Config.longPolling);
 			try {
 				System.out.println(method.getURI().toString());
 			} catch (URIException e) {

@@ -93,7 +93,34 @@ public class WebReader implements Runnable {
 		}
 	}
 	
+	private void runLongPolling() {
+		// Step 3
+		JSONArray arr = null;
+		while(!stop) {
+			try {
+				synchronized(this) {
+					arr = machine.receiveMessages(sessionID, redirect);
+				}
+				if(arr != null) {
+					for(int i=0; i < arr.length(); i++) {
+						JSONObject obj = arr.getJSONObject(i);
+						receive(obj);
+					}
+				} else {
+					return;
+				}
+				Thread.sleep(Config.cometBackoff);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void run() {
+		if(Config.longPolling) {
+			runLongPolling();
+			return;
+		}
 		// Step 3
 		GetMethod response = null;
 		while(!stop) {

@@ -14,6 +14,7 @@ public class Config {
 	public static long startTime;
 	public static String mode = "normal"; //"weighted"
 	public static String redirectOK = "no"; //"true"
+	public static boolean longPolling = false;
 	
 	public static int readers = 150;
 	public static int itemsPerUser = 10;
