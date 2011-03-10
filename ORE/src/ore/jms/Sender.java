@@ -1,16 +1,12 @@
 package ore.jms;
 
 import javax.jms.Connection;
-import javax.jms.Message;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import ore.util.CPUTimer;
-import ore.util.LogMan;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
@@ -52,18 +48,19 @@ public class Sender {
 		}
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		connection.start();
+		StringBuffer hello = new StringBuffer(); 
+		for(int j=0;j < 10; j++) {
+			hello.append("HELLO WORLD");
+		}
+		final String helloString = hello.toString();
 		final Topic msgChannel = session.createTopic("topic");
-		for(int i=0;i < 10; i++) {
+		for(int i=0;i < 1000; i++) {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					while(true) {
 						try {
 							Thread.sleep(10);
-							StringBuffer hello = new StringBuffer(); 
-							for(int j=0;j < 100; j++) {
-								hello.append("HELLO ");
-							}
-							TextMessage message = session.createTextMessage(hello.toString());
+							TextMessage message = session.createTextMessage(helloString);
 							MessageProducer producer = session.createProducer(msgChannel);
 							producer.send(message);
 						} catch (Exception e) {

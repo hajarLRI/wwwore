@@ -36,19 +36,35 @@ public class Receiver {
 		}).start();
 		
 		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+"))");
+		connectionFactory.setUseDedicatedTaskRunner(false);
 		connection = connectionFactory.createConnection();
+		
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+	
 		Topic subscriptionChannel = session.createTopic("topic");
 		MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
+		final long[] startTime = new long[1];
+		final int[] msgs = new int[1];
+		startTime[0] = -1;
+		msgs[0] = 0;
 		consumer.setMessageListener(
 				new MessageListener() {
 					@Override
 					public void onMessage(Message arg0) { 
 						try {
+							if(startTime[0] == -1) {
+								startTime[0] = System.currentTimeMillis();
+							}
+							msgs[0]++;
+							long current = System.currentTimeMillis();
+							long elapsed = (current-startTime[0])/1000;
+							if((msgs[0] % 50000) == 0) {
+								System.out.println(msgs[0]/(double)elapsed);
+							}
 							TextMessage msg = (TextMessage) arg0;
 							String x = msg.getText();
 							x.toLowerCase();
-							System.out.println(x);
+							//System.out.println(x);
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
