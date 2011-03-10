@@ -40,7 +40,6 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 			sorted.add(nodeData);
 		}
 		for(N nodeData : sorted) {
-			System.out.println("Vertex: " + nodeData);
 			HyperEdge<N, N> myEdge = graph.getEdge(nodeData);
 			graph.putNodeOnEdge(nodeData, myEdge);
 		}
@@ -201,10 +200,8 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	}
 	
 	public static void main(String[] args) throws Exception {
-		RandomGenerator rg = new RandomGenerator();
-		List<User<Integer>> user = rg.generate();
-		Hypergraph hg = User.makeHyperGraph(user);
-		HMetis.shmetis(hg, 7, 5);
+		Hypergraph hg = Hypergraph.generatePowerLaw(100000, 50000, 5);
+		HMetis.shmetis(hg, 10, 5);
 		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.out"));
 		hg.toDot(pw);
 		pw.close();
