@@ -2,9 +2,9 @@ package ore.jms;
 
 import javax.jms.Connection;
 import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.Topic;
 
 import ore.util.CPUTimer;
 
@@ -14,6 +14,7 @@ public class Sender {
 	private static ActiveMQConnectionFactory connectionFactory;
 	private static Connection connection;
 	private static Session session;
+	private static int counter = 0;
 	
 	public static void main(String[] args) throws Exception {
 		final CPUTimer timer = new CPUTimer(100);
@@ -53,14 +54,19 @@ public class Sender {
 			hello.append("HELLO WORLD");
 		}
 		final String helloString = hello.toString();
-		final Topic msgChannel = session.createTopic("topic");
+		final Queue msgChannel = session.createQueue("topic");
 		for(int i=0;i < 1000; i++) {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					while(true) {
 						try {
 							Thread.sleep(10);
-							TextMessage message = session.createTextMessage(helloString);
+							TextMessage message = null;
+							int num = 0;;
+							synchronized(Sender.class) {
+								num = counter++;
+							}
+							message = session.createTextMessage(num+"");
 							MessageProducer producer = session.createProducer(msgChannel);
 							producer.send(message);
 						} catch (Exception e) {
