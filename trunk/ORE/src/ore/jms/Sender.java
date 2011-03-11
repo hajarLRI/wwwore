@@ -60,17 +60,12 @@ public class Sender {
 						Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 						final Queue msgChannel = session.createQueue("topic");
 						while(true) {
-
 							Thread.sleep(10);
 							TextMessage message = null;
-							int num = 0;;
-							synchronized(Sender.class) {
-								num = counter++;
-							}
 							message = session.createTextMessage(helloString);
 							MessageProducer producer = session.createProducer(msgChannel);
 							producer.send(message);
-
+							producer.close();
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
