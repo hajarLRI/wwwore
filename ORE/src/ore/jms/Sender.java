@@ -66,7 +66,7 @@ public class Sender {
 							synchronized(Sender.class) {
 								num = counter++;
 							}
-							message = session.createTextMessage(num+"");
+							message = session.createTextMessage(helloString);
 							MessageProducer producer = session.createProducer(msgChannel);
 							producer.send(message);
 						} catch (Exception e) {

@@ -20,7 +20,15 @@ public class Receiver {
 	static int msgs = 0;
 	
 	
-	public static void main(String[] args) throws JMSException {
+	public static void main(String[] args) throws Exception {
+		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+"))");
+		connectionFactory.setUseDedicatedTaskRunner(false);
+		Connection connection = connectionFactory.createConnection();
+		for(int i=0; i < 10; i++) {
+			createConsumer(connection);
+		}
+		connection.start();
+		Thread.sleep(5000);
 		final CPUTimer timer = new CPUTimer(100);
 		timer.start();
 		new Thread(new Runnable() {
@@ -35,14 +43,6 @@ public class Receiver {
 				}
 			}
 		}).start();
-		
-		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+"))");
-		connectionFactory.setUseDedicatedTaskRunner(false);
-		Connection connection = connectionFactory.createConnection();
-		for(int i=0; i < 100; i++) {
-			createConsumer(connection);
-		}
-		connection.start();
 	}
 	
 	private static void createConsumer(Connection connection) throws JMSException {
@@ -65,13 +65,13 @@ public class Receiver {
 							msgs++;
 							long current = System.currentTimeMillis();
 							long elapsed = (current-startTime)/1000;
-							if((msgs % 50000) == 0) {
-								//System.out.println(msgs[0]/(double)elapsed);
+							if((msgs % 10000) == 0) {
+								System.out.println(msgs/(double)elapsed);
 							}
 							TextMessage msg = (TextMessage) arg0;
 							String x = msg.getText();
 							x.toLowerCase();
-							System.out.println(x);
+							//System.out.println(x);
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
