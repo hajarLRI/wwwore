@@ -1,6 +1,7 @@
 package ore.jms;
 
 import javax.jms.Connection;
+import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
@@ -12,8 +13,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class Sender {
 	private static ActiveMQConnectionFactory connectionFactory;
-	private static Connection connection;
-	private static int counter = 0;
 	
 	public static void main(String[] args) throws Exception {
 		final CPUTimer timer = new CPUTimer(100);
@@ -35,7 +34,6 @@ public class Sender {
 		while(!done) {
 			try {
 				connectionFactory = new ActiveMQConnectionFactory("tcp://"+Receiver.ip);
-				connection = connectionFactory.createConnection();
 				done = true;
 			} catch (Exception e ) {
 				System.out.print("Connection is null");
@@ -51,19 +49,20 @@ public class Sender {
 			hello.append("HELLO WORLD");
 		}
 		final String helloString = hello.toString();
-		connection.start();
 		
 		for(int i=0;i < 1000; i++) {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					try {
+						Connection connection = connectionFactory.createConnection();
 						Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 						final Queue msgChannel = session.createQueue("topic");
 						while(true) {
-							Thread.sleep(10);
+						//	Thread.sleep(10);
 							TextMessage message = null;
 							message = session.createTextMessage(helloString);
 							MessageProducer producer = session.createProducer(msgChannel);
+							producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 							producer.send(message);
 							producer.close();
 						}
