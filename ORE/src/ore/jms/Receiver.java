@@ -62,7 +62,9 @@ public class Receiver {
 							if(startTime == -1) {
 								startTime = System.currentTimeMillis();
 							}
-							msgs++;
+							synchronized(Receiver.class) {
+								msgs++;
+							}
 							long current = System.currentTimeMillis();
 							long elapsed = (current-startTime)/1000;
 							if((msgs % 10000) == 0) {
