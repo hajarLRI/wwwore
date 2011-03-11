@@ -5,9 +5,9 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import javax.jms.Topic;
 
 import ore.util.CPUTimer;
 
@@ -15,9 +15,10 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 public class Receiver {
 	private static ActiveMQConnectionFactory connectionFactory;
-	private static Connection connection;
-	private static Session session;
 	public static String ip = "localhost:61617";
+	static long startTime = -1;
+	static int msgs = 0;
+	
 	
 	public static void main(String[] args) throws JMSException {
 		final CPUTimer timer = new CPUTimer(100);
@@ -37,40 +38,46 @@ public class Receiver {
 		
 		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+"))");
 		connectionFactory.setUseDedicatedTaskRunner(false);
-		connection = connectionFactory.createConnection();
-		
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Connection connection = connectionFactory.createConnection();
+		for(int i=0; i < 100; i++) {
+			createConsumer(connection);
+		}
+		connection.start();
+	}
 	
-		Topic subscriptionChannel = session.createTopic("topic");
+	private static void createConsumer(Connection connection) throws JMSException {
+		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		createConsumer(session);
+	}
+	
+	private static void createConsumer(Session session) throws JMSException {
+		Queue subscriptionChannel = session.createQueue("topic");
 		MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
-		final long[] startTime = new long[1];
-		final int[] msgs = new int[1];
-		startTime[0] = -1;
-		msgs[0] = 0;
+		
 		consumer.setMessageListener(
 				new MessageListener() {
 					@Override
 					public void onMessage(Message arg0) { 
 						try {
-							if(startTime[0] == -1) {
-								startTime[0] = System.currentTimeMillis();
+							if(startTime == -1) {
+								startTime = System.currentTimeMillis();
 							}
-							msgs[0]++;
+							msgs++;
 							long current = System.currentTimeMillis();
-							long elapsed = (current-startTime[0])/1000;
-							if((msgs[0] % 50000) == 0) {
-								System.out.println(msgs[0]/(double)elapsed);
+							long elapsed = (current-startTime)/1000;
+							if((msgs % 50000) == 0) {
+								//System.out.println(msgs[0]/(double)elapsed);
 							}
 							TextMessage msg = (TextMessage) arg0;
 							String x = msg.getText();
 							x.toLowerCase();
-							//System.out.println(x);
+							System.out.println(x);
 						} catch(Exception e) {
 							e.printStackTrace();
 						}
 					}
 				}
 		);
-		connection.start();
 	}
+	
 }
