@@ -13,7 +13,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 public class Sender {
 	private static ActiveMQConnectionFactory connectionFactory;
 	private static Connection connection;
-	private static Session session;
 	private static int counter = 0;
 	
 	public static void main(String[] args) throws Exception {
@@ -47,19 +46,21 @@ public class Sender {
 				}
 			}
 		}
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		connection.start();
 		StringBuffer hello = new StringBuffer(); 
 		for(int j=0;j < 10; j++) {
 			hello.append("HELLO WORLD");
 		}
 		final String helloString = hello.toString();
-		final Queue msgChannel = session.createQueue("topic");
+		connection.start();
+		
 		for(int i=0;i < 1000; i++) {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
-					while(true) {
-						try {
+					try {
+						Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+						final Queue msgChannel = session.createQueue("topic");
+						while(true) {
+
 							Thread.sleep(10);
 							TextMessage message = null;
 							int num = 0;;
@@ -69,9 +70,10 @@ public class Sender {
 							message = session.createTextMessage(helloString);
 							MessageProducer producer = session.createProducer(msgChannel);
 							producer.send(message);
-						} catch (Exception e) {
-							e.printStackTrace();
+
 						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			});
