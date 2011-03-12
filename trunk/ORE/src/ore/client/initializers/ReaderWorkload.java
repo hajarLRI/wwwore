@@ -102,14 +102,9 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 		Iterator<Machine> it = Machine.machines.iterator();
 		Machine machine = it.next();
 		for(User user : users) {
-			WebReader runner = WebReader.create(machine, user);
+			final WebReader runner = WebReader.create(machine, user);
 			System.out.println("User " + user.getID() + ", assigned to machine " + machine.getUrlPrefix());
 			runners.add(runner);
-			try {
-				runner.init();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			i++;
 			if(i == (chunkSize)) {
 				if(it.hasNext()) {
@@ -121,13 +116,24 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 				i = 0;
 			}
 		}
+		for(final WebReader runner : runners) {
+			try {
+				new Thread( new Runnable() { public void run() {
+					try {
+						runner.init();
+						runner.execute();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}}).start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public void run() {
 		setup();
-		for(WebReader current : runners) {
-			current.execute();
-		}
 	}
 
 	@Override
