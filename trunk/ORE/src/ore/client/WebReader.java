@@ -37,6 +37,11 @@ public class WebReader implements Runnable {
 		}
 	}
 	
+	public void execute() {
+		Thread thread = new Thread(this);
+		thread.start();
+	}
+	
 	private static class MockWebReader extends WebReader {
 		public MockWebReader(Machine machine, User user) {
 			super(machine, user);
@@ -44,6 +49,11 @@ public class WebReader implements Runnable {
 		
 		@Override
 		public void run() {
+			
+		}
+		
+		@Override
+		public void execute() {
 			
 		}
 	}

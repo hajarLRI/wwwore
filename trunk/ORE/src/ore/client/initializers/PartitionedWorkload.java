@@ -17,7 +17,7 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 	public ReaderWorkload initialize(List users) throws Exception {
 		super.initialize(users);
 		Hypergraph<Integer, Integer> hg = User.makeHyperGraph(users);	
-		HMetis.shmetis(hg, Config.IPs.length, 5);
+		HMetis.shmetis(hg, Config.IPs.length, Config.ubFactor);
 		this.graph = hg;
 		return this;
 	}

@@ -125,10 +125,8 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 	
 	public void run() {
 		setup();
-		System.out.println("Readers joined");
 		for(WebReader current : runners) {
-			Thread thread = new Thread(current);
-			thread.start();
+			current.execute();
 		}
 	}
 

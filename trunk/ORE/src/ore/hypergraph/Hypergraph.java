@@ -200,8 +200,10 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Hypergraph hg = Hypergraph.generatePowerLaw(100000, 50000, 5);
-		HMetis.shmetis(hg, 10, 5);
+		Hypergraph hg = Hypergraph.generateKleinberg(5, 24);
+		System.out.println(hg.getNumOfNodes());
+		System.out.println(hg.getNumOfEdges());
+		HMetis.shmetis(hg, 5, 5);
 		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.out"));
 		hg.toDot(pw);
 		pw.close();
