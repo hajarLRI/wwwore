@@ -112,7 +112,7 @@ public class WebReader implements Runnable {
 				System.out.println("Avg: " + Config.avg / Config.readerResponses );
 				System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
 			} else {
-				if (Config.readerResponses > 1500) {
+				if (Config.readerResponses > 5000) {
 					Config.timerFlag = true;
 					Config.readerResponses = 0;
 					Config.startTime = System.currentTimeMillis();

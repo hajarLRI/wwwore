@@ -104,6 +104,11 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 		for(User user : users) {
 			final WebReader runner = WebReader.create(machine, user);
 			System.out.println("User " + user.getID() + ", assigned to machine " + machine.getUrlPrefix());
+			try {
+				runner.init();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			runners.add(runner);
 			i++;
 			if(i == (chunkSize)) {
@@ -120,7 +125,6 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 			try {
 				new Thread( new Runnable() { public void run() {
 					try {
-						runner.init();
 						runner.execute();
 					} catch (Exception e) {
 						e.printStackTrace();
