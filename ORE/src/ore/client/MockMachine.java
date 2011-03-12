@@ -103,6 +103,10 @@ public class MockMachine extends Machine {
 	private AtomicInteger totalWrites = new AtomicInteger(-1);
 	private AtomicInteger totalSend = new AtomicInteger(-1);
 	
+	public double getRatio() {
+		return (totalSend.intValue()/(double) totalWrites.intValue());
+	}
+	
 	public void notifyMachines(Integer i) {
 		totalWrites.incrementAndGet();
 		Set<MockMachine> machines = serverSubscriptions.get(i);
@@ -112,7 +116,7 @@ public class MockMachine extends Machine {
 				synchronized(this) {
 					totalSend.incrementAndGet();
 					if((totalSend.intValue() % 10) == 0) {
-						System.out.println(name() + "Send/Write: " + (totalSend.intValue()/(double) totalWrites.intValue()));
+						//System.out.println(name() + "Send/Write: " + (totalSend.intValue()/(double) totalWrites.intValue()));
 					}
 				}
 			}
@@ -120,7 +124,7 @@ public class MockMachine extends Machine {
 	}
 	
 	public String name() {
-		return ip + ":" + port + " says --> ";
+		return ip;
 	}
 
 	public void receiveNotifyMachine(Integer i) {

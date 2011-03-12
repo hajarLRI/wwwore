@@ -15,6 +15,8 @@ public class WriterPerObject implements WriterWorkload {
 		this.numObjects = readerWorkload.getNumObjects();
 	}
 	
+	public void stop() {}
+	
 	public void run()  {
 		for (int i = 0; i < numObjects; i++) {
 			Thread thread = new Thread(new Running(i));

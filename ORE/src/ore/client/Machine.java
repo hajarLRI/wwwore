@@ -24,6 +24,19 @@ import org.json.JSONTokener;
 public class Machine implements Runnable {
 
 	public static List<Machine> machines = new LinkedList<Machine>();
+	public static void createMachines(String[] ips, String[] ports, String[] jmsPorts) {
+		machines.clear();
+		for(int i=0; i < ips.length; i++) {
+			Machine m = null;
+			if(Config.mock) {
+				m = new MockMachine(ips[i], ports[i], jmsPorts[i]);
+			} else {
+				m = new Machine(ips[i], ports[i], jmsPorts[i]);
+			}
+			machines.add(m);
+		}
+	}
+	
 	
 	public static List<Machine> getMachines() {
 		return machines;
@@ -55,17 +68,7 @@ public class Machine implements Runnable {
 	
 	private static ThreadLocal<HttpClient> current = new ThreadLocal<HttpClient>();
 	
-	public static void createMachines(String[] ips, String[] ports, String[] jmsPorts) {
-		for(int i=0; i < ips.length; i++) {
-			Machine m = null;
-			if(Config.mock) {
-				m = new MockMachine(ips[i], ports[i], jmsPorts[i]);
-			} else {
-				m = new Machine(ips[i], ports[i], jmsPorts[i]);
-			}
-			machines.add(m);
-		}
-	}
+	
 	
 	protected String ip;
 	protected String port;

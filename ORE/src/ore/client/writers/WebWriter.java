@@ -19,16 +19,19 @@ public class WebWriter extends Thread {
 
 	public void run() {
 		while (true) {
-			try {
-				long insertTime = System.currentTimeMillis();
-				int id = MathUtil.randomInt(0, user.getInterests().size());
-				Object item = user.getInterests().get(id);
-				machine.sendChat(item.toString(), user.getID(), insertTime);
-				Thread.sleep(200);
-			} catch (Exception e) {
-				e.printStackTrace();
-			} 
+			step(200);
 		}
 	}
 
+	public void step(long sleep) {
+		try {
+			long insertTime = System.currentTimeMillis();
+			int id = MathUtil.randomInt(0, user.getInterests().size());
+			Object item = user.getInterests().get(id);
+			machine.sendChat(item.toString(), user.getID(), insertTime);
+			Thread.sleep(sleep);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+	}
 }
