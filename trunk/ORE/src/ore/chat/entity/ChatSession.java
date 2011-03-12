@@ -49,11 +49,11 @@ public class ChatSession {
 	}
 	
 	public void addMessage(Session s, ChatMessage msg) throws BrokenCometException {
-		try {
-			s.createSQLQuery("INSERT INTO chatmessages VALUES ('" + msg.getId() + "','" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+		//try {
+		//	s.createSQLQuery("INSERT INTO chatmessages VALUES ('" + msg.getId() + "','" + msg.getUserName() + "','" + msg.getMessage() + "','" + msg.getSession().getRoomName() +"')").executeUpdate();
+		//} catch(Exception e) {
+		//	e.printStackTrace();
+		//}
 		String user = msg.getUserName();
 		EventManager.getInstance().collectionElementAdded(user, this, "messages", msg);
 	}
