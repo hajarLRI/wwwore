@@ -29,10 +29,17 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 			final Machine m = Machine.getMachine(part);
 			final WebReader wr = WebReader.create(m, user);
 			try {
+				wr.init();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			runners.add(wr);
+		}
+		for(final WebReader runner : runners) {
+			try {
 				new Thread( new Runnable() { public void run() {
 					try {
-						wr.init();
-						wr.execute();
+						runner.execute();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -40,7 +47,6 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			runners.add(wr);
 		}
 	}
 }
