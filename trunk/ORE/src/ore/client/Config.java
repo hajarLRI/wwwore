@@ -27,5 +27,6 @@ public class Config {
 	public static String executor = "ore.client.executors." + "NoOpExecutor"; //"GreedyExecutor"
 	public static String initializer = "ore.client.initializers." + "ReaderWorkload"; //"ReaderWorkload"
 	public static String writer = "ore.client.writers." + "WriterPerUser"; //"ReaderWorkload"
+	public static boolean mock = true;
 	
 }

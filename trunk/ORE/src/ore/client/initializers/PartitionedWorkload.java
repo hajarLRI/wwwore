@@ -27,7 +27,7 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 		for(User<T> user : users) {
 			int part = graph.getNode(user.getID()).getPart();
 			Machine m = Machine.getMachine(part);
-			WebReader wr = new WebReader(m, user);
+			WebReader wr = WebReader.create(m, user);
 			try {
 				wr.init();
 			} catch (Exception e) {

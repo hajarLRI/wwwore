@@ -18,23 +18,16 @@ public class WebWriter extends Thread {
 	}
 
 	public void run() {
-		GetMethod method_tmp = null;
-		HttpClient client = Machine.createClient();
 		while (true) {
 			try {
 				long insertTime = System.currentTimeMillis();
 				int id = MathUtil.randomInt(0, user.getInterests().size());
 				Object item = user.getInterests().get(id);
-				method_tmp = Machine.makeMethod(machine.getUrlPrefix() + "/chat",
-						"none", "operation", "chat", "roomName", item.toString(),
-						"userName", user.getID(), "message", insertTime);
-				client.executeMethod(method_tmp);
+				machine.sendChat(item.toString(), user.getID(), insertTime);
 				Thread.sleep(200);
 			} catch (Exception e) {
 				e.printStackTrace();
-			} finally {
-				method_tmp.releaseConnection();
-			}
+			} 
 		}
 	}
 

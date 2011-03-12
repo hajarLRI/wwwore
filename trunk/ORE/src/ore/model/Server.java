@@ -10,14 +10,10 @@ public class Server implements Notifiable {
 	private Map<DataObject, Set<SubscriberClient>> clientSubscriptions = new HashMap<DataObject, Set<SubscriberClient>>();
 	
 	public void subscribeClient(SubscriberClient sc) {
-		assert(sc.getServer() == null);
-		sc.setServer(this);
 		subscribe(sc, clientSubscriptions);
 	}
 	
 	public void unsubscribeClient(SubscriberClient sc) {
-		assert(sc.getServer() == this); 
-		sc.setServer(null);
 		unsubscribe(sc, clientSubscriptions);
 	}
 	

@@ -1,5 +1,6 @@
 package ore.client;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -8,6 +9,7 @@ import java.util.List;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -22,6 +24,14 @@ import org.json.JSONTokener;
 public class Machine implements Runnable {
 
 	public static List<Machine> machines = new LinkedList<Machine>();
+	
+	public static List<Machine> getMachines() {
+		return machines;
+	}
+	
+	public static int getNumMachines() {
+		return machines.size();
+	}
 	
 	public static Machine getMachine(int i) {
 		return machines.get(i);
@@ -47,13 +57,18 @@ public class Machine implements Runnable {
 	
 	public static void createMachines(String[] ips, String[] ports, String[] jmsPorts) {
 		for(int i=0; i < ips.length; i++) {
-			Machine m = new Machine(ips[i], ports[i], jmsPorts[i]);
+			Machine m = null;
+			if(Config.mock) {
+				m = new MockMachine(ips[i], ports[i], jmsPorts[i]);
+			} else {
+				m = new Machine(ips[i], ports[i], jmsPorts[i]);
+			}
 			machines.add(m);
 		}
 	}
 	
-	private String ip;
-	private String port;
+	protected String ip;
+	protected String port;
 	private String jmsPort;
 	
 	public Machine(String ip, String port, String jmsPort) {
@@ -103,7 +118,7 @@ public class Machine implements Runnable {
 		method.releaseConnection();
 	}
 	
-	public  void join(User user, String sessionID) throws Exception {
+	public  void join(User<Integer> user, String sessionID) throws Exception {
 		HttpClient client = getCurrent();
 		int size = user.getInterests().size();
 		int i = 0;
@@ -166,6 +181,15 @@ public class Machine implements Runnable {
 		client.getHttpConnectionManager().closeIdleConnections(0);
 	}
 	
+	public void sendChat(String roomName, int userName, long insertTime) throws Exception {
+		HttpClient client = getCurrent();
+		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/chat","none", "operation", "chat", "roomName", roomName,
+				"userName", userName, "message", insertTime);
+		client.executeMethod(method_tmp);
+		method_tmp.releaseConnection();
+	}
+						
+	
 	public JSONArray receiveMessages(String sessionID, String redirect) throws Exception {
 		String redirectOK = "true";
 		if(redirect.equals("no") || (Config.redirectOK.equals("no"))) {
@@ -190,7 +214,7 @@ public class Machine implements Runnable {
 		return null;
 	}
 	
-	public GetMethod receiveMessagesStreaming(String sessionID, String redirect) throws Exception {
+	public StreamingResponse receiveMessagesStreaming(String sessionID, String redirect) throws Exception {
 		String redirectOK = "true";
 		if(redirect.equals("no") || (Config.redirectOK.equals("no"))) {
 			redirectOK = "no";
@@ -199,10 +223,29 @@ public class Machine implements Runnable {
 		GetMethod method_tmp = makeMethod(getUrlPrefix() + "/connect", sessionID, "redirect", redirectOK);
 		client.executeMethod(method_tmp);
 		if(method_tmp.getStatusCode() == 200) { 
-			return method_tmp;
+			return new MachineStreamingResponse(method_tmp);
 		} else {
 			return null;
 		}
+	}
+	
+	private static class MachineStreamingResponse implements StreamingResponse {
+		private GetMethod method;
+		
+		public MachineStreamingResponse(GetMethod method) {
+			this.method = method;
+		}
+
+		@Override
+		public InputStream getResponseBodyAsStream() throws IOException {
+			return method.getResponseBodyAsStream();
+		}
+
+		@Override
+		public void releaseConnection() {
+			method.releaseConnection();
+		}
+		
 	}
 	
 	public String getUrlPrefix() {

@@ -72,7 +72,7 @@ public class Receiver {
 							}
 							TextMessage msg = (TextMessage) arg0;
 							String x = msg.getText();
-							x.toLowerCase();
+							//x.toLowerCase();
 							//System.out.println(x);
 						} catch(Exception e) {
 							e.printStackTrace();
