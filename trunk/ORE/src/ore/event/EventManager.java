@@ -75,7 +75,7 @@ public class EventManager {
 			try {
 				sub.elementAdded(event);
 			} catch(BrokenCometException e) {
-				
+				e.printStackTrace();
 			}
 		}
 		

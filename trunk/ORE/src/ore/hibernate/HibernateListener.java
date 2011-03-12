@@ -248,54 +248,54 @@ public class HibernateListener implements 	DeleteEventListener,
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onPreUpdateCollection(PreCollectionUpdateEvent arg0) {
-		try {
-			LogMan.internal("PRE_UPDATE_COLLECTION");
-			Object snapShot = arg0.getCollection().getStoredSnapshot();
-			Object value = arg0.getCollection().getValue();
-			if((snapShot instanceof Map) && (value instanceof Set)) {
-				Set shot = ((Map)snapShot).keySet();
-				Set copy = new HashSet();
-				copy.addAll((Set)value);
-				copy.removeAll(shot);
-				for(Object newValue : copy) {
-					String[] split = arg0.getCollection().getRole().split("\\.");
-					String propertyName = split[split.length-1];
-					EventManager.getInstance().collectionElementAdded("", arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-				}
-
-				shot = (Set) value;
-				copy = new HashSet();
-				copy.addAll(((Map)snapShot).keySet());
-				copy.removeAll(shot);
-				for(Object newValue : copy) {
-					String[] split = arg0.getCollection().getRole().split("\\.");
-					String propertyName = split[split.length-1];
-					EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-				}
-			} else if((snapShot instanceof List) && (value instanceof List)) {
-				List shot = (List) snapShot;
-				List copy = new LinkedList();
-				copy.addAll((List) value);
-				copy.removeAll(shot);
-				for(Object newValue : copy) {
-					String[] split = arg0.getCollection().getRole().split("\\.");
-					String propertyName = split[split.length-1];
-					EventManager.getInstance().collectionElementAdded("", arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-				}
-
-				shot = (List) value;
-				copy = new LinkedList();
-				copy.addAll((List) snapShot);
-				copy.removeAll(shot);
-				for(Object newValue : copy) {
-					String[] split = arg0.getCollection().getRole().split("\\.");
-					String propertyName = split[split.length-1];
-					EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
-				}
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			LogMan.internal("PRE_UPDATE_COLLECTION");
+//			Object snapShot = arg0.getCollection().getStoredSnapshot();
+//			Object value = arg0.getCollection().getValue();
+//			if((snapShot instanceof Map) && (value instanceof Set)) {
+//				Set shot = ((Map)snapShot).keySet();
+//				Set copy = new HashSet();
+//				copy.addAll((Set)value);
+//				copy.removeAll(shot);
+//				for(Object newValue : copy) {
+//					String[] split = arg0.getCollection().getRole().split("\\.");
+//					String propertyName = split[split.length-1];
+//					EventManager.getInstance().collectionElementAdded("", arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+//				}
+//
+//				shot = (Set) value;
+//				copy = new HashSet();
+//				copy.addAll(((Map)snapShot).keySet());
+//				copy.removeAll(shot);
+//				for(Object newValue : copy) {
+//					String[] split = arg0.getCollection().getRole().split("\\.");
+//					String propertyName = split[split.length-1];
+//					EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+//				}
+//			} else if((snapShot instanceof List) && (value instanceof List)) {
+//				List shot = (List) snapShot;
+//				List copy = new LinkedList();
+//				copy.addAll((List) value);
+//				copy.removeAll(shot);
+//				for(Object newValue : copy) {
+//					String[] split = arg0.getCollection().getRole().split("\\.");
+//					String propertyName = split[split.length-1];
+//					EventManager.getInstance().collectionElementAdded("", arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+//				}
+//
+//				shot = (List) value;
+//				copy = new LinkedList();
+//				copy.addAll((List) snapShot);
+//				copy.removeAll(shot);
+//				for(Object newValue : copy) {
+//					String[] split = arg0.getCollection().getRole().split("\\.");
+//					String propertyName = split[split.length-1];
+//					EventManager.getInstance().collectionElementRemoved(arg0.getAffectedOwnerOrNull(), propertyName, newValue);
+//				}
+//			}
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override

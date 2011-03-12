@@ -45,4 +45,11 @@ public class HyperEdge<T, N> {
 			pw.println(edgeName + " -- u" + node.getData().toString() + ';');
 		}
 	}
+	
+	public void toCytoscape(PrintWriter pw) {
+		String edgeName = 'o' + getData().toString();
+		for(HyperNode<N, T> node : nodes) {
+			pw.println("<edge id='e" + edgeName + "' label='e" + edgeName + "' target='" + edgeName + "' source='u" + node.getData().toString() + "'/>");
+		}
+	}
 }

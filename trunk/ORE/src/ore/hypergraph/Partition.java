@@ -34,6 +34,12 @@ public class Partition<V, E> {
 		}
 		pw.println("}");
 	}
+	
+	public void toCytoscape(PrintWriter pw) {
+		for(HyperNode<?, ?> node : nodes) {
+			node.toCytoscape(id, pw);
+		}
+	}
 
 	public Set<HyperNode<V, E>> getNodes() {
 		return nodes;

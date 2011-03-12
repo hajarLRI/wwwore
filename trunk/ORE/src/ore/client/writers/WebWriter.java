@@ -1,5 +1,6 @@
 package ore.client.writers;
 
+import ore.client.Config;
 import ore.client.Machine;
 import ore.client.User;
 import ore.util.MathUtil;
@@ -19,7 +20,7 @@ public class WebWriter extends Thread {
 
 	public void run() {
 		while (true) {
-			step(200);
+			step(Config.writerSleep);
 		}
 	}
 
