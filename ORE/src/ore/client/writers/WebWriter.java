@@ -29,7 +29,11 @@ public class WebWriter extends Thread {
 			int id = MathUtil.randomInt(0, user.getInterests().size());
 			Object item = user.getInterests().get(id);
 			machine.sendChat(item.toString(), user.getID(), insertTime);
-			Thread.sleep(sleep);
+			long current = System.currentTimeMillis();
+			long elapsed = current - insertTime;
+			if(elapsed < sleep) {
+				Thread.sleep(sleep-elapsed);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
