@@ -24,17 +24,23 @@ public class PartitionedWorkload<T> extends ReaderWorkload<T> {
 	
 	@Override
 	public void setup() {
-		for(User<T> user : users) {
+		for(final User<T> user : users) {
 			int part = graph.getNode(user.getID()).getPart();
-			Machine m = Machine.getMachine(part);
-			WebReader wr = WebReader.create(m, user);
+			final Machine m = Machine.getMachine(part);
+			final WebReader wr = WebReader.create(m, user);
 			try {
-				wr.init();
+				new Thread( new Runnable() { public void run() {
+					try {
+						wr.init();
+						wr.execute();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}}).start();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			runners.add(wr);
 		}
 	}
-
 }
