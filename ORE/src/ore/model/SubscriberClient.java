@@ -2,6 +2,8 @@ package ore.model;
 
 import java.util.Set;
 
+import ore.client.User;
+
 public class SubscriberClient implements Notifiable {
 	private Server server;
 	private User user;
@@ -15,7 +17,8 @@ public class SubscriberClient implements Notifiable {
 	}
 	
 	public Set<DataObject> getInterests() {
-		return user.getInterests();
+		return null;
+		
 	}
 	
 	public void notify(DataObject dataObject) {

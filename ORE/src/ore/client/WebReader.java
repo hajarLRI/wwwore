@@ -28,8 +28,27 @@ public class WebReader implements Runnable {
 		stop = true;
 		machine.stopMe(sessionID);
 	}
+	
+	public static WebReader create(Machine machine, User user) {
+		if(!Config.mock) {
+			return new WebReader(machine, user);
+		} else {
+			return new MockWebReader(machine, user);
+		}
+	}
+	
+	private static class MockWebReader extends WebReader {
+		public MockWebReader(Machine machine, User user) {
+			super(machine, user);
+		}
+		
+		@Override
+		public void run() {
+			
+		}
+	}
 
-	public WebReader(Machine machine, User user) {
+	private WebReader(Machine machine, User user) {
 		this.machine = machine;
 		this.user = user;
 	}
@@ -122,7 +141,7 @@ public class WebReader implements Runnable {
 			return;
 		}
 		// Step 3
-		GetMethod response = null;
+		StreamingResponse response = null;
 		while(!stop) {
 			try {
 				response = machine.receiveMessagesStreaming(sessionID, redirect);

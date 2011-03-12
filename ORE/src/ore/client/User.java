@@ -35,15 +35,23 @@ public class User<T> implements Serializable, Comparable<User<T>> {
 	public void setPartition(int partition) {
 		this.partition = partition;
 	}
+	
+	private static Map<Integer, User> users = new HashMap<Integer, User>();
 
+	public static User getUser(Integer id) {
+		return users.get(id);
+	}
+	
 	public User(int id) {
 		this.id = id;
+		users.put(id, this);
 	}
 	
 	public User() {
 		synchronized(User.class) {
 			this.id = (idCounter++);
 		}
+		users.put(id, this);
 	}
 	
 	public int getID() {

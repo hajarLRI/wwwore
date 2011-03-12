@@ -58,7 +58,7 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 		wr.stop();
 		runners.remove(wr);
 		User u = wr.getUser();
-		wr = new WebReader(Machine.getRandomMachine(), u);
+		wr = WebReader.create(Machine.getRandomMachine(), u);
 		runners.add(wr);
 		wr.init();
 		Thread t = new Thread(wr);
@@ -79,7 +79,7 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 	}
 	
 	public void addUser(User<Integer> u, int mostRelated) throws Exception {
-		WebReader wr = new WebReader(Machine.getMachine(mostRelated), u);
+		WebReader wr = WebReader.create(Machine.getMachine(mostRelated), u);
 		runners.add(wr);
 		wr.init();
 		Thread t = new Thread(wr);
@@ -102,7 +102,7 @@ public class ReaderWorkload<T> implements WorkloadInitializer {
 		Iterator<Machine> it = Machine.machines.iterator();
 		Machine machine = it.next();
 		for(User user : users) {
-			WebReader runner = new WebReader(machine, user);
+			WebReader runner = WebReader.create(machine, user);
 			System.out.println("User " + user.getID() + ", assigned to machine " + machine.getUrlPrefix());
 			runners.add(runner);
 			try {

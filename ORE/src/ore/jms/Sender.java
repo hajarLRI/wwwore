@@ -50,7 +50,7 @@ public class Sender {
 		}
 		final String helloString = hello.toString();
 		
-		for(int i=0;i < 1000; i++) {
+		for(int i=0;i < 30; i++) {
 			Thread t = new Thread(new Runnable() {
 				public void run() {
 					try {
@@ -58,13 +58,19 @@ public class Sender {
 						Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 						final Queue msgChannel = session.createQueue("topic");
 						while(true) {
-						//	Thread.sleep(10);
+							long time = System.currentTimeMillis();
 							TextMessage message = null;
 							message = session.createTextMessage(helloString);
 							MessageProducer producer = session.createProducer(msgChannel);
 							producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 							producer.send(message);
 							producer.close();
+							long elapsed = System.currentTimeMillis() - time;
+							if(elapsed < 100)  {
+								Thread.sleep(100 - elapsed);
+							} else {
+								System.out.println("Missed deadline");
+							}
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

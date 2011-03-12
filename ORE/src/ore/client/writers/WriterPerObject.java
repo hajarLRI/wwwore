@@ -17,8 +17,7 @@ public class WriterPerObject implements WriterWorkload {
 	
 	public void run()  {
 		for (int i = 0; i < numObjects; i++) {
-			HttpClient client = Machine.createClient();
-			Thread thread = new Thread(new Running(i, client));
+			Thread thread = new Thread(new Running(i));
 			try {
 				Thread.sleep(50);
 			} catch (InterruptedException e) {
@@ -31,54 +30,26 @@ public class WriterPerObject implements WriterWorkload {
 
 	static class Running implements Runnable {
 		private int id;
-		private HttpClient client;
-
-		public Running(int id, HttpClient client) {
+		private Machine machine;
+		
+		public Running(int id) {
 			this.id = id;
-			this.client = client;
-		}
-
-		private String getAddress() {
-			String st = null;
-			int numOfMachines = 0;
-			double chunkSize = 0.0;
-			try {
-				numOfMachines = Config.IPs.length;
-				chunkSize = Math.ceil(Config.num / numOfMachines) + 1;
-				double position = id / chunkSize;
-				int index = (int) position;
-				st = "http://" + Config.IPs[index] + ':'
-						+ Config.httpPorts[index] + '/' + Config.PROJECT;
-			} catch (Exception e) {
-				System.err.println("hello" + Config.num + "   " + numOfMachines
-						+ "   " + chunkSize + "   " + id);
-			}
-			return st;
+			machine = Machine.getMachine(id % Machine.getNumMachines());
 		}
 
 		public void run() {
-			GetMethod method_tmp = null;
 			long st = System.currentTimeMillis();
 			boolean start = false;
 			while (true) {
 				try {
 					long insertTime = System.currentTimeMillis();
-
 					if (id == (Config.num - 1)) {
 						start = true;
 						// System.err.println(num+" Writers created");
 					}
 					// System.out.println("Write: " + id + ", to ");
-					getAddress();
-
-					method_tmp = Machine.makeMethod(getAddress() + "/chat",
-							"none", "operation", "chat", "roomName", id,
-							"userName", id, "message", insertTime);
-
-					client.executeMethod(method_tmp);
-
-					// method_tmp.releaseConnection();
-					// client.getHttpConnectionManager().closeIdleConnections(0);
+					
+					machine.sendChat(id+"", id, insertTime);
 
 					synchronized (WriterPerObject.class) {
 						if (start) {
@@ -92,10 +63,7 @@ public class WriterPerObject implements WriterWorkload {
 					Thread.sleep(1000);
 				} catch (Exception e) {
 					e.printStackTrace();
-				} finally {
-					method_tmp.releaseConnection();
-					client.getHttpConnectionManager().closeIdleConnections(0);
-				}
+				} 
 			}
 		}
 	}
