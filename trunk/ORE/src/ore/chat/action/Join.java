@@ -24,26 +24,26 @@ public class Join extends Action {
 			String roomNamesString = getRequiredParameter(request, ROOM_NAME);
 			String[] roomNames = roomNamesString.split("_");
 			String userName = getRequiredParameter(request, USER_NAME);	
-			User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
-			if(user == null) {
-				user = new User(userName);
-				session.saveOrUpdate(user);
-			}
+			//User user = (User) session.createQuery("from User WHERE userName='" + userName + "'").uniqueResult();
+			//if(user == null) {
+			//	user = new User(userName);
+			//	session.saveOrUpdate(user);
+			//}
 
 			for(String roomName : roomNames) {
 				LogMan.info("User " + CookieFilter.getSessionID() + " joined room " + roomName);
 				ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
-				Set<ChatSession> rooms = user.getRooms();
-				if(rooms != null) {
-					rooms.clear();
-				}
-				room.userJoined(user);
+				//Set<ChatSession> rooms = user.getRooms();
+				//if(rooms != null) {
+				//	rooms.clear();
+				//}
+				//room.userJoined(user);
 				MessageListener m = new MessageListener();
 				//UsersListener u = new UsersListener();
-				ORE.addCollectionChangeListener(user.getUserName(), room, "messages", m);
+				ORE.addCollectionChangeListener(userName, room, "messages", m);
 				//ORE.addCollectionChangeListener(room, "currentUsers", u);
 				pw.print(room.toJSON(session));
-				session.saveOrUpdate(room);
+				//session.saveOrUpdate(room);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
