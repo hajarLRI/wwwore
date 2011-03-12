@@ -30,7 +30,10 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	
 	public static Hypergraph<Integer, Integer> generateKleinberg(int latticeSize, double clusteringExponent) {
 		Graph<Integer, Integer> graph = JungUtil.generateKleinberg(latticeSize, clusteringExponent);
-		return fromJUNG(graph);
+		System.out.println("Foo");
+		Hypergraph<Integer, Integer> g = fromJUNG(graph);
+		System.out.println("Bar");
+		return g;
 	}
 	
 	public static <N> Hypergraph<N, N> fromJUNG(edu.uci.ics.jung.graph.Graph<N, N> jung) {
