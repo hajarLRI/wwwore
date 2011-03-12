@@ -38,8 +38,7 @@ public class WebReader implements Runnable {
 	}
 	
 	public void execute() {
-		Thread thread = new Thread(this);
-		thread.start();
+		run();
 	}
 	
 	private static class MockWebReader extends WebReader {
