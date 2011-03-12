@@ -29,7 +29,6 @@ public abstract class Subscription {
 	}
 
 	protected void dispatch(String data, Event event) throws BrokenCometException, JMSException {
-		ClusterManager.getInstance().publish("", data, key);
 		print(data);
 	}
 	

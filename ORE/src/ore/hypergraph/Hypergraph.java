@@ -202,13 +202,31 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 		pw.println("}");
 	}
 	
+	public void toCytoscape(PrintWriter pw) {
+		pw.println("<?xml version='1.0'?><graph id='graph' label='graph' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:ns1='http://www.w3.org/1999/xlink' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns='http://www.cs.rpi.edu/XGMML'>");
+		for(HyperEdge<E, N> edge : edges.values()) {
+			pw.println("<node id='o" + edge.getData().toString() + "' label='o" + edge.getData().toString() + "'/>");	
+		}
+		for(Partition p : parts.values()) {
+			p.toCytoscape(pw);
+		}
+		//for(HyperNode<N, E> node : nodes.values()) {
+		//	pw.println("u" + node.getData().toString() + " [shape=ellipse];");	
+		//}
+		for(HyperEdge<E, N> edge : edges.values()) {
+			edge.toCytoscape(pw);
+		}
+		
+		pw.println("</graph>");
+	}
+	
 	public static void main(String[] args) throws Exception {
-		Hypergraph hg = Hypergraph.generateKleinberg(5, 24);
+		Hypergraph hg = Hypergraph.generateKleinberg(20, 24);
 		System.out.println(hg.getNumOfNodes());
 		System.out.println(hg.getNumOfEdges());
 		HMetis.shmetis(hg, 5, 5);
-		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.out"));
-		hg.toDot(pw);
+		PrintWriter pw = new PrintWriter(new FileOutputStream("C:/Temp/dot.xgmml"));
+		hg.toCytoscape(pw);
 		pw.close();
 	}
 

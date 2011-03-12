@@ -102,8 +102,7 @@ public class ClusterManager {
 				try {
 					sub.print(msg);
 				} catch (BrokenCometException e) {
-					//TODO Jetty specific problem
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 			}
 		}
@@ -180,6 +179,10 @@ public class ClusterManager {
 				peers.add(p.getHost());
 			}
 			for(Peer p : peers) {
+				if(p == self) {
+					System.out.println("bad mesg");
+					System.exit(0);
+				}
 				p.sendMessage(key, user, "msg", self.getIP(), data);
 				synchronized(this) {
 					totalSend++;

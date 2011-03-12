@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.jms.Connection;
+import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
@@ -21,6 +21,8 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 public class Peer {
 	private String ip;
 	private ActiveMQConnectionFactory connectionFactory;
+	private Connection connection;
+	private Session session;
 	private CountingMap interest = new CountingMap(true);
 	
 	public void inc(Subscriber s) {
@@ -74,13 +76,11 @@ public class Peer {
 		//int userId = Integer.parseInt(user);
 		MessageProducer producer = null;
 		try {
-			Connection connection = connectionFactory.createConnection();
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			TextMessage message = createMessage(session, operation, k.toString(), 0, from, msg);
 			Topic msgChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
 			producer = session.createProducer(msgChannel);
+			producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 			producer.send(message);
-			connection.close();
 		} catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -89,16 +89,14 @@ public class Peer {
 	public void start() throws JMSException {
 		LogMan.info("start("+")");
 		connectionFactory = new ActiveMQConnectionFactory("vm:(broker:(tcp://"+ip+"))");
-		Connection connection = connectionFactory.createConnection();
-		for(int i=0;i < 10;i++) {
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			Queue subscriptionChannel = session.createQueue("sub" + ip.replace('.', 'x').replace(':', 'y'));
-			//Topic messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
-			MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
-			consumer.setMessageListener(new SubscriptionListener());
-			//MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
-			//consumer2.setMessageListener(new PublicationListener()); 
-		}
+		connection = connectionFactory.createConnection();
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Topic subscriptionChannel = session.createTopic("sub" + ip.replace('.', 'x').replace(':', 'y'));
+		//Topic messageChannel = session.createTopic("msg" + ip.replace('.', 'x').replace(':', 'y'));
+		MessageConsumer consumer = session.createConsumer(subscriptionChannel, null, true);
+		consumer.setMessageListener(new SubscriptionListener());
+		//MessageConsumer consumer2 = session.createConsumer(messageChannel, null, true);
+		//consumer2.setMessageListener(new PublicationListener()); 
 		connection.start();
 	}
 	
@@ -108,6 +106,7 @@ public class Peer {
 		while(!done) {
 			try {
 				connectionFactory = new ActiveMQConnectionFactory("tcp://"+ip);
+				connection = connectionFactory.createConnection();
 				done = true;
 			} catch (Exception e ) {
 				System.out.print("Connection is null");
@@ -118,6 +117,7 @@ public class Peer {
 				}
 			}
 		}
+		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 	}
 	
 	private TextMessage createMessage(Session session, String operation, String key, int user, String from, String msg) throws JMSException {

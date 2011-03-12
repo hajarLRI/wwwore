@@ -56,4 +56,10 @@ public class HyperNode<T, E> {
 	public void toDot(PrintWriter pw) {
 		pw.println("u" + getData().toString() + " [shape=ellipse];");	
 	}
+	
+	public void toCytoscape(Integer i, PrintWriter pw) {
+		pw.println("<node id='u" + getData().toString() + "' label='u" + getData().toString() + "'>");	
+		pw.println("<att type='string' name='node.label' value='" + i + "'/>");
+		pw.println("</node>");
+	}
 }
