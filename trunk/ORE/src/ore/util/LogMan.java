@@ -24,7 +24,7 @@ public class LogMan {
 	
 	public static void info(String str) {
 		//getInstance().logger.info(str);
-		System.out.println(str);
+		//System.out.println(str);
 	}
 	
 	public static void error(String str) {
@@ -33,7 +33,7 @@ public class LogMan {
 	
 	public static void trace(String str) {
 		//getInstance().logger.trace(str);
-		System.out.println(str);
+		//System.out.println(str);
 	}
 	
 	public static void internal(String str) {
