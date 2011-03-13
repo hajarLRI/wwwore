@@ -4,12 +4,10 @@ import static ore.util.JSONUtil.quote;
 import static ore.util.JSONUtil.toJSONArray;
 import static ore.util.JSONUtil.toJSONObject;
 
-import java.math.BigInteger;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 
-import ore.chat.servlet.ChatServlet;
 import ore.event.EventManager;
 import ore.exception.BrokenCometException;
 
@@ -68,10 +66,10 @@ public class ChatSession {
 
 	
 	public String toJSON(Session s) {
-		List newMessages = s.createFilter(this.getMessages(), "").setMaxResults(10).list();
+		//List newMessages = s.createFilter(this.getMessages(), "").setMaxResults(10).list();
 		return toJSONObject("type", quote("room"), 
 							"name",	quote(roomName),
-							"messages", toJSONArray(newMessages),
+							"messages", toJSONArray(new LinkedList()),
 							"users", toJSONArray(currentUsers));
 	}
 }
