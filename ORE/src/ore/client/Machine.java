@@ -30,6 +30,8 @@ public class Machine implements Runnable {
 			Machine m = null;
 			if(Config.mock) {
 				m = new MockMachine(ips[i], ports[i], jmsPorts[i]);
+			} else if(Config.jms) {
+				m = new JMSMachine(ips[i], ports[i], jmsPorts[i]);
 			} else {
 				m = new Machine(ips[i], ports[i], jmsPorts[i]);
 			}
@@ -94,14 +96,14 @@ public class Machine implements Runnable {
 				}
 				num++;
 			}
-			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP, "mode", Config.mode, "longPolling", Config.longPolling);
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "selfIP", ip + '~' + jmsPort, "peerIP", peerIP, "mode", Config.mode, "longPolling", Config.longPolling, "clientIP", Config.clientJMS);
 			try {
 				System.out.println(method.getURI().toString());
 			} catch (URIException e) {
 				e.printStackTrace();
 			}
 		} else {
-			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "mode", Config.mode);
+			method = makeMethod(getUrlPrefix() + "/clusterStart", "none", "mode", Config.mode, "clientIP", Config.clientJMS);
 		}
 		
 		try {
