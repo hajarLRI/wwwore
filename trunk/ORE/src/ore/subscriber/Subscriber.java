@@ -30,8 +30,8 @@ import org.json.JSONArray;
  */
 public class Subscriber {
 	private Continuation c;
-	private String id;
-	private ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
+	protected String id;
+	protected ConcurrentLinkedQueue<String> buffer = new ConcurrentLinkedQueue<String>();
 	private static Map<String, String> map = new HashMap<String, String>();
 	static {
 		map.put("61616", "8080");
@@ -41,16 +41,26 @@ public class Subscriber {
 	
 	private List<Subscription> subs = new LinkedList<Subscription>();
 	
-	
-	public Subscriber(String sessionID, JSONArray digest) throws Exception {
-		this(sessionID);
-		for(int i=0;i < digest.length();i++) {
-			String key = digest.getString(i);
-			Key k = Key.parse(key);
-			addCollectionChangeListener(this.id	, k.getClassName(), k.getId(), k.getProperty(), new MessageListener());
+	public static Subscriber create(String sessionID, JSONArray digest) throws Exception {
+		if(ClusterStart.clientIP != null) {
+			return new JMSSubscriber(sessionID, digest);
+		} else {
+			return new Subscriber(sessionID, digest);
 		}
 	}
-	
+
+	protected Subscriber(String sessionID, JSONArray digest) throws Exception {
+		this.id = sessionID;
+		LogMan.info("New subscriber: " + id);
+		if(digest != null) {
+			for(int i=0;i < digest.length();i++) {
+				String key = digest.getString(i);
+				Key k = Key.parse(key);
+				addCollectionChangeListener(this.id	, k.getClassName(), k.getId(), k.getProperty(), new MessageListener());
+			}
+		}
+	}
+
 	private void close() throws IOException {
 		if(isSuspended()) {
 			LogMan.info("Subscriber " + id + " got pushed");
@@ -110,14 +120,6 @@ public class Subscriber {
 	 */
 	Continuation getContinuation() {
 		return c;
-	}
-	
-	/** Make a new Subscriber with the given sessionID
-	 * @param 	id 	The sessionID of the new Subscriber
-	 */
-	Subscriber(String id) {
-		this.id = id;
-		LogMan.info("New subscriber: " + id);
 	}
 	
 	public String getID() {

@@ -18,6 +18,31 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 
 public class JungUtil {
+	public static Graph<Integer, Integer> generateErdosRenyi(int nodeSize, double p) {
+		return new KleinbergSmallWorldGenerator(new org.apache.commons.collections15.Factory<Graph<Integer,Integer>>() {
+			@Override
+			public Graph<Integer, Integer> create() {
+				return new UndirectedSparseGraph();
+			}
+		}, 
+		new org.apache.commons.collections15.Factory<Integer>() {
+			private int count = 0;
+			@Override
+			public Integer create() {
+				return (count++);
+			}
+			
+		}, 
+		new org.apache.commons.collections15.Factory<Integer>() {
+			private int count = 0;
+			@Override
+			public Integer create() {
+				return count++;
+			}
+		}, 
+		nodeSize, p).create();
+	}
+	
 	public static Graph<Integer, Integer> generateKleinberg(int rowSize, int columnSize, boolean isToroidal, double clusteringExponent) {
 		return new KleinbergSmallWorldGenerator(new org.apache.commons.collections15.Factory<Graph<Integer,Integer>>() {
 			@Override

@@ -30,9 +30,13 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	
 	public static Hypergraph<Integer, Integer> generateKleinberg(int rowSize, int columnSize, boolean isToroidal, double clusteringExponent) {
 		Graph<Integer, Integer> graph = JungUtil.generateKleinberg(rowSize, columnSize, isToroidal, clusteringExponent);
-		System.out.println("Foo");
 		Hypergraph<Integer, Integer> g = fromJUNG(graph);
-		System.out.println("Bar");
+		return g;
+	}
+	
+	public static Hypergraph<Integer, Integer> generateErdosRenyi(int nodeSize, double p) {
+		Graph<Integer, Integer> graph = JungUtil.generateErdosRenyi(nodeSize, p);
+		Hypergraph<Integer, Integer> g = fromJUNG(graph);
 		return g;
 	}
 	

@@ -40,4 +40,10 @@ public class Config {
 	
 	public static long cometBackoff = 100;
 	public static long writerSleep = 1000;
+	
+	public static int nodeSize = 100;
+	public static double p = .5;
+	
+	public static boolean jms = true;
+	public static String clientJMS = "localhost:61615";
 }

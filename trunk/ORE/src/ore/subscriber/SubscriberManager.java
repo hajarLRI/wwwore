@@ -54,12 +54,13 @@ public class SubscriberManager {
 	
 	/**
 	 * Factory method to create a new {@link Subscriber} with a fresh sessionID
+	 * @throws Exception 
 	 */
-	public String newSubscriber() {
+	public String newSubscriber() throws Exception {
 		//TODO This is an error-prone strategy for creating sessionIDs
 		int sessionIDNum = id++;
 		String sessionID = sessionIDNum + "";
-		Subscriber subscriber = new Subscriber(sessionID);
+		Subscriber subscriber = Subscriber.create(sessionID, null);
 		subscribers.put(sessionID, subscriber);
 		return sessionID;
 	}

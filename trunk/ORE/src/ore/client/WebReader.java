@@ -112,7 +112,7 @@ public class WebReader implements Runnable {
 				System.out.println("Avg: " + Config.avg / Config.readerResponses );
 				System.out.println("Throughput: " + Config.readerResponses/(double) ((receiveTime - Config.startTime)/(double) 1000));
 			} else {
-				if (Config.readerResponses > 5000) {
+				if (Config.readerResponses > 10) {
 					Config.timerFlag = true;
 					Config.readerResponses = 0;
 					Config.startTime = System.currentTimeMillis();
@@ -145,10 +145,10 @@ public class WebReader implements Runnable {
 	}
 	
 	public void run() {
-		if(Config.longPolling) {
+		if(Config.longPolling || Config.jms) {
 			runLongPolling();
 			return;
-		}
+		} 
 		// Step 3
 		StreamingResponse response = null;
 		while(!stop) {
@@ -166,7 +166,9 @@ public class WebReader implements Runnable {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				response.releaseConnection();
+				if(response != null) {
+					response.releaseConnection();
+				}
 			}
 		}
 	
