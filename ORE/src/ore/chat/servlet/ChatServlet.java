@@ -72,8 +72,8 @@ public class ChatServlet extends HttpServlet {
 	protected  void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		while(!init);
 		String operation = getParameter(OPERATION, request);
-		Session session = factory.openSession();
-		Transaction tx = session.beginTransaction();
+		//Session session = factory.openSession();
+		//Transaction tx = session.beginTransaction();
 		response.setContentType("application/json");
 		/*String login = request.getParameter("login");
 		if(login != null) {
@@ -85,12 +85,12 @@ public class ChatServlet extends HttpServlet {
 		Action action = actions.get(operation);
 		PrintWriter pw = response.getWriter();
 		if(action != null) {
-			action.service(session, request, pw);
+			action.service(null, request, pw);
 		}
-		tx.commit();
-		session.flush();
-		session.clear();
-		session.close();
+		//tx.commit();
+		//session.flush();
+		//session.clear();
+		//session.close();
 	}
 	
 	private String getParameter(String p, HttpServletRequest request) {
