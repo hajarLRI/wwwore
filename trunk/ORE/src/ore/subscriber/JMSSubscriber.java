@@ -15,17 +15,17 @@ import org.json.JSONArray;
 
 public class JMSSubscriber extends Subscriber {
 	Connection connection;
-	Session session;
 	
 	
 	public JMSSubscriber(String id, JSONArray digest) throws Exception {
 		super(id, digest);
 		connection = ClusterStart.connectionFactory.createConnection();
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		
 	}
 	
 	public synchronized void print(String data) throws BrokenCometException {
 		try {
+			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 			LogMan.info("Subscriber " + id + " got pushed");
 			final Topic msgChannel = session.createTopic("topic" + id);
 			TextMessage message = session.createTextMessage("[" + data + "]");
