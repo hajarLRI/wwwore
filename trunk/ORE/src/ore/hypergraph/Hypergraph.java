@@ -221,7 +221,7 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Hypergraph hg = Hypergraph.generateKleinberg(20, 5, true, 24);
+		Hypergraph hg = Hypergraph.generateKleinberg(50, 2, true, 24);
 		System.out.println(hg.getNumOfNodes());
 		System.out.println(hg.getNumOfEdges());
 		HMetis.shmetis(hg, 5, 5);
