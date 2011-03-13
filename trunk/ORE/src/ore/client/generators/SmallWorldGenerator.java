@@ -9,6 +9,6 @@ public class SmallWorldGenerator implements WorkloadGenerator {
 	
 	@Override
 	public List generate() {
-		return Hypergraph.generateKleinberg(Config.latticeSize, Config.clusteringExponent).generate();
+		return Hypergraph.generateKleinberg(Config.rowSize, Config.columnSize, Config.isToroidal, Config.clusteringExponent).generate();
 	}
 }

@@ -28,8 +28,8 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 		return fromJUNG(graph);
 	}
 	
-	public static Hypergraph<Integer, Integer> generateKleinberg(int latticeSize, double clusteringExponent) {
-		Graph<Integer, Integer> graph = JungUtil.generateKleinberg(latticeSize, clusteringExponent);
+	public static Hypergraph<Integer, Integer> generateKleinberg(int rowSize, int columnSize, boolean isToroidal, double clusteringExponent) {
+		Graph<Integer, Integer> graph = JungUtil.generateKleinberg(rowSize, columnSize, isToroidal, clusteringExponent);
 		System.out.println("Foo");
 		Hypergraph<Integer, Integer> g = fromJUNG(graph);
 		System.out.println("Bar");
@@ -221,7 +221,7 @@ public class Hypergraph<N, E> implements WorkloadGenerator<E>{
 	}
 	
 	public static void main(String[] args) throws Exception {
-		Hypergraph hg = Hypergraph.generateKleinberg(20, 24);
+		Hypergraph hg = Hypergraph.generateKleinberg(20, 5, true, 24);
 		System.out.println(hg.getNumOfNodes());
 		System.out.println(hg.getNumOfEdges());
 		HMetis.shmetis(hg, 5, 5);
