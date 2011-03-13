@@ -170,7 +170,7 @@ public class Subscriber {
 				}
 			} 
 		} catch(Exception e) {
-			throw new BrokenCometException(this, e);
+			System.out.println(e.getMessage());
 		}
 	}
 	

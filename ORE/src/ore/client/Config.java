@@ -33,8 +33,10 @@ public class Config {
 	public static int powerLawiterations = 50;
 	public static int ubFactor = 5;
 	
-	public static int latticeSize = 5;
+	public static int rowSize = 5;
+	public static int columnSize = 5;
 	public static double clusteringExponent = 20;
+	public static boolean isToroidal = true;
 	
 	public static long cometBackoff = 100;
 	public static long writerSleep = 1000;

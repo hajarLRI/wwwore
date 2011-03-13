@@ -18,7 +18,7 @@ import edu.uci.ics.jung.visualization.control.ModalGraphMouse;
 import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 
 public class JungUtil {
-	public static Graph<Integer, Integer> generateKleinberg(int latticeSize, double clusteringExponent) {
+	public static Graph<Integer, Integer> generateKleinberg(int rowSize, int columnSize, boolean isToroidal, double clusteringExponent) {
 		return new KleinbergSmallWorldGenerator(new org.apache.commons.collections15.Factory<Graph<Integer,Integer>>() {
 			@Override
 			public Graph<Integer, Integer> create() {
@@ -40,8 +40,8 @@ public class JungUtil {
 				return count++;
 			}
 		}, 
-		latticeSize, 
-		clusteringExponent).create();
+		rowSize, columnSize, 
+		clusteringExponent, isToroidal).create();
 	}
 	
 	public static Graph<Integer, Integer> generatePowerLaw(int numVertices, int numEdges, int r) {
