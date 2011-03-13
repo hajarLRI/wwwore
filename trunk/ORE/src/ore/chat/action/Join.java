@@ -3,13 +3,12 @@ package ore.chat.action;
 import static ore.util.HTTPServletUtil.getRequiredParameter;
 
 import java.io.PrintWriter;
-import java.util.Set;
+import java.util.HashSet;
 
 import javax.servlet.http.HttpServletRequest;
 
 import ore.api.ORE;
 import ore.chat.entity.ChatSession;
-import ore.chat.entity.User;
 import ore.chat.event.MessageListener;
 import ore.servlet.CookieFilter;
 import ore.util.LogMan;
@@ -32,7 +31,11 @@ public class Join extends Action {
 
 			for(String roomName : roomNames) {
 				LogMan.info("User " + CookieFilter.getSessionID() + " joined room " + roomName);
-				ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
+				//ChatSession room = (ChatSession) session.get(ChatSession.class, roomName);
+				ChatSession room = new ChatSession();
+				room.setCurrentUsers(new HashSet());
+				room.setMessages(new HashSet());
+				room.setRoomName(roomName);
 				//Set<ChatSession> rooms = user.getRooms();
 				//if(rooms != null) {
 				//	rooms.clear();
