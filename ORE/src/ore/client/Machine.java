@@ -267,8 +267,8 @@ public class Machine implements Runnable {
 	static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 	static {
 		HttpConnectionManagerParams params = new HttpConnectionManagerParams();
-		params.setDefaultMaxConnectionsPerHost(5000);	        
-    	params.setMaxTotalConnections(10000);
+		params.setDefaultMaxConnectionsPerHost(500000);	        
+    	params.setMaxTotalConnections(5000000);
     	connectionManager.setParams(params); 
 	}
 	
