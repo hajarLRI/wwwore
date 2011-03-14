@@ -20,7 +20,6 @@ public class JMSSubscriber extends Subscriber {
 	public JMSSubscriber(String id, JSONArray digest) throws Exception {
 		super(id, digest);
 		connection = ClusterStart.connectionFactory.createConnection();
-		
 	}
 	
 	public synchronized void print(String data) throws BrokenCometException {

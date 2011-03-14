@@ -28,7 +28,7 @@ public class ClusterStart extends HttpServlet {
 			String selfIP = request.getParameter("selfIP");
 			String peerIP = request.getParameter("peerIP");
 			clientIP = request.getParameter("clientIP");
-			if(clientIP != null) {
+			if((clientIP != null) && !clientIP.equals("null")){
 				boolean done = false;
 				while(!done) {
 					try {
